@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../store.jsx';
-import { GAME_META } from './Lobby.jsx';
+import { ArrowLeft, Pencil, Link, Keyboard, Trash2, Eye, Check } from 'lucide-react';
+import { GAME_META, GameIcon } from './Lobby.jsx';
 import Modal from './Modal.jsx';
 import XiangqiGame from '../games/XiangqiGame.jsx';
 import PokerGame from '../games/PokerGame.jsx';
@@ -52,16 +53,19 @@ export default function RoomView() {
     e.preventDefault();
     if (await call('room:rename', { name })) setEditing(false);
   };
+  const [copied, setCopied] = useState(false);
   const copyLink = () => {
     navigator.clipboard?.writeText(location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
     <div className="room">
       <div className="room-head">
-        <button className="btn ghost" onClick={leave}>← Rời phòng</button>
+        <button className="btn ghost room-back" onClick={leave} aria-label="Rời phòng"><ArrowLeft size={18} aria-hidden /><span className="hide-sm">Rời phòng</span></button>
         <div className="room-title">
-          <span className="gicon">{GAME_META[room.game].icon}</span>
+          <span className={`gicon g-${room.game}`}><GameIcon game={room.game} size={20} /></span>
           {editing ? (
             <form onSubmit={saveName} className="inline-form">
               <input autoFocus maxLength={40} value={name} onChange={(e) => setName(e.target.value)} />
@@ -70,17 +74,21 @@ export default function RoomView() {
             </form>
           ) : (
             <>
-              <h2>{room.name}</h2>
-              {isOwner && <button className="icon-btn" title="Đổi tên phòng" onClick={() => { setName(room.name); setEditing(true); }}>✎</button>}
+              <div className="room-name">
+                <h2 title={room.name}>{room.name}</h2>
+                <span className="muted small room-sub">{GAME_META[room.game].name} · #{room.id}</span>
+              </div>
+              {isOwner && <button className="icon-btn" title="Đổi tên phòng" aria-label="Đổi tên phòng" onClick={() => { setName(room.name); setEditing(true); }}><Pencil size={16} aria-hidden /></button>}
             </>
           )}
-          <span className="muted small">#{room.id} · {GAME_META[room.game].name}</span>
-          {me?.role === 'spectator' && <span className="badge watching">👁 Đang xem</span>}
+          {me?.role === 'spectator' && <span className="badge watching"><Eye size={12} aria-hidden />&nbsp;Đang xem</span>}
         </div>
-        <div className="row">
-          <button className="btn ghost sm" onClick={copyLink} title="Sao chép link phòng">🔗 Link</button>
-          <button className="btn ghost sm" onClick={() => setHelp(true)} title="Phím tắt (?)">⌨ Phím tắt</button>
-          {isOwner && <button className="btn danger sm" onClick={del}>Xóa phòng</button>}
+        <div className="room-actions">
+          <button className="btn ghost sm" onClick={copyLink} title="Sao chép link phòng" aria-label="Sao chép link phòng">
+            {copied ? <Check size={16} aria-hidden /> : <Link size={16} aria-hidden />}<span className="hide-sm">{copied ? 'Đã chép' : 'Link'}</span>
+          </button>
+          <button className="btn ghost sm only-kbd" onClick={() => setHelp(true)} title="Phím tắt (?)" aria-label="Phím tắt"><Keyboard size={16} aria-hidden /><span className="hide-sm">Phím tắt</span></button>
+          {isOwner && <button className="btn danger sm" onClick={del} aria-label="Xóa phòng"><Trash2 size={16} aria-hidden /><span className="hide-sm">Xóa phòng</span></button>}
         </div>
       </div>
       <div className="room-body">

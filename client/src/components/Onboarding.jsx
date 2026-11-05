@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Dices, Lock, UserRound, Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../store.jsx';
 import { AUTH_ERRORS, storage } from '../socket.js';
 
@@ -20,7 +21,9 @@ export default function Onboarding() {
   return (
     <div className="onboard">
       <div className={`onboard-card ${loading && !showLoader ? 'hidden' : ''}`} aria-busy={loading}>
-        <div className="onboard-logo" aria-hidden>🎲</div>
+        <div className="onboard-logo" aria-hidden>
+          {phase === 'name' ? <UserRound size={28} /> : phase === 'auth' || phase === 'checking' ? <Lock size={26} /> : <Dices size={28} />}
+        </div>
         {loading ? <Connecting /> : phase === 'name' ? <NameStep /> : <PasswordStep />}
       </div>
     </div>
@@ -40,6 +43,7 @@ function Connecting() {
 function PasswordStep() {
   const { authError, login, phase } = useApp();
   const [pw, setPw] = useState('');
+  const [show, setShow] = useState(false);
   const ref = useRef(null);
   const checking = phase === 'checking';
   const locked = authError === 'AUTH_LOCKED';
@@ -55,9 +59,15 @@ function PasswordStep() {
     <form className="onboard-body form" onSubmit={submit}>
       <h2>Nhập mật khẩu</h2>
       <p className="muted small">Mỗi server có sảnh và phòng chơi riêng — nhập mật khẩu của server bạn muốn vào.</p>
-      <input ref={ref} type="password" autoFocus autoComplete="current-password" value={pw} aria-invalid={!!error}
-        onChange={(e) => setPw(e.target.value)} placeholder="Mật khẩu" readOnly={checking} />
-      <div className="onboard-msg" role="alert">{error && <span className="error-text">{error}</span>}</div>
+      <label className="sr-only" htmlFor="pw">Mật khẩu</label>
+      <div className="pw-field">
+        <input id="pw" ref={ref} type={show ? 'text' : 'password'} name="password" autoFocus autoComplete="current-password" value={pw}
+          aria-invalid={!!error} aria-describedby="pw-msg" onChange={(e) => setPw(e.target.value)} placeholder="Mật khẩu" readOnly={checking} />
+        <button type="button" className="pw-toggle" onClick={() => setShow((v) => !v)} aria-label={show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} aria-pressed={show}>
+          {show ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
+        </button>
+      </div>
+      <div className="onboard-msg" id="pw-msg" role="alert">{error && <span className="error-text">{error}</span>}</div>
       <button className="btn primary lg block" disabled={!pw || locked || checking}>
         {checking ? <><span className="spinner" /> Đang kiểm tra…</> : 'Tiếp tục'}
       </button>
@@ -86,7 +96,8 @@ function NameStep() {
     <form className="onboard-body form" onSubmit={submit}>
       <h2>Bạn tên gì?</h2>
       <p className="muted small">Tên hiển thị với mọi người trong phòng. Đổi lại được bất cứ lúc nào.</p>
-      <input autoFocus maxLength={24} value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên hiển thị" readOnly={busy} />
+      <label className="sr-only" htmlFor="nick">Tên hiển thị</label>
+      <input id="nick" autoFocus maxLength={24} autoComplete="nickname" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên hiển thị" readOnly={busy} />
       <div className="onboard-msg" />
       <button className="btn primary lg block" disabled={busy || !name.trim() || !connected}>
         {busy ? <><span className="spinner" /> Đang vào sảnh…</> : 'Vào sảnh'}

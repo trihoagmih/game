@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Check, Flag, RotateCcw, ThumbsDown } from 'lucide-react';
 import { useApp } from '../store.jsx';
 import { useCountdown } from '../hooks.js';
 
@@ -68,7 +69,7 @@ export default function WordChainGame({ room, state: s }) {
               {canObject && (
                 <button className={`btn sm ${objected ? 'danger' : ''}`} onClick={() => act({ type: 'object' })}
                   title="Từ vô nghĩa? Quá nửa số người còn lại phản đối thì từ bị gỡ">
-                  ❌ {objected ? 'Rút phản đối' : `"${last.text}" vô nghĩa`} ({g.objections.length}/{g.objectionsNeeded})
+                  <ThumbsDown size={16} aria-hidden /> {objected ? 'Rút phản đối' : `"${last.text}" vô nghĩa`} ({g.objections.length}/{g.objectionsNeeded})
                 </button>
               )}
               {!canObject && playing && last && g.objections.length > 0 && (
@@ -89,11 +90,11 @@ export default function WordChainGame({ room, state: s }) {
               {!playing && (
                 <button className={`btn ${s.ready.includes(me) ? '' : 'primary'}`} onClick={() => act({ type: 'ready' })}
                   disabled={s.seats.length < 2}>
-                  {s.ready.includes(me) ? 'Hủy sẵn sàng' : s.status === 'over' ? '↻ Chơi ván mới' : '✔ Sẵn sàng'}
+                  {s.ready.includes(me) ? 'Hủy sẵn sàng' : s.status === 'over' ? <><RotateCcw size={16} aria-hidden /> Chơi ván mới</> : <><Check size={16} aria-hidden /> Sẵn sàng</>}
                 </button>
               )}
               {playing && meInGame && !meInGame.out && (
-                <button className="btn danger" onClick={() => confirm('Chịu thua ván này?') && act({ type: 'giveup' })}>🏳 Chịu thua</button>
+                <button className="btn danger" onClick={() => confirm('Chịu thua ván này?') && act({ type: 'giveup' })}><Flag size={16} aria-hidden /> Chịu thua</button>
               )}
               {!playing && <button className="btn ghost" onClick={() => call('room:stand')}>Đứng dậy xem</button>}
             </div>
@@ -118,7 +119,7 @@ export default function WordChainGame({ room, state: s }) {
             <li>Mỗi từ gồm <b>2 chữ</b>, chữ đầu phải trùng chữ cuối của từ trước: <i>con mèo → mèo con → con đường</i>.</li>
             <li>Không lặp lại từ đã dùng trong ván.{s.options.dictionary && ' Mỗi chữ phải có trong từ điển tiếng Việt.'}</li>
             <li>Mỗi lượt {s.options.turnSeconds} giây. Hết giờ mất 1 mạng (có {s.options.lives} mạng), hết mạng bị loại.</li>
-            <li>Từ vô nghĩa? Bấm <b>❌</b>: quá nửa số người còn lại phản đối thì từ bị gỡ, người đó nối lại.</li>
+            <li>Từ vô nghĩa? Bấm <b>vô nghĩa</b>: quá nửa số người còn lại phản đối thì từ bị gỡ, người đó nối lại.</li>
             <li>Người cuối cùng còn lại thắng.</li>
           </ul>
         </div>

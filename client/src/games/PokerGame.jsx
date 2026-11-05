@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Pencil } from 'lucide-react';
 import { useApp } from '../store.jsx';
 import Card from '../components/Card.jsx';
 import { useCountdown, useHotkeys } from '../hooks.js';
@@ -33,7 +34,7 @@ export default function PokerGame({ room, state: s }) {
   }, [winners, h?.result]);
 
   return (
-    <div className="pk">
+    <div className={`pk ${mySeat >= 0 ? 'seated' : ''}`}>
       <div className="pk-table">
         <div className="pk-felt">
           <div className="pk-center">
@@ -63,7 +64,7 @@ export default function PokerGame({ room, state: s }) {
             ) : null}
             <div className="muted small">
               Blind {fmt(s.smallBlind)}/{fmt(s.bigBlind)}
-              {isOwner && <button className="link pk-blind-edit" title="Đổi blind" onClick={() => setEditBlinds(true)}>✎</button>}
+              {isOwner && <button className="link pk-blind-edit" title="Đổi blind" aria-label="Đổi blind" onClick={() => setEditBlinds(true)}><Pencil size={14} aria-hidden /></button>}
             </div>
             {s.nextBlinds && <div className="pk-next-blinds small">Từ ván sau: {fmt(s.nextBlinds.smallBlind)}/{fmt(s.nextBlinds.bigBlind)}</div>}
           </div>

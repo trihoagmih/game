@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../store.jsx';
 import Modal from './Modal.jsx';
-import { GAME_META } from './Lobby.jsx';
+import { GAME_META, GameIcon } from './Lobby.jsx';
 
 const DEFAULTS = {
   xiangqi: { minutes: 8 },
@@ -67,7 +67,7 @@ export default function CreateRoomDialog({ game: initialGame, onClose }) {
         <div className="seg">
           {Object.entries(GAME_META).map(([k, g]) => (
             <button type="button" key={k} className={game === k ? 'active' : ''} onClick={() => setGame(k)}>
-              {g.icon} {g.name}
+              <GameIcon game={k} size={16} /> {g.name}
             </button>
           ))}
         </div>

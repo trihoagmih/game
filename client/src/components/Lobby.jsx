@@ -1,15 +1,22 @@
 import { useState } from 'react';
+import { Layers, Club, Spade, Castle, Grid3x3, WholeWord, Plus, Eye, Trash2, Search, Users } from 'lucide-react';
 import { useApp } from '../store.jsx';
 import CreateRoomDialog from './CreateRoomDialog.jsx';
 
 export const GAME_META = {
-  tala: { name: 'Tá lả', icon: '🃏', desc: 'Phỏm 2–4 người, ăn – hạ – gửi – Ù' },
-  samloc: { name: 'Sâm lốc', icon: '🎴', desc: '2–5 người, 10 lá, báo Sâm – chặt heo' },
-  poker: { name: 'Poker', icon: '♠️', desc: "Texas Hold'em No-Limit, 2–9 người" },
-  xiangqi: { name: 'Cờ tướng', icon: '🀄', desc: '2 người, mỗi bên 8 phút, có chế độ xem' },
-  caro: { name: 'Cờ caro', icon: '⭕', desc: '2 người, 5 quân liên tiếp là thắng' },
-  wordchain: { name: 'Nối từ', icon: '🔤', desc: '2–8 người, nối từ tiếng Việt theo lượt' },
+  tala: { name: 'Tá lả', Icon: Layers, desc: 'Phỏm 2–4 người, ăn – hạ – gửi – Ù' },
+  samloc: { name: 'Sâm lốc', Icon: Club, desc: '2–5 người, 10 lá, báo Sâm – chặt heo' },
+  poker: { name: 'Poker', Icon: Spade, desc: "Texas Hold'em No-Limit, 2–9 người" },
+  xiangqi: { name: 'Cờ tướng', Icon: Castle, desc: '2 người, mỗi bên 8 phút, có chế độ xem' },
+  caro: { name: 'Cờ caro', Icon: Grid3x3, desc: '2 người, 5 quân liên tiếp là thắng' },
+  wordchain: { name: 'Nối từ', Icon: WholeWord, desc: '2–8 người, nối từ tiếng Việt theo lượt' },
 };
+
+/** Icon SVG của trò chơi (bộ Lucide), màu theo từng trò. */
+export function GameIcon({ game, size = 24 }) {
+  const I = GAME_META[game]?.Icon || Layers;
+  return <I size={size} strokeWidth={2} aria-hidden />;
+}
 
 export default function Lobby() {
   const { rooms, user, call } = useApp();
@@ -33,14 +40,14 @@ export default function Lobby() {
           {Object.entries(GAME_META).map(([k, g]) => (
             <div key={k} className={`game-card g-${k}`}>
               <div className="gc-top">
-                <div className="gc-icon" aria-hidden>{g.icon}</div>
+                <div className="gc-icon"><GameIcon game={k} size={26} /></div>
                 <div>
                   <h3>{g.name}</h3>
                   <div className="gc-count"><b>{count(k)}</b> phòng đang mở</div>
                 </div>
               </div>
               <p className="gc-desc">{g.desc}</p>
-              <button className="btn primary block" onClick={() => setCreating(k)}>+ Tạo bàn</button>
+              <button className="btn primary block" onClick={() => setCreating(k)}><Plus size={18} aria-hidden /> Tạo bàn</button>
             </div>
           ))}
         </div>
@@ -61,12 +68,15 @@ export default function Lobby() {
               </button>
             ))}
           </div>
-          <input className="search" type="search" placeholder="🔍 Tìm phòng…" value={q} onChange={(e) => setQ(e.target.value)} />
+          <label className="search">
+            <Search size={16} aria-hidden />
+            <input type="search" placeholder="Tìm phòng…" aria-label="Tìm phòng" value={q} onChange={(e) => setQ(e.target.value)} />
+          </label>
         </div>
 
         {list.length === 0 ? (
           <div className="empty">
-            <div className="empty-icon" aria-hidden>🃏</div>
+            <div className="empty-icon"><Users size={34} aria-hidden /></div>
             <b>{q || filter !== 'all' ? 'Không có phòng phù hợp' : 'Chưa có phòng nào'}</b>
             <span>Hãy tạo bàn mới và mời bạn bè vào chơi.</span>
           </div>
@@ -76,7 +86,7 @@ export default function Lobby() {
               const full = r.players >= r.maxPlayers;
               return (
                 <div key={r.id} className="room-item">
-                  <div className="ri-icon" aria-hidden>{GAME_META[r.game]?.icon}</div>
+                  <div className={`ri-icon g-${r.game}`}><GameIcon game={r.game} size={22} /></div>
                   <div className="ri-body">
                     <div className="ri-title">
                       <b title={r.name}>{r.name}</b>
@@ -89,16 +99,16 @@ export default function Lobby() {
                       <div className="seat-bar"><div style={{ width: `${Math.min(100, (r.players / r.maxPlayers) * 100)}%` }} /></div>
                       <span>{r.players}/{r.maxPlayers}</span>
                       {r.playerNames.length > 0 && <span className="muted ri-meta">{r.playerNames.join(', ')}</span>}
-                      {r.spectators > 0 && <span className="muted">· 👁 {r.spectators}</span>}
+                      {r.spectators > 0 && <span className="muted ri-watch"><Eye size={13} aria-hidden /> {r.spectators}</span>}
                     </div>
                   </div>
                   <div className="ri-actions">
                     <button className="btn primary" disabled={full} onClick={() => call('room:join', { roomId: r.id, mode: 'play' })}>
                       {full ? 'Đủ người' : 'Vào chơi'}
                     </button>
-                    <button className="btn" onClick={() => call('room:join', { roomId: r.id, mode: 'watch' })} title="Vào xem">👁</button>
+                    <button className="btn" onClick={() => call('room:join', { roomId: r.id, mode: 'watch' })} title="Vào xem" aria-label={`Vào xem phòng ${r.name}`}><Eye size={18} aria-hidden /><span className="hide-lg">Xem</span></button>
                     {r.ownerId === user.id && (
-                      <button className="btn danger" title="Xóa phòng" onClick={() => confirm(`Xóa phòng "${r.name}"?`) && call('room:delete', { roomId: r.id })}>🗑</button>
+                      <button className="btn danger" title="Xóa phòng" aria-label={`Xóa phòng ${r.name}`} onClick={() => confirm(`Xóa phòng "${r.name}"?`) && call('room:delete', { roomId: r.id })}><Trash2 size={18} aria-hidden /></button>
                     )}
                   </div>
                 </div>

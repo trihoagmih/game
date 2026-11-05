@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Dices, ArrowLeftRight } from 'lucide-react';
 import { useApp } from './store.jsx';
 import Lobby from './components/Lobby.jsx';
 import RoomView from './components/RoomView.jsx';
@@ -16,7 +17,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <a className="brand" href="#" onClick={(e) => { e.preventDefault(); if (room) location.hash = ''; }}>
-          <span className="brand-logo" aria-hidden>🎲</span>
+          <span className="brand-logo" aria-hidden><Dices size={20} /></span>
           <span className="brand-name">Sảnh Trò Chơi</span>
         </a>
         {ready && server?.name && <span className="server-badge" title="Server đang vào">{server.name}</span>}
@@ -25,12 +26,12 @@ export default function App() {
             <>
               <span className={`conn ${connected ? 'on' : 'off'}`} title={connected ? 'Đã kết nối' : 'Mất kết nối'} />
               {server?.gated && (
-                <button className="btn ghost sm" title="Vào server khác bằng mật khẩu khác"
+                <button className="btn ghost sm" aria-label="Đổi server" title="Vào server khác bằng mật khẩu khác"
                   onClick={() => (!room || confirm('Rời phòng và đổi sang server khác?')) && switchServer()}>
-                  ⇄ <span className="hide-sm">Đổi server</span>
+                  <ArrowLeftRight size={16} aria-hidden /><span className="hide-sm">Đổi server</span>
                 </button>
               )}
-              <button className="user-chip" onClick={() => setRenaming(true)} title="Đổi tên">
+              <button className="user-chip" onClick={() => setRenaming(true)} title="Đổi tên" aria-label={`Tên của bạn: ${user.name}. Bấm để đổi tên`}>
                 <span className="avatar" aria-hidden>{user.name.trim()[0]?.toUpperCase()}</span>
                 <span className="user-name">{user.name}</span>
               </button>

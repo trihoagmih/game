@@ -225,18 +225,18 @@ function Table({ s, g, act, timeLeft, inGame }) {
       {inGame && (
         <div className="tl-me">
           <div className="tl-hand">
+            {/* Vạch xanh dưới lá = lá có thể tạo phỏm (gắn vào từng lá để xuống dòng cùng nhau trên màn nhỏ) */}
             {ordered.map((c, i) => (
-              <Card key={c} card={c} size="lg"
-                selected={selected.includes(c)}
-                focused={i === cursor}
-                locked={eaten.has(c)}
-                dim={false}
-                title={eaten.has(c) ? 'Lá đã ăn — phải nằm trong phỏm' : hint.has(c) ? 'Có thể tạo phỏm' : ''}
-                onClick={() => { setCursor(i); toggle(c); }} />
+              <span key={c} className={`tl-card ${hint.has(c) ? 'hint' : ''}`}>
+                <Card card={c} size="lg"
+                  selected={selected.includes(c)}
+                  focused={i === cursor}
+                  locked={eaten.has(c)}
+                  dim={false}
+                  title={eaten.has(c) ? 'Lá đã ăn — phải nằm trong phỏm' : hint.has(c) ? 'Có thể tạo phỏm' : ''}
+                  onClick={() => { setCursor(i); toggle(c); }} />
+              </span>
             ))}
-          </div>
-          <div className="tl-hint-row">
-            {ordered.map((c) => <span key={c} className={`hint-dot ${hint.has(c) ? 'on' : ''}`} />)}
           </div>
           {!g.result && (
             <div className="row wrap tl-actions">

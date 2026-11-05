@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ScrollText } from 'lucide-react';
 import { request } from '../socket.js';
 import { useApp } from '../store.jsx';
 import { useHotkeys } from '../hooks.js';
@@ -89,7 +90,7 @@ export default function PokerHandLog({ s }) {
     <>
       <details className="panel pk-handlog" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
         <summary>
-          📜 Hands log <span className="muted">({s.handLogCount} ván)</span>
+          <ScrollText size={18} aria-hidden /> Hands log <span className="muted">({s.handLogCount} ván)</span>
           <kbd className="hide-sm">H</kbd>
         </summary>
         {s.handLogCount === 0 ? (

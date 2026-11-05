@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Check, Undo2, Handshake, Flag, RotateCcw, ArrowUpDown } from 'lucide-react';
 import { colLabel } from '@game/shared/caro';
 import { useApp } from '../store.jsx';
 import { useCountdown, useHotkeys, fmtClock } from '../hooks.js';
@@ -122,19 +123,19 @@ export default function CaroGame({ room, state: s }) {
             <div className="xq-actions">
               {s.status === 'waiting' && (
                 <button className={`btn ${s.ready[my] ? '' : 'primary'}`} onClick={() => act({ type: 'ready' })} disabled={!s.seats[opp]}>
-                  {s.ready[my] ? 'Hủy sẵn sàng' : '✔ Sẵn sàng'}
+                  {s.ready[my] ? 'Hủy sẵn sàng' : <><Check size={16} aria-hidden /> Sẵn sàng</>}
                 </button>
               )}
               {s.status === 'playing' && (
                 <>
-                  <button className="btn" disabled={!!pending} onClick={() => act({ type: 'requestUndo' })}>↶ Xin đi lại</button>
-                  <button className="btn" disabled={!!pending} onClick={() => act({ type: 'offerDraw' })}>🤝 Cầu hòa</button>
-                  <button className="btn danger" onClick={() => confirm('Bạn chắc chắn muốn xin thua?') && act({ type: 'resign' })}>🏳 Xin thua</button>
+                  <button className="btn" disabled={!!pending} onClick={() => act({ type: 'requestUndo' })}><Undo2 size={16} aria-hidden /> Xin đi lại</button>
+                  <button className="btn" disabled={!!pending} onClick={() => act({ type: 'offerDraw' })}><Handshake size={16} aria-hidden /> Cầu hòa</button>
+                  <button className="btn danger" onClick={() => confirm('Bạn chắc chắn muốn xin thua?') && act({ type: 'resign' })}><Flag size={16} aria-hidden /> Xin thua</button>
                 </>
               )}
               {s.status === 'over' && (
                 <button className="btn primary" disabled={s.rematch[my] || !s.seats[opp]} onClick={() => act({ type: 'rematch' })}>
-                  {s.rematch[my] ? 'Đang chờ đối thủ…' : s.rematch[opp] ? '↻ Đồng ý chơi lại' : '↻ Chơi lại (đổi lượt đi)'}
+                  {s.rematch[my] ? 'Đang chờ đối thủ…' : s.rematch[opp] ? <><RotateCcw size={16} aria-hidden /> Đồng ý chơi lại</> : <><RotateCcw size={16} aria-hidden /> Chơi lại (đổi lượt đi)</>}
                 </button>
               )}
               {s.status !== 'playing' && <button className="btn ghost" onClick={() => call('room:stand')}>Đứng dậy xem</button>}
