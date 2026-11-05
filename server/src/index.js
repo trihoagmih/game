@@ -111,7 +111,8 @@ app.use(securityHeaders);
 app.get('/health', (_req, res) => res.json({ ok: true, version: APP_VERSION }));
 if (fs.existsSync(CLIENT_DIST)) {
   app.use(express.static(CLIENT_DIST, { index: false, maxAge: '1h' }));
-  app.get('*', (_req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));
+  // Express 5: ký tự đại diện phải đặt tên (/{*splat}); mọi đường dẫn còn lại trả về trang SPA
+  app.get('/{*splat}', (_req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));
 } else {
   app.get('/', (_req, res) => res.send('Game server đang chạy. Client chạy riêng bằng Vite (npm run dev).'));
 }
