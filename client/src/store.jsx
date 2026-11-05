@@ -15,7 +15,10 @@ export function AppProvider({ children }) {
   const [rooms, setRooms] = useState([]);
   const [room, setRoom] = useState(null); // trạng thái phòng hiện tại
   const [toasts, setToasts] = useState([]);
-  const [needName, setNeedName] = useState(!storage.name);
+  // Luồng vào app — một trạng thái duy nhất để các màn hình không giành nhau (tránh nhấp nháy):
+  //   connecting → (auth → checking) → (name | entering) → ready
+  const [phase, setPhase] = useState('connecting');
+  const [busy, setBusy] = useState(0); // số yêu cầu đang chờ server trả lời
   const [server, setServer] = useState(null); // { id, name, gated } — server (sảnh) đang vào
   const [newVersion, setNewVersion] = useState(null); // phiên bản mới trên server, khác bản đang chạy
   const [authError, setAuthError] = useState(null); // null = chưa bị chặn; chuỗi = cần nhập mật khẩu
@@ -34,7 +37,7 @@ export function AppProvider({ children }) {
     storage.name = res.user.name;
     setUser(res.user);
     setRooms(res.rooms);
-    setNeedName(false);
+    setPhase('ready');
     const wanted = roomFromHash();
     if (!res.roomId && wanted) {
       try {
@@ -53,14 +56,20 @@ export function AppProvider({ children }) {
     const onConnect = () => {
       setConnected(true);
       setAuthError(null);
-      if (storage.name) hello().catch((e) => { toast(e.message, 'error'); setNeedName(true); });
+      if (storage.name) {
+        setPhase((ph) => (ph === 'ready' ? ph : 'entering'));
+        hello().catch((e) => { toast(e.message, 'error'); setPhase('name'); });
+      } else {
+        setPhase('name');
+      }
     };
     const onDisconnect = () => setConnected(false);
     // Middleware auth từ chối: socket.io không tự thử lại, phải nhập mật khẩu rồi connect lại
     const onConnectError = (err) => {
       if (!AUTH_ERRORS[err.message]) return;
       if (err.message !== 'AUTH_LOCKED') storage.password = '';
-      setAuthError(err.message === 'AUTH_REQUIRED' && !storage.password ? 'AUTH_REQUIRED' : err.message);
+      setAuthError(err.message);
+      setPhase('auth');
     };
     const onRooms = (list) => setRooms(list);
     const onState = (s) => {
@@ -109,23 +118,38 @@ export function AppProvider({ children }) {
     return () => window.removeEventListener('hashchange', onHash);
   }, [room]);
 
-  /** Gọi server, tự hiện lỗi dạng toast. */
-  const call = useCallback(async (event, payload) => {
-    try {
-      const res = await request(event, payload);
-      if (res.warning) toast(res.warning);
-      return res;
-    } catch (e) {
-      toast(e.message, 'error');
-      return null;
-    }
+  /**
+   * Gọi server, tự hiện lỗi dạng toast.
+   * Bấm lặp lại cùng một hành động khi yêu cầu trước chưa xong thì dùng chung kết quả (chống bấm đúp).
+   */
+  const inflight = useRef(new Map());
+  const call = useCallback((event, payload) => {
+    const key = event + JSON.stringify(payload ?? null);
+    const running = inflight.current.get(key);
+    if (running) return running;
+    setBusy((n) => n + 1);
+    const p = request(event, payload)
+      .then((res) => {
+        if (res.warning) toast(res.warning);
+        return res;
+      })
+      .catch((e) => {
+        toast(e.message, 'error');
+        return null;
+      })
+      .finally(() => {
+        inflight.current.delete(key);
+        setBusy((n) => n - 1);
+      });
+    inflight.current.set(key, p);
+    return p;
   }, [toast]);
 
   const act = useCallback((payload) => call('game:action', payload), [call]);
 
   const login = useCallback((password) => {
     storage.password = password;
-    setAuthError(null);
+    setPhase('checking');
     socket.connect();
   }, []);
 
@@ -140,11 +164,12 @@ export function AppProvider({ children }) {
     setRooms([]);
     setServer(null);
     setAuthError('AUTH_REQUIRED');
+    setPhase('auth');
   }, [room]);
 
   const value = useMemo(() => ({
-    connected, user, setUser, rooms, room, toasts, toast, needName, setNeedName, hello, call, act, authError, login, newVersion, server, switchServer,
-  }), [newVersion, server, switchServer, connected, user, rooms, room, toasts, toast, needName, hello, call, act, authError, login]);
+    connected, user, setUser, rooms, room, toasts, toast, phase, busy, hello, call, act, authError, login, newVersion, server, switchServer,
+  }), [newVersion, server, switchServer, connected, user, rooms, room, toasts, toast, phase, busy, hello, call, act, authError, login]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

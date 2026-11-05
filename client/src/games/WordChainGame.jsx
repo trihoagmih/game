@@ -58,8 +58,13 @@ export default function WordChainGame({ room, state: s }) {
                 </div>
               )}
 
-              {myTurn && <WordInput required={g.required} act={act} />}
+              {/* Các ô dưới đây luôn chiếm chỗ cố định để khung không co giãn giữa các lượt */}
+              <div className="wc-input-slot">
+                {myTurn ? <WordInput required={g.required} act={act} />
+                  : playing && <span className="muted small">Chờ {nameOf(g.currentId)} nối từ…</span>}
+              </div>
 
+              <div className="wc-object-slot">
               {canObject && (
                 <button className={`btn sm ${objected ? 'danger' : ''}`} onClick={() => act({ type: 'object' })}
                   title="Từ vô nghĩa? Quá nửa số người còn lại phản đối thì từ bị gỡ">
@@ -69,6 +74,7 @@ export default function WordChainGame({ room, state: s }) {
               {!canObject && playing && last && g.objections.length > 0 && (
                 <div className="muted small">Đang có {g.objections.length}/{g.objectionsNeeded} phiếu phản đối "{last.text}"</div>
               )}
+              </div>
             </>
           )}
         </div>

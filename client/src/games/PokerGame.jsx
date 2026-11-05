@@ -57,7 +57,7 @@ export default function PokerGame({ room, state: s }) {
               </div>
             )}
             {!h?.street || h.street === 'done' ? (
-              <div className="muted small">
+              <div className="muted small pk-next">
                 {nextIn ? `Ván mới sau ${Math.ceil(nextIn / 1000)} giây…` : s.seats.filter((x) => x && x.chips > 0 && !x.sitOut).length < 2 ? 'Đang chờ ít nhất 2 người chơi…' : ''}
               </div>
             ) : null}
@@ -169,33 +169,30 @@ function ActionBar({ s, o, act, myTurn, timeLeft }) {
     4: () => preset(1),
   }, myTurn);
 
-  if (!o) return <div className="pk-actions idle muted">Chờ tới lượt…</div>;
+  // Luôn giữ nguyên khung (nút + thanh chọn mức cược) kể cả khi chưa tới lượt → không nhảy layout
   return (
-    <div className="pk-actions">
-      <div className="pk-turn">Tới lượt bạn! ⏱ {Math.ceil(timeLeft / 1000)}s</div>
+    <div className={`pk-actions ${o ? '' : 'idle'}`}>
+      <div className="pk-turn">{o ? <>Tới lượt bạn! ⏱ {Math.ceil(timeLeft / 1000)}s</> : <span className="muted">Chờ tới lượt…</span>}</div>
       <div className="row wrap">
-        <button className="btn danger" onClick={doFold}><kbd>F</kbd> Bỏ bài</button>
-        <button className="btn" onClick={doCall}>
-          <kbd>C</kbd> {o.canCheck ? 'Check' : `Theo ${fmt(o.toCall)}`}
+        <button className="btn danger" disabled={!o} onClick={doFold}><kbd>F</kbd> Bỏ bài</button>
+        <button className="btn" disabled={!o} onClick={doCall}>
+          <kbd>C</kbd> {!o ? 'Theo' : o.canCheck ? 'Check' : `Theo ${fmt(o.toCall)}`}
         </button>
-        {canBR && (
-          <button className="btn primary" onClick={doBR}>
-            <kbd>{o.canBet ? 'B' : 'R'}</kbd> {amount >= o.maxTo ? 'All-in' : o.canBet ? 'Cược' : 'Tố lên'} {fmt(amount)}
-          </button>
-        )}
-        <button className="btn warn" onClick={doAllIn}><kbd>A</kbd> All-in {fmt(o.maxTo - o.myBet)}</button>
+        <button className="btn primary" disabled={!canBR} onClick={doBR}>
+          <kbd>{o?.canBet ? 'B' : 'R'}</kbd> {!canBR ? 'Tố' : amount >= o.maxTo ? 'All-in' : o.canBet ? 'Cược' : 'Tố lên'} {canBR ? fmt(amount) : ''}
+        </button>
+        <button className="btn warn" disabled={!o} onClick={doAllIn}><kbd>A</kbd> All-in {o ? fmt(o.maxTo - o.myBet) : ''}</button>
       </div>
-      {canBR && (
-        <div className="row wrap pk-sizing">
-          <input type="range" min={o.minTo} max={o.maxTo} step={1} value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
-          <input type="number" className="num" min={o.minTo} max={o.maxTo} value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))} onBlur={() => setAmount(clamp(amount))}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); doBR(); } }} />
-          {[['1', '⅓', 1 / 3], ['2', '½', 1 / 2], ['3', '¾', 3 / 4], ['4', 'Pot', 1]].map(([k, l, f]) => (
-            <button key={k} className="btn sm" onClick={() => preset(f)}><kbd>{k}</kbd> {l}</button>
-          ))}
-        </div>
-      )}
+      <div className={`row wrap pk-sizing ${canBR ? '' : 'off'}`} aria-hidden={!canBR}>
+        <input type="range" min={o?.minTo ?? 0} max={o?.maxTo ?? 1} step={1} value={canBR ? amount : 0} disabled={!canBR}
+          onChange={(e) => setAmount(Number(e.target.value))} />
+        <input type="number" className="num" min={o?.minTo} max={o?.maxTo} value={canBR ? amount : ''} disabled={!canBR}
+          onChange={(e) => setAmount(Number(e.target.value))} onBlur={() => setAmount(clamp(amount))}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); doBR(); } }} />
+        {[['1', '⅓', 1 / 3], ['2', '½', 1 / 2], ['3', '¾', 3 / 4], ['4', 'Pot', 1]].map(([k, l, f]) => (
+          <button key={k} className="btn sm" disabled={!canBR} onClick={() => preset(f)}><kbd>{k}</kbd> {l}</button>
+        ))}
+      </div>
     </div>
   );
 }

@@ -17,63 +17,88 @@ export default function Lobby() {
   const [creating, setCreating] = useState(null);
   const [q, setQ] = useState('');
 
+  const count = (k) => rooms.filter((r) => r.game === k).length;
   const list = rooms.filter((r) => (filter === 'all' || r.game === filter) && (!q || r.name.toLowerCase().includes(q.toLowerCase())));
 
   return (
     <div className="lobby">
-      <section className="game-cards">
-        {Object.entries(GAME_META).map(([k, g]) => (
-          <div key={k} className={`game-card g-${k}`}>
-            <div className="gc-icon">{g.icon}</div>
-            <div className="gc-body">
-              <h3>{g.name}</h3>
-              <p>{g.desc}</p>
-              <div className="muted small">{rooms.filter((r) => r.game === k).length} phòng đang mở</div>
-            </div>
-            <button className="btn primary" onClick={() => setCreating(k)}>+ Tạo bàn</button>
+      <section>
+        <div className="section-head">
+          <div>
+            <h2>Chọn trò chơi</h2>
+            <p className="muted">Tạo bàn mới hoặc vào một phòng đang mở bên dưới.</p>
           </div>
-        ))}
+        </div>
+        <div className="game-cards">
+          {Object.entries(GAME_META).map(([k, g]) => (
+            <div key={k} className={`game-card g-${k}`}>
+              <div className="gc-top">
+                <div className="gc-icon" aria-hidden>{g.icon}</div>
+                <div>
+                  <h3>{g.name}</h3>
+                  <div className="gc-count"><b>{count(k)}</b> phòng đang mở</div>
+                </div>
+              </div>
+              <p className="gc-desc">{g.desc}</p>
+              <button className="btn primary block" onClick={() => setCreating(k)}>+ Tạo bàn</button>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="room-list">
+        <div className="section-head">
+          <div>
+            <h2>Phòng đang mở</h2>
+            <p className="muted">{rooms.length ? `${rooms.length} phòng · cập nhật trực tiếp` : 'Chưa có phòng nào'}</p>
+          </div>
+        </div>
         <div className="room-list-head">
-          <div className="tabs">
-            {[['all', 'Tất cả'], ...Object.entries(GAME_META).map(([k, g]) => [k, g.name])].map(([k, label]) => (
-              <button key={k} className={`tab ${filter === k ? 'active' : ''}`} onClick={() => setFilter(k)}>{label}</button>
+          <div className="tabs" role="tablist">
+            {[['all', 'Tất cả', rooms.length], ...Object.entries(GAME_META).map(([k, g]) => [k, g.name, count(k)])].map(([k, label, n]) => (
+              <button key={k} role="tab" aria-selected={filter === k} className={`tab ${filter === k ? 'active' : ''}`} onClick={() => setFilter(k)}>
+                {label} <span className="tab-count">{n}</span>
+              </button>
             ))}
           </div>
-          <input className="search" placeholder="Tìm phòng…" value={q} onChange={(e) => setQ(e.target.value)} />
+          <input className="search" type="search" placeholder="🔍 Tìm phòng…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
 
         {list.length === 0 ? (
-          <div className="empty">Chưa có phòng nào. Hãy tạo bàn mới!</div>
+          <div className="empty">
+            <div className="empty-icon" aria-hidden>🃏</div>
+            <b>{q || filter !== 'all' ? 'Không có phòng phù hợp' : 'Chưa có phòng nào'}</b>
+            <span>Hãy tạo bàn mới và mời bạn bè vào chơi.</span>
+          </div>
         ) : (
           <div className="rooms">
             {list.map((r) => {
               const full = r.players >= r.maxPlayers;
               return (
                 <div key={r.id} className="room-item">
-                  <div className="ri-icon">{GAME_META[r.game]?.icon}</div>
+                  <div className="ri-icon" aria-hidden>{GAME_META[r.game]?.icon}</div>
                   <div className="ri-body">
                     <div className="ri-title">
-                      <b>{r.name}</b>
+                      <b title={r.name}>{r.name}</b>
                       <span className={`badge ${r.playing ? 'playing' : 'waiting'}`}>{r.playing ? 'Đang chơi' : 'Đang chờ'}</span>
                     </div>
-                    <div className="muted small">
-                      {r.gameName} · Chủ phòng: {r.ownerName} · {describeOptions(r)}
+                    <div className="muted small ri-meta" title={describeOptions(r)}>
+                      {r.gameName} · {r.ownerName} · {describeOptions(r)}
                     </div>
-                    <div className="small">
-                      👥 {r.players}/{r.maxPlayers} {r.playerNames.length > 0 && <span className="muted">({r.playerNames.join(', ')})</span>}
-                      {r.spectators > 0 && <> · 👁 {r.spectators} người xem</>}
+                    <div className="ri-seats">
+                      <div className="seat-bar"><div style={{ width: `${Math.min(100, (r.players / r.maxPlayers) * 100)}%` }} /></div>
+                      <span>{r.players}/{r.maxPlayers}</span>
+                      {r.playerNames.length > 0 && <span className="muted ri-meta">{r.playerNames.join(', ')}</span>}
+                      {r.spectators > 0 && <span className="muted">· 👁 {r.spectators}</span>}
                     </div>
                   </div>
                   <div className="ri-actions">
                     <button className="btn primary" disabled={full} onClick={() => call('room:join', { roomId: r.id, mode: 'play' })}>
                       {full ? 'Đủ người' : 'Vào chơi'}
                     </button>
-                    <button className="btn" onClick={() => call('room:join', { roomId: r.id, mode: 'watch' })}>👁 Xem</button>
+                    <button className="btn" onClick={() => call('room:join', { roomId: r.id, mode: 'watch' })} title="Vào xem">👁</button>
                     {r.ownerId === user.id && (
-                      <button className="btn danger" onClick={() => confirm(`Xóa phòng "${r.name}"?`) && call('room:delete', { roomId: r.id })}>Xóa</button>
+                      <button className="btn danger" title="Xóa phòng" onClick={() => confirm(`Xóa phòng "${r.name}"?`) && call('room:delete', { roomId: r.id })}>🗑</button>
                     )}
                   </div>
                 </div>
