@@ -1,5 +1,5 @@
 # ---------- Build: test + build client ----------
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY shared/package.json shared/
@@ -10,7 +10,7 @@ COPY . .
 RUN npm test && npm run build
 
 # ---------- Runtime: chỉ server + client đã build ----------
-FROM node:22-alpine
+FROM node:26-alpine
 WORKDIR /app
 ENV NODE_ENV=production PORT=3001
 COPY package.json package-lock.json ./
