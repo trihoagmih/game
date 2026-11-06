@@ -169,6 +169,7 @@ export class Lobby {
 
   /** Mỗi server có sảnh riêng: chỉ thấy phòng của server mình. */
   roomList(serverId) {
+    if (this.cluster) return this.cluster.roomList(serverId);
     return [...this.rooms.values()]
       .filter((r) => r.server === serverId)
       .map((r) => r.summary())
@@ -177,6 +178,7 @@ export class Lobby {
 
   /** Người đang kết nối trong server: đang ở sảnh hay ở phòng nào, chơi hay xem. */
   onlineList(serverId) {
+    if (this.cluster) return this.cluster.onlineList(serverId);
     const list = [];
     for (const u of this.users.values()) {
       if (u.server !== serverId || !u.sockets.size) continue;
@@ -188,6 +190,26 @@ export class Lobby {
       });
     }
     return list.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+  }
+
+  localOnlineList() {
+    const result = [];
+    for (const u of this.users.values()) {
+      if (!u.sockets.size || u.transferred) continue;
+      const room = this.rooms.get(u.roomId);
+      result.push({ id: u.id, name: u.name, server: u.server,
+        room: room ? { id: room.id, name: room.name, game: room.game, playing: room.handler.playerIds().includes(u.id) } : null });
+    }
+    return result;
+  }
+
+  importUser(identity) {
+    const existing = this.users.get(identity.id);
+    if (existing) { existing.transferred = false; existing.name = identity.name; return existing; }
+    const user = { ...identity, roomId: null, sockets: new Set(), graceTimer: null, lastSeen: Date.now() };
+    this.users.set(user.id, user);
+    this.byToken.set(user.token, user);
+    return user;
   }
 
   /** Phát danh sách phòng và người online cho sảnh, gộp các thay đổi trong 100ms. */

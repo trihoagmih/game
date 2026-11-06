@@ -15,3 +15,21 @@ Set `APP_PASSWORD`, `LOAD_CLIENTS` (default 16), and `LOAD_ROUNDS` as needed.
 The default IP limits intentionally constrain a single load generator. Do not disable production limits merely to run a benchmark.
 Compare p95/p99 acknowledgments with `runtime.metrics`, outbound traffic and representative drawing/bot workloads.
 This smoke load generator is not a production capacity certification.
+
+## PR 2: room ownership and routing
+
+Set `REDIS_URL`, stable `NODE_ID` and identical `CLUSTER_NODES` on all shards to enable clustering.
+Without `REDIS_URL`, the application stays in its existing single-node mode.
+Each room is owned by one shard. The shared directory refreshes every two seconds.
+Creation picks an available shard with fewer rooms. Joining an existing room routes to its owner.
+The browser reconnects via `/nodes/<id>/socket.io` and resumes the create/join request.
+An identity transfer requires closing other tabs; concurrent membership on two shards is refused.
+New node IDs require matching proxy routes before they are added to `CLUSTER_NODES`.
+
+Redis leases reject duplicate shard processes and fail closed on a lost lease or Redis connection.
+The proxy pins the full Socket.IO connection, including polling, to the explicitly selected shard.
+This does not require a broadcast adapter because room traffic stays local; the global directory is shared through Redis.
+Shard IDs stay stable across restarts. Removing a shard requires draining/migrating its rooms first.
+Per-IP connection/rate limits remain per shard; add a proxy-wide limit before exposing a larger public cluster.
+
+Run `TEST_REDIS_URL=redis://localhost:6379 node --test server/test/cluster.test.js` for real Redis lease/identity tests.

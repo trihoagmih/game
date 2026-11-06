@@ -9,6 +9,7 @@ import { Lobby } from './lobby.js';
 import { handleConnection } from './connection.js';
 import { Voice } from './voice.js';
 import { createMetrics } from './metrics.js';
+import { clusterFromEnv } from './cluster.js';
 
 // Voice chat: tắt / bật lại (vd. hết hạn mức TURN miễn phí) → báo mọi người, đưa tất cả ra khỏi kênh thoại khi tắt
 const voice = new Voice({
@@ -26,6 +27,8 @@ const io = new Server(server, {
   connectTimeout: 10_000,
 });
 const lobby = new Lobby(io);
+const cluster = clusterFromEnv();
+if (cluster) { lobby.cluster = cluster; await cluster.start(lobby); }
 const connections = new ConnectionCounter(); // số socket đồng thời theo IP
 const metrics = createMetrics();
 const metricsTimer = setInterval(() => {

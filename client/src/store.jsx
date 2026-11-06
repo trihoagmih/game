@@ -50,6 +50,17 @@ export function AppProvider({ children }) {
     setRooms(res.rooms);
     setOnline(res.online || []);
     setPhase('ready');
+    // Resume the one operation that caused a shard redirect after authentication.
+    let pending;
+    try {
+      pending = JSON.parse(sessionStorage.getItem('gl_pending_route') || 'null');
+      sessionStorage.removeItem('gl_pending_route');
+    } catch {}
+    if (pending && ['room:create', 'room:join'].includes(pending.event)) {
+      const result = await request(pending.event, pending.payload);
+      if (result.warning) toast(result.warning);
+      return res;
+    }
     // A restart loses in-memory rooms. Clear the previous room before trying the
     // URL again; otherwise a failed join leaves an unusable game on screen.
     if (!res.roomId) setRoom(null);
