@@ -4,6 +4,11 @@
 
 ## Kiểm tra lỗi nghe / nói trong phòng đông người
 
+- `VOICE_MAX_PER_ROOM` mặc định 6, cấu hình được từ 2 đến 12. Tăng biến này trên server rồi deploy; số ghế chơi game là giới hạn riêng.
+- Khởi tạo mỗi cặp: chỉ ID nhỏ hơn gửi offer đầu tiên, tránh hai bên cùng khởi tạo và rollback ICE. Bản sửa được kiểm chứng local bằng 6 Chrome vào đồng thời/lần lượt và 8 Chrome vào đồng thời, kiểm tra byte âm thanh nhận thực tế từ mọi người khác.
+- Test trình duyệt: chạy backend trên cổng 3011 với `VOICE_MAX_PER_ROOM=8`, `CORS_ORIGIN=http://localhost:5175`; chạy Vite cổng 5175 với `VITE_SERVER_URL=http://localhost:3011`; chạy `node server/test/voice-browser.mjs http://localhost:5175 chrome concurrent 8`. Cần Chrome có sẵn hoặc thay `chrome` bằng `chromium` sau khi cài browser của Playwright. Chỉ chạy trên server test riêng, không dùng phòng production.
+- Test 12 người: đặt `VOICE_MAX_PER_ROOM=12`, chạy `node server/test/voice-browser.mjs http://localhost:5175 chrome concurrent 12 30`. Ba lượt local đều tạo đủ 11 kết nối âm thanh mỗi người; lượt đầu không giữ đủ kết nối trong bước duy trì, hai lượt sau giữ 30 giây không disconnect và bảng Người chơi vẫn phản hồi. Chưa xác định nguyên nhân gián đoạn ở lượt đầu. Các lượt dùng Chrome cùng máy, micro giả, bản sửa local và không cấu hình TURN; chưa xác nhận 12 thiết bị/mạng thật hoặc Safari/iOS ổn định.
+
 - Client giữ tín hiệu đến sớm trong lúc chờ vào kênh, xử lý SDP/ICE tuần tự và giữ ICE đến trước SDP. Mỗi cặp dùng perfect negotiation để xử lý offer đồng thời.
 - Mất kết nối Socket.IO thì dọn phiên voice; kết quả vào kênh của phiên cũ không được tạo lại kết nối. WebRTC bị gián đoạn 5 giây thì thử ICE restart.
 - Khi quyền micro bị từ chối hoặc micro đã ngắt, bấm **Thử lại micro** trong kênh thoại sau khi cho phép quyền micro trên trình duyệt.

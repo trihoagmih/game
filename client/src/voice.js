@@ -109,6 +109,9 @@ export function useVoice({ room, me, status, toast }) {
     else pc.addTransceiver('audio', { direction: 'recvonly' });
 
     pc.onnegotiationneeded = async () => {
+      // Only one endpoint starts a new pair. Simultaneous initial offers can
+      // roll back ICE gathering and leave a stable SDP with no usable candidates.
+      if (!pc.remoteDescription && meRef.current > id) return;
       try {
         await p.negotiation.negotiate();
       } catch (e) {

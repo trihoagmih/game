@@ -52,11 +52,12 @@ test('simultaneous offers: impolite peer ignores colliding SDP and ICE then acce
 });
 
 // Hook harness: exercise join timing without a browser or real microphone.
-function harness({ micDenied = false } = {}) {
+function harness({ micDenied = false, me = 'me' } = {}) {
   const handlers = new Map();
   const cleanup = [];
   const ack = deferred();
   const peers = [];
+  const signals = [];
   const media = { getAudioTracks: () => [track], getTracks: () => [track] };
   const track = { enabled: true, stop() {}, readyState: 'live' };
   class Peer {
@@ -72,7 +73,11 @@ function harness({ micDenied = false } = {}) {
     useCallback: (f) => f, useRef: (v) => ({ current: v }), useState: (v) => [typeof v === 'function' ? v() : v, () => {}],
     useEffect: (f) => { const c = f(); if (c) cleanup.push(c); },
     socket: { on: (key, f) => handlers.set(key, f), off: (key) => handlers.delete(key) },
-    request: (event) => event === 'voice:join' ? ack.promise : Promise.resolve({ ok: true }),
+    request: (event, data) => {
+      if (event === 'voice:join') return ack.promise;
+      if (event === 'voice:signal') signals.push(data);
+      return Promise.resolve({ ok: true });
+    },
     navigator: { mediaDevices: { getUserMedia: async () => {
       if (micDenied) { micDenied = false; throw new Error('Permission denied'); }
       return media;
@@ -86,9 +91,25 @@ function harness({ micDenied = false } = {}) {
   const code = fs.readFileSync(new URL('../../client/src/voice.js', import.meta.url), 'utf8')
     .replace(/^import .*;\r?\n/gm, '').replace('export function useVoice', 'function useVoice');
   vm.runInNewContext(`${code}\nthis.hook = useVoice;`, context);
-  const hook = context.hook({ room: { voice: [] }, me: 'me', status: { enabled: true } });
-  return { hook, ack, handlers, peers, cleanup: () => cleanup.reverse().forEach((f) => f()) };
+  const hook = context.hook({ room: { voice: [] }, me, status: { enabled: true } });
+  return { hook, ack, handlers, peers, signals, cleanup: () => cleanup.reverse().forEach((f) => f()) };
 }
+
+test('only the smaller ID initiates a new pair; either side can renegotiate later', async (t) => {
+  const caller = harness({ me: 'a' });
+  const callee = harness({ me: 'z' });
+  t.after(caller.cleanup);
+  t.after(callee.cleanup);
+  caller.ack.resolve({ peers: ['z'], iceServers: [] });
+  callee.ack.resolve({ peers: ['a'], iceServers: [] });
+  await Promise.all([caller.hook.join(), callee.hook.join()]);
+  await Promise.all([caller.peers[0].onnegotiationneeded(), callee.peers[0].onnegotiationneeded()]);
+  assert.equal(caller.signals.length, 1);
+  assert.equal(callee.signals.length, 0);
+  callee.peers[0].remoteDescription = { type: 'offer' };
+  await callee.peers[0].onnegotiationneeded();
+  assert.equal(callee.signals.length, 1);
+});
 
 test('microphone denied on entry can be enabled later for all four listeners', async (t) => {
   const h = harness({ micDenied: true });

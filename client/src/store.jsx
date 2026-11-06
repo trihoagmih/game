@@ -50,6 +50,9 @@ export function AppProvider({ children }) {
     setRooms(res.rooms);
     setOnline(res.online || []);
     setPhase('ready');
+    // A restart loses in-memory rooms. Clear the previous room before trying the
+    // URL again; otherwise a failed join leaves an unusable game on screen.
+    if (!res.roomId) setRoom(null);
     const wanted = roomFromHash();
     if (!res.roomId && wanted) {
       try {
@@ -60,7 +63,6 @@ export function AppProvider({ children }) {
         location.hash = '';
       }
     }
-    if (!res.roomId && !wanted) setRoom(null);
     return res;
   }, [toast]);
 

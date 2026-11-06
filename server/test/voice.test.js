@@ -102,3 +102,20 @@ test('có key TURN, không đặt VOICE_TURN_ENABLED → TURN bật mặc địn
   assert.ok(v.turn);
   assert.ok(v.analytics);
 });
+
+test('TURN HTTP 401 falls back to STUN even though status.relay reports configured TURN', async () => {
+  const { v } = await makeVoice(TURN, async () => ({ ok: false, status: 401 }));
+  const ice = await v.iceServers();
+  assert.equal(v.status().relay, true);
+  assert.ok(ice.every((s) => s.urls.every((u) => u.startsWith('stun:'))));
+});
+
+test('TURN network error or empty result falls back to STUN', async () => {
+  for (const fetchImpl of [
+    async () => { throw new Error('timeout'); },
+    async () => ({ ok: true, json: async () => ({ iceServers: [] }) }),
+  ]) {
+    const { v } = await makeVoice(TURN, fetchImpl);
+    assert.ok((await v.iceServers()).every((s) => s.urls.every((u) => u.startsWith('stun:'))));
+  }
+});

@@ -16,6 +16,7 @@
     "test:e2e": "node server/test/e2e.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "concurrently": "^10.0.6"
   }
 }
