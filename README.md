@@ -63,6 +63,7 @@
 - **Phím tắt (khi vẽ):** `B` bút · `E` tẩy · `F` đổ màu · `Z` hoàn tác · `1–5` cỡ nét
 
 **Tam sao thất bản (vẽ)** (3–12 người)
+- Khi tạo phòng, chọn **Cổ điển** hoặc **Chuyền hình**. Chuyền hình: người đầu nhận từ khóa ngẫu nhiên và vẽ; từng người sau chỉ xem hình ngay trước để vẽ lại; người cuối đoán bằng lời. Mỗi ván xáo trộn thứ tự người chơi, cuối ván lật từ khóa và toàn bộ chuỗi hình.
 - Mọi người làm **cùng lúc**: mỗi người viết một câu → người sau **vẽ** lại câu đó → người sau nữa nhìn tranh **đoán bằng lời** → lại vẽ… Mỗi câu chuyện đi qua đủ mọi người đúng một lần (thứ tự ngẫu nhiên, đề bài không lộ tên người trước)
 - Thời gian viết 15–120 giây, vẽ 30–240 giây; bấm **Xong** để nộp sớm (bấm lại để sửa), hết giờ thì phần đang làm dở vẫn được tính. Bước đầu có nút lấy gợi ý nếu bí ý tưởng
 - Cuối ván chủ phòng bấm **Tiếp** (`→` / `Space`) để lật từng phần của từng câu chuyện cho cả bàn cùng xem; xong ván ai cũng xem lại được mọi câu chuyện

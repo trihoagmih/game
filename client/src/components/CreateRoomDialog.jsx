@@ -14,7 +14,7 @@ const DEFAULTS = {
   wordguess: { mode: 'race', minutes: 5, maxSeats: 6, daily: false, strict: true },
   samloc: { maxSeats: 4, unit: 10, turnSeconds: 25 },
   scribble: { maxSeats: 8, rounds: 3, drawSeconds: 80, hints: true, customWords: '', onlyCustom: false },
-  telephone: { maxSeats: 8, writeSeconds: 40, drawSeconds: 90, suggest: true },
+  telephone: { mode: 'classic', maxSeats: 8, writeSeconds: 40, drawSeconds: 90, suggest: true },
   onet: { mode: 'race', maxSeats: 4, rows: 9, cols: 16, minutes: 8, hints: 3, shuffles: 3, gravity: false },
 };
 
@@ -73,6 +73,7 @@ const FIELDS = {
     ['onlyCustom', 'Chỉ dùng từ tự thêm (cần ít nhất 10 từ)', 'bool'],
   ],
   telephone: [
+    ['mode', 'Chế độ', 'select', [['classic', 'Cổ điển — viết và vẽ xen kẽ, cùng lúc'], ['relay', 'Chuyền hình — lần lượt vẽ, người cuối đoán']]],
     ['maxSeats', 'Số người chơi tối đa', 3, 12],
     ['writeSeconds', 'Thời gian viết / đoán mỗi bước (giây)', 15, 120],
     ['drawSeconds', 'Thời gian vẽ mỗi bước (giây)', 30, 240],

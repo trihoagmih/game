@@ -2,6 +2,14 @@
 
 > **Trạng thái:** đã làm theo hướng A (WebRTC mesh) — `server/src/voice.js`, `client/src/voice.js`, nút thoại ở đầu phòng + khối "Kênh thoại" trong tab Người chơi.
 
+## Kiểm tra lỗi nghe / nói trong phòng đông người
+
+- Client giữ tín hiệu đến sớm trong lúc chờ vào kênh, xử lý SDP/ICE tuần tự và giữ ICE đến trước SDP. Mỗi cặp dùng perfect negotiation để xử lý offer đồng thời.
+- Mất kết nối Socket.IO thì dọn phiên voice; kết quả vào kênh của phiên cũ không được tạo lại kết nối. WebRTC bị gián đoạn 5 giây thì thử ICE restart.
+- Khi quyền micro bị từ chối hoặc micro đã ngắt, bấm **Thử lại micro** trong kênh thoại sau khi cho phép quyền micro trên trình duyệt.
+- Test hồi quy: `node --test server/test/voice-client.test.js server/test/voice.test.js`. Test phía client mô phỏng thời điểm tín hiệu và phòng 5 người; không thay thế kiểm tra âm thanh trên thiết bị thật.
+- Kiểm tra thực tế bằng 5 thiết bị: mỗi người lần lượt nói, 4 người còn lại xác nhận nghe; thử vào cùng lúc, rời/vào lại, từ chối rồi cấp quyền micro, Wi-Fi và mạng di động. Nếu chỉ một số cặp mạng không kết nối, kiểm tra TURN đã cấp credential thành công trên server.
+
 ## Cấu hình TURN Cloudflare & tự tắt khi hết hạn mức miễn phí
 > TURN **bật** khi có `CF_TURN_KEY_ID` + `CF_TURN_KEY_API_TOKEN` (không có TURN, người dùng 4G / NAT chặt sẽ kẹt ở "đang kết nối…"). Muốn tạm tắt: `VOICE_TURN_ENABLED=0`.
 

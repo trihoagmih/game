@@ -1603,6 +1603,14 @@ textarea:focus { border-color: var(--primary-hi); box-shadow: 0 0 0 3px var(--pr
   .tp.tp-fill { padding-top: 4px; }
 }
 .tp-task > .tp-drawing { width: min(100%, calc((100vh - 330px) * 4 / 3)); width: min(100%, calc((100dvh - 330px) * 4 / 3)); min-width: 240px; align-self: center; }
+.tp-relay-draw { container-type: normal; flex-wrap: wrap; align-items: flex-start; }
+.tp-relay-draw .tp-reference { flex: 1 1 260px; max-width: 440px; }
+.tp-relay-draw .tp-canvas-box { flex: 1 1 300px; width: auto; max-width: 600px; }
+@media (max-width: 700px) {
+  .tp-relay-draw .tp-reference { flex: none; width: min(100%, 320px); align-self: center; }
+  .tp-relay-draw .tp-canvas-box { flex: none; width: 100%; display: block; }
+  .tp-relay-draw .tp-canvas-box .sc-stage { width: 100%; }
+}
 
 /* ---------- Nối thú ---------- */
 .g-onet { --gc-fg: #fdba74; }

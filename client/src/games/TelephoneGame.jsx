@@ -15,6 +15,8 @@ export default function TelephoneGame({ room, state: s }) {
   const { act, call, user } = useApp();
   const isOwner = room.ownerId === user.id;
   const playing = s.status === 'playing';
+  const relay = s.options.mode === 'relay';
+  const active = s.players.find((p) => p.id === s.activeId);
   const [stop, setStop] = useState(false);
   const timeLeft = useCountdown(s.phaseLeft, room.receivedAt, playing && !!s.phaseLeft);
   const inGame = s.players.some((p) => p.id === user.id);
@@ -27,12 +29,12 @@ export default function TelephoneGame({ room, state: s }) {
     );
 
   return (
-    <div className={`tp ${drawTask ? 'tp-fill' : ''}`}>
+    <div className={`tp ${drawTask && !drawTask.prev?.drawId ? 'tp-fill' : ''}`}>
       {playing && (
         <div className="panel tp-top">
           <span className="tp-step">Bước <b>{s.step + 1}</b>/{s.steps}</span>
           <span className="tp-title">
-            {drawTask ? <>Vẽ: <b className="tp-what">{drawTask.prev?.text || '(người trước bỏ trống — vẽ gì tùy bạn!)'}</b></> : stepTitle(s)}
+            {drawTask ? <>{drawTask.prev?.kind === 'draw' ? 'Vẽ lại hình của người trước' : <>Vẽ: <b className="tp-what">{drawTask.prev?.text || '(người trước bỏ trống — vẽ gì tùy bạn!)'}</b></>}</> : relay && active ? `${active.name} đang ${s.kind === 'draw' ? 'vẽ' : 'đoán'}` : stepTitle(s)}
           </span>
           <span className={`sc-time ${timeLeft < 10000 ? 'low' : ''}`}><Timer size={14} aria-hidden /> {Math.ceil(timeLeft / 1000)}s</span>
           {drawTask && (
@@ -47,13 +49,13 @@ export default function TelephoneGame({ room, state: s }) {
       {playing && s.task && <Task key={s.turnNo} s={s} task={s.task} act={act} timeLeft={timeLeft} />}
       {playing && !s.task && (
         <div className="panel tp-wait">
-          <Eye size={20} aria-hidden /> {inGame ? 'Bạn đã rời ván này.' : s.myId ? 'Bạn đang ngồi chờ ván sau.' : 'Bạn đang xem.'}{' '}
+          <Eye size={20} aria-hidden /> {inGame && !s.players.find((p) => p.id === user.id)?.gone ? `Chờ ${active?.name || 'mọi người'} hoàn thành lượt.` : inGame ? 'Bạn đã rời ván này.' : s.myId ? 'Bạn đang ngồi chờ ván sau.' : 'Bạn đang xem.'}{' '}
           Bài của mọi người được giữ kín — cuối ván sẽ cùng xem lại.
         </div>
       )}
 
       <GameOverDialog over={over} icon={<PartyPopper size={26} />}
-        detail={`${s.albums.length} câu chuyện đã đi qua ${s.steps} người. Xem lại xem chúng “thất bản” tới đâu, hoặc chơi luôn ván mới.`}
+        detail={`${s.albums?.length || 0} câu chuyện đã đi qua ${s.steps} người. Xem lại xem chúng “thất bản” tới đâu, hoặc chơi luôn ván mới.`}
         seats={s.seats} ready={s.ready} waitingFor={s.waitingFor} seated={!!s.myId} min={s.minPlayers}
         seatBtn={seatBtn} reviewLabel="Xem lại các câu chuyện" ReviewIcon={BookOpen} />
       {(s.status === 'reveal' || over) && <Albums s={s} isOwner={isOwner} act={act} />}
@@ -61,7 +63,7 @@ export default function TelephoneGame({ room, state: s }) {
       {s.status === 'waiting' && (
         <div className="panel tp-intro">
           <div className="tp-big">🖍️ Tam sao thất bản</div>
-          <p className="muted">Viết một câu → người sau vẽ lại → người sau nữa nhìn tranh đoán bằng lời → lại vẽ… Cuối ván xem câu chuyện “thất bản” tới đâu!</p>
+          <p className="muted">{relay ? 'Chuyền hình: người đầu nhận từ khóa và vẽ → từng người sau xem hình ngay trước và vẽ lại → người cuối đoán. Thứ tự được xáo trộn mỗi vòng!' : 'Viết một câu → người sau vẽ lại → người sau nữa nhìn tranh đoán bằng lời → lại vẽ… Cuối ván xem câu chuyện “thất bản” tới đâu!'}</p>
           <ul className="tp-seats">
             {s.seats.map((x) => <li key={x.id}>{x.name}{x.id === user.id && <span className="muted"> (bạn)</span>}<ReadyMark id={x.id} ready={s.ready} ownerId={room.ownerId} /></li>)}
             {s.seats.length === 0 && <li className="muted">Chưa có ai ngồi</li>}
@@ -84,9 +86,11 @@ export default function TelephoneGame({ room, state: s }) {
         <div className="panel small muted wc-rules">
           <b>Luật chơi</b>
           <ul>
+            {relay ? <li>Mỗi lượt chỉ một người làm: người đầu vẽ từ khóa, người sau chỉ xem hình ngay trước để vẽ lại ({s.options.drawSeconds} giây/lượt). Người cuối đoán ({s.options.writeSeconds} giây). Xáo trộn thứ tự mỗi vòng.</li> : <>
             <li>Mọi người làm <b>cùng lúc</b>. Bước đầu: mỗi người viết một câu ({s.options.writeSeconds} giây).</li>
             <li>Bước sau: bạn nhận câu của người khác và <b>vẽ</b> lại ({s.options.drawSeconds} giây) — không được viết chữ lên tranh.</li>
             <li>Bước tiếp: nhận tranh của người khác và <b>đoán bằng lời</b> tranh vẽ gì. Cứ thế xen kẽ đến khi câu chuyện đi qua đủ mọi người.</li>
+            </>}
             <li>Hết giờ mà chưa bấm Xong thì phần đang làm dở vẫn được tính.</li>
             <li>Cuối ván chủ phòng bấm <b>Tiếp</b> để lật từng phần của từng câu chuyện cho cả bàn cùng xem.</li>
             <li>Cần ít nhất {s.minPlayers} người.</li>
@@ -110,7 +114,7 @@ function Progress({ s }) {
     <div className="tp-progress" aria-label="Tiến độ">
       {s.players.map((p) => (
         <span key={p.id} className={`tp-chip ${p.done ? 'done' : ''} ${p.gone ? 'gone' : ''}`}>
-          {p.done ? <Check size={13} aria-label="xong" /> : <PenLine size={13} aria-label="đang làm" />} {p.name}
+          {p.done || (s.activeId && s.players.findIndex((x) => x.id === p.id) < s.step) ? <Check size={13} aria-label="xong" /> : <PenLine size={13} aria-label={s.activeId && s.activeId !== p.id ? 'chờ lượt' : 'đang làm'} />} {p.name}{s.activeId === p.id && ' (đang chơi)'}
         </span>
       ))}
     </div>
@@ -168,7 +172,8 @@ function DrawTask({ s, task }) {
   const canDraw = !task.done;
   const t = useDrawTools(canvas, canDraw);
   return (
-    <div className="tp-draw">
+    <div className={`tp-draw ${task.prev?.drawId ? 'tp-relay-draw' : ''}`}>
+      {task.prev?.drawId && <div className="tp-reference"><p className="muted small">Hình của người trước</p><DrawingView id={task.prev.drawId} /></div>}
       {canDraw && <DrawTools t={t} canvas={canvas} className="tp-tools" />}
       <div className="tp-canvas-box">
         <div className={`sc-stage ${canDraw ? 'my-turn' : ''}`}>
@@ -222,7 +227,7 @@ function Albums({ s, isOwner, act }) {
   useEffect(() => { if (revealing) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [revealing, cur, count]);
   useHotkeys({ ArrowRight: () => act({ type: 'next' }), ' ': () => act({ type: 'next' }) }, revealing && isOwner);
   if (!album) return null;
-  const total = s.step; // số phần đã làm của mỗi câu chuyện
+  const total = s.step + (s.options.mode === 'relay' ? 1 : 0);
   return (
     <div className="tp-albums">
       <div className="panel tp-album-head">

@@ -303,8 +303,8 @@ function VoiceControl({ v, onOpen }) {
   return (
     <div className="voice-ctl" role="group" aria-label="Kênh thoại">
       <button className={`btn sm voice-mic ${v.muted ? 'muted' : 'on'} ${v.speaking.has(v.me) ? 'talk' : ''} ${othersTalking ? 'others' : ''}`}
-        onClick={v.micOk ? v.toggleMute : onOpen} aria-pressed={!v.muted}
-        title={!v.micOk ? 'Không có micro — chỉ nghe' : v.muted ? 'Bật mic (M)' : 'Tắt mic (M)'} aria-label={!v.micOk ? 'Không có micro, chỉ nghe' : v.muted ? 'Bật mic' : 'Tắt mic'}>
+        onClick={v.toggleMute} disabled={v.joining} aria-pressed={!v.muted}
+        title={!v.micOk ? 'Thử lại micro' : v.muted ? 'Bật mic (M)' : 'Tắt mic (M)'} aria-label={!v.micOk ? 'Thử lại micro' : v.muted ? 'Bật mic' : 'Tắt mic'}>
         {v.muted ? <MicOff size={18} aria-hidden /> : <Mic size={18} aria-hidden />}
         <span className="voice-count" aria-hidden>{n}</span>
       </button>
@@ -334,7 +334,7 @@ function VoicePanel({ v, room, me }) {
         <div className="row vc-actions">
           {v.micOk
             ? <button className={`btn ${v.muted ? '' : 'primary'}`} onClick={v.toggleMute}>{v.muted ? <><MicOff size={16} aria-hidden /> Bật mic</> : <><Mic size={16} aria-hidden /> Tắt mic</>} <kbd>M</kbd></button>
-            : <span className="muted small">Không có micro — bạn chỉ nghe</span>}
+            : <button className="btn" onClick={v.toggleMute} disabled={v.joining}><MicOff size={16} aria-hidden /> {v.joining ? 'Đang bật micro…' : 'Thử lại micro'}</button>}
           <button className="btn danger" onClick={v.leave}><PhoneOff size={16} aria-hidden /> Rời kênh</button>
         </div>
       )}

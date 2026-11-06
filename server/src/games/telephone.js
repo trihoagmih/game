@@ -16,6 +16,7 @@ export class TelephoneHandler {
   constructor(room, options) {
     this.room = room;
     this.options = {
+      mode: options.mode === 'relay' ? 'relay' : 'classic',
       maxSeats: clampInt(options.maxSeats, MIN_PLAYERS, 12, 8),
       writeSeconds: clampInt(options.writeSeconds, 15, 120, 40),
       drawSeconds: clampInt(options.drawSeconds, 30, 240, 90),
@@ -44,7 +45,10 @@ export class TelephoneHandler {
   isPlaying() { return this.status === 'playing' || this.status === 'reveal'; }
   seated(id) { return this.seats.some((s) => s.id === id); }
   idx(id) { return this.players.findIndex((p) => p.id === id); }
-  get kind() { return stepKind(this.step); }
+  get relay() { return this.options.mode === 'relay'; }
+  get kind() { return this.relay ? (this.step === this.players.length - 1 ? 'text' : 'draw') : stepKind(this.step); }
+  chainIndex(i) { return this.relay ? 0 : chainOf(i, this.step, this.players.length); }
+  previous(i) { return this.chains[this.chainIndex(i)]?.[this.relay ? this.step : this.step - 1] || null; }
 
   rename(id, name) {
     for (const s of this.seats) if (s.id === id) s.name = name;
@@ -111,6 +115,7 @@ export class TelephoneHandler {
     if (this.status !== 'playing') throw new Error('Ván chưa bắt đầu');
     const i = this.idx(id);
     if (i < 0 || this.players[i].gone) throw new Error('Bạn không chơi ván này');
+    if (this.relay && i !== this.step) throw new Error('Chưa tới lượt của bạn');
     return i;
   }
 
@@ -126,7 +131,7 @@ export class TelephoneHandler {
   stream(id, payload) {
     if (this.status !== 'playing' || this.kind !== 'draw' || Number(payload.turn) !== this.turnNo) return null;
     const i = this.idx(id);
-    if (i < 0 || this.players[i].gone || this.done.has(id)) return null;
+    if (i < 0 || this.players[i].gone || this.done.has(id) || (this.relay && i !== this.step)) return null;
     const d = this.drafts.get(id);
     for (const o of cleanOps(payload.ops)) {
       if (o.k === 'c') { d.ops = []; d.points = 0; } else if (o.k === 'u') d.ops = d.ops.filter((x) => x.id !== o.id);
@@ -161,7 +166,7 @@ export class TelephoneHandler {
       return this.chains.some((ch, c) => ch.some((e, k) => e.drawId === drawId && (c < album || (c === album && k < shown))));
     }
     const i = this.idx(viewerId);
-    return i >= 0 && this.step > 0 && this.chains[chainOf(i, this.step, this.players.length)][this.step - 1]?.drawId === drawId;
+    return i >= 0 && !this.players[i].gone && (!this.relay || i === this.step) && this.previous(i)?.drawId === drawId;
   }
 
   // ---------- Diễn biến ván ----------
@@ -174,13 +179,14 @@ export class TelephoneHandler {
       [this.players[i], this.players[j]] = [this.players[j], this.players[i]];
     }
     this.chains = this.players.map(() => []);
+    if (this.relay) this.chains = [[{ by: null, name: 'Từ khóa', kind: 'text', text: this._suggest()[0] }]];
     this.drawings = new Map();
     this.suggestions = new Map(this.players.map((p) => [p.id, this._suggest()]));
     this.step = 0;
     this.status = 'playing';
     this.ready.clear();
     this.gameNo++;
-    this.room.system(`Ván ${this.gameNo} bắt đầu — ${this.players.length} người, ${this.players.length} bước. Mỗi người viết một câu!`);
+    this.room.system(`Ván ${this.gameNo} bắt đầu — ${this.players.length} người, ${this.players.length} bước. ${this.relay ? 'Lần lượt vẽ lại, người cuối đoán!' : 'Mỗi người viết một câu!'}`);
     this._beginStep();
   }
 
@@ -203,17 +209,19 @@ export class TelephoneHandler {
       try { this._endStep(); } catch (e) { console.error('telephone timer', e); }
       this.room.changed();
     }, ms + GRACE_MS);
+    if (this.relay && this.players[this.step].gone) this._endStep();
   }
 
   _checkAllDone() {
-    if (this.status === 'playing' && this.players.every((p) => this.done.has(p.id))) this._endStep();
+    if (this.status === 'playing' && (this.relay ? this.done.has(this.players[this.step].id) || this.players[this.step].gone : this.players.every((p) => this.done.has(p.id)))) this._endStep();
   }
 
   /** Hết bước: ghi phần của mọi người (chưa nộp thì lấy bản nháp, bỏ trống nếu không có) vào câu chuyện. */
   _endStep() {
     const n = this.players.length;
     this.players.forEach((p, i) => {
-      const c = chainOf(i, this.step, n);
+      if (this.relay && i !== this.step) return;
+      const c = this.chainIndex(i);
       const d = this.drafts.get(p.id);
       const entry = { by: p.id, name: p.name, kind: this.kind };
       if (this.kind === 'text') entry.text = d.text;
@@ -258,16 +266,15 @@ export class TelephoneHandler {
     const n = this.players.length;
     const i = this.idx(viewerId);
     let task = null;
-    if (playing && i >= 0 && !this.players[i].gone) {
-      const c = chainOf(i, this.step, n);
-      const prev = this.step > 0 ? this.chains[c][this.step - 1] : null;
+    if (playing && i >= 0 && !this.players[i].gone && (!this.relay || i === this.step)) {
+      const prev = this.previous(i);
       task = {
         kind: this.kind,
         // Đề bài từ người trước — không lộ tên để khỏi đoán theo người
         prev: prev && (prev.kind === 'text' ? { kind: 'text', text: prev.text } : { kind: 'draw', drawId: prev.drawId }),
         done: this.done.has(viewerId),
         text: this.drafts.get(viewerId)?.text || '',
-        suggestions: this.step === 0 && this.options.suggest ? this.suggestions.get(viewerId) : null,
+        suggestions: !this.relay && this.step === 0 && this.options.suggest ? this.suggestions.get(viewerId) : null,
       };
     }
     let albums = null;
@@ -288,6 +295,7 @@ export class TelephoneHandler {
       myId: this.seated(viewerId) ? viewerId : null,
       players: this.players.map((p) => ({ id: p.id, name: p.name, gone: p.gone, done: playing && this.done.has(p.id) })),
       step: this.step,
+      activeId: playing && this.relay ? this.players[this.step].id : null,
       steps: n,
       kind: playing ? this.kind : null,
       turnNo: this.turnNo,
