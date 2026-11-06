@@ -9,7 +9,7 @@ import { BOT_LEVEL_NAMES, botLevel, isBot, newBotId, requireBotManager, thinkMs 
 
 // Từ điển (xem server/src/data/README.md): âm tiết tiếng Việt và từ ghép 2 chữ (~62.000 từ, gộp từ 3 nguồn)
 const DATA_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '../data');
-const readLines = (file) => fs.readFileSync(path.join(DATA_DIR, file), 'utf8').split('\n').filter(Boolean);
+const readLines = (file) => fs.readFileSync(path.join(DATA_DIR, file), 'utf8').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 export const isValidSyllable = makeSyllableChecker(readLines('vi-syllables.txt'));
 const WORD_LISTS = ['vi-words.txt', 'vi-words-noitu.txt', 'vi-words-common.txt'].flatMap(readLines);
 // Chỉ giữ các mục có cả 2 chữ là âm tiết tiếng Việt (bỏ "acid amin", "ad hoc"… không bao giờ nối được)

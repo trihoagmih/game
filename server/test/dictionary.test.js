@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseWord } from '@game/shared/wordchain';
-import { isKnownWord } from '../src/games/wordchain.js';
+import { isKnownWord, isValidSyllable } from '../src/games/wordchain.js';
 
 const known = (w) => isKnownWord(parseWord(w));
+
+test('loaded syllable dictionary accepts common Vietnamese syllables on LF and CRLF checkouts', () => {
+  for (const syllable of ['con', 'mèo', 'cây', 'học', 'nhà']) assert.ok(isValidSyllable(syllable), syllable);
+});
 
 test('từ điển nối từ có các từ ghép thông dụng', () => {
   for (const w of [
