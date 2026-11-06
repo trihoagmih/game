@@ -152,7 +152,8 @@ input[type=checkbox] { width: 16px; height: 16px; min-height: 0; accent-color: v
 .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: #26304f; color: #c9d2ea; margin-left: 6px; white-space: nowrap; }
 .badge.playing { background: rgba(34,197,94,.15); color: #86efac; }
 .badge.waiting { background: rgba(79,124,255,.16); color: #a9bdff; }
-.badge.watching { background: rgba(168,85,247,.18); color: #ddd6fe; }
+.badge.watching { gap: 4px; background: rgba(168,85,247,.18); color: #ddd6fe; }
+.badge.watching svg { flex: none; }
 .badge.warn { background: rgba(245,158,11,.18); color: #fde68a; }
 
 /* ---------- Onboarding (kết nối → mật khẩu → tên) ---------- */
@@ -250,7 +251,7 @@ input[type=checkbox] { width: 16px; height: 16px; min-height: 0; accent-color: v
 .op-content { display: none; flex-direction: column; gap: 8px; padding: 0 10px 10px; min-height: 0; }
 .online-panel.open .op-content { display: flex; }
 .online-panel.open .op-stack { display: none; }
-.online-panel .search { max-width: none; margin: 0 4px; }
+.online-panel .search { flex: none; max-width: none; margin: 0 4px; }
 .op-scroll { overflow-y: auto; max-height: 340px; display: flex; flex-direction: column; }
 .op-group { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 8px 6px 4px; }
 .op-group span { font-variant-numeric: tabular-nums; opacity: .8; }
@@ -960,7 +961,7 @@ input[aria-invalid=true]:focus { border-color: var(--danger); box-shadow: 0 0 0 
 /* Báo lượt gọn dưới tên phòng */
 .turn-pill { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; max-width: 100%; height: 22px; margin-top: 2px;
   padding: 0 10px; border-radius: 99px; font-size: 12.5px; line-height: 1; white-space: nowrap; overflow: hidden; }
-.turn-pill .tp-text { overflow: hidden; text-overflow: ellipsis; }
+.turn-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .turn-pill.other { background: var(--panel-2); border: 1px solid var(--line-strong); color: var(--text); }
 .turn-pill.mine { background: var(--color-accent); color: var(--color-on-accent); font-weight: 600; animation: pillpulse 1.4s var(--ease-out) infinite; }
 @keyframes pillpulse { 50% { box-shadow: 0 0 0 4px rgba(245,158,11,.3); } }

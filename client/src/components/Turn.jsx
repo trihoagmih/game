@@ -91,7 +91,7 @@ export function TurnPill({ info, sub }) {
   return (
     <span className={`turn-pill ${mine ? 'mine' : 'other'}`} role="status" aria-live="polite">
       {mine ? <Hand size={14} aria-hidden /> : info.who ? <span className="tb-dot" aria-hidden /> : <Hourglass size={13} aria-hidden />}
-      <span className="tp-text">
+      <span className="turn-pill-text">
         {mine ? <b>{info.text || 'Đến lượt bạn!'}</b> : info.who ? <>Lượt của <b>{info.who}</b></> : info.text}
       </span>
     </span>
