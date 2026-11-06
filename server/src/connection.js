@@ -48,6 +48,7 @@ export function handleConnection(socket, { lobby, voice, connections }) {
     socket.on(event, async (payload, ack) => {
       const reply = typeof ack === 'function' ? ack : () => {};
       try {
+        if (lobby.frozen) throw new Error('Máy chủ đang cập nhật, hãy kết nối lại');
         if (tooFast(kind)) throw new Error('Thao tác quá nhanh, hãy chậm lại');
         if (payload !== undefined && !isPlainObject(payload)) throw new Error('Dữ liệu không hợp lệ');
         if (auth && !user) throw new Error('Chưa đăng nhập');
@@ -284,6 +285,7 @@ export function handleConnection(socket, { lobby, voice, connections }) {
 
   socket.on('disconnect', () => {
     connections.dec(ip);
+    if (lobby.frozen) return;
     if (!user) return;
     const u = user;
     u.sockets.delete(socket.id);

@@ -33,3 +33,13 @@ Shard IDs stay stable across restarts. Removing a shard requires draining/migrat
 Per-IP connection/rate limits remain per shard; add a proxy-wide limit before exposing a larger public cluster.
 
 Run `TEST_REDIS_URL=redis://localhost:6379 node --test server/test/cluster.test.js` for real Redis lease/identity tests.
+
+## PR 3: checkpoint recovery and shutdown
+
+Cluster mode also requires a shared, independent 64-hex-character `SNAPSHOT_KEY`.
+Registered game state is encrypted and checkpointed every two seconds, with a final checkpoint on graceful shutdown.
+All 12 handlers restore their prototypes, Maps/Sets, private state and absolute deadlines. Runtime handles and voice membership are rebuilt.
+Snapshots are fenced by the Redis owner lease, so an old owner cannot overwrite a replacement owner's snapshot.
+`/ready` distinguishes traffic readiness from `/health` process liveness.
+Restarting a shard restores its rooms; this is restart recovery, not live room migration or uninterrupted failover.
+See [docker-setup.md](docker-setup.md) for setup, secrets, recovery limits and backup procedures.

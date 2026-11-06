@@ -1,5 +1,6 @@
 // Tiện ích chung cho người chơi máy (bot). Bot không phải người dùng thật: không có socket, không là
 // thành viên phòng; id bắt đầu bằng "bot:" (id người dùng thật không bao giờ chứa dấu ":").
+import { randomUUID } from 'node:crypto';
 export const BOT_LEVELS = ['easy', 'medium', 'hard'];
 export const BOT_LEVEL_NAMES = { easy: 'Dễ', medium: 'Vừa', hard: 'Khó' };
 
@@ -16,6 +17,5 @@ export function requireBotManager(handler, id) {
   }
 }
 
-let botSeq = 0;
 /** Id duy nhất cho một máy (dùng khi một bàn có nhiều máy). */
-export const newBotId = () => `bot:${(++botSeq).toString(36)}`;
+export const newBotId = () => `bot:${randomUUID()}`;

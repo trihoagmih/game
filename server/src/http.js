@@ -5,11 +5,12 @@ import path from 'node:path';
 import { APP_VERSION, CLIENT_DIST, CORS_ORIGINS, TRUST_PROXY } from './config.js';
 
 /** @param {{ micPolicy: string }} voice quyền micro phụ thuộc voice chat có bật hay không */
-export function createApp(voice) {
+export function createApp(voice, { ready = () => true } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.use(securityHeaders(voice));
   app.get('/health', (_req, res) => res.json({ ok: true, version: APP_VERSION }));
+  app.get('/ready', (_req, res) => { const ok = ready(); res.status(ok ? 200 : 503).json({ ok }); });
   if (fs.existsSync(CLIENT_DIST)) {
     app.use(express.static(CLIENT_DIST, { index: false, maxAge: '1h' }));
     app.get('*', (_req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));

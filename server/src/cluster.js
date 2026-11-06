@@ -43,6 +43,14 @@ export class Cluster {
       const valid = await this.client.eval(RENEW, { keys: [this.key(`lease:${this.nodeId}`)], arguments: [this.owner, '15'] });
       if (!valid) throw new Error('Lost shard ownership');
       this.renewedAt = Date.now();
+      if (!this.identitiesRenewedAt || Date.now() - this.identitiesRenewedAt > 60_000) {
+        for (const user of this.lobby.users.values()) {
+          if (user.transferred || (!user.sockets.size && !user.roomId)) continue;
+          await this.saveIdentity(user);
+          await this.client.eval(RENEW, { keys: [this.routeKey(user.token)], arguments: [this.nodeId, '86400'] });
+        }
+        this.identitiesRenewedAt = Date.now();
+      }
       const rooms = [...this.lobby.rooms.values()].map((room) => ({ ...room.summary(), server: room.server, nodeId: this.nodeId }));
       const online = this.lobby.localOnlineList ? this.lobby.localOnlineList() : [];
       await this.client.set(this.key(`node:${this.nodeId}`), JSON.stringify({ id: this.nodeId, owner: this.owner, rooms, online, draining: !!this.lobby.draining }), { EX: 10 });

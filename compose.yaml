@@ -19,6 +19,7 @@ x-game: &game
     REDIS_NAMESPACE: game:v1
     CLUSTER_NODES: a,b
     MAX_SPECTATORS_PER_ROOM: ${MAX_SPECTATORS_PER_ROOM:-30}
+    SNAPSHOT_KEY: ${SNAPSHOT_KEY:?Set a 64-character hex SNAPSHOT_KEY in .env}
 
 services:
   redis:
@@ -54,3 +55,9 @@ services:
 
 volumes:
   redis-data:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

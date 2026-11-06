@@ -265,9 +265,15 @@ export class ScribbleHandler {
       this._endTurn();
     });
     // Gợi ý: lộ dần vài chữ cái trong khoảng 45%–85% thời gian
+    this._scheduleHints();
+  }
+
+  _scheduleHints() {
+    const word = this.word;
+    const total = this.phaseTotal;
     if (this.options.hints) {
       const n = hintCount(word);
-      for (let k = 0; k < n; k++) {
+      for (let k = this.revealed.size; k < n; k++) {
         const at = total * (0.45 + (0.4 * k) / Math.max(1, n - 1));
         this.hintTimers.push(setTimeout(() => {
           if (this.phase !== 'draw' || this.word !== word) return;
@@ -275,7 +281,7 @@ export class ScribbleHandler {
           if (hidden.length <= 1) return;
           this.revealed.add(hidden[randInt(hidden.length)]);
           this.room.changed();
-        }, at));
+        }, Math.max(0, this.deadline - total + at - Date.now())));
       }
     }
   }
