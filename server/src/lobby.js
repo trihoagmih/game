@@ -205,7 +205,7 @@ export class Lobby {
 
   importUser(identity) {
     const existing = this.users.get(identity.id);
-    if (existing) { existing.transferred = false; existing.name = identity.name; return existing; }
+    if (existing) { existing.name = identity.name; return existing; }
     const user = { ...identity, roomId: null, sockets: new Set(), graceTimer: null, lastSeen: Date.now() };
     this.users.set(user.id, user);
     this.byToken.set(user.token, user);

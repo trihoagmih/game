@@ -91,6 +91,7 @@ export function handleConnection(socket, { lobby, voice, connections }) {
       const nodeId = await lobby.cluster.claimUser(u);
       if (nodeId !== lobby.cluster.nodeId) return { redirect: { nodeId } };
     }
+    u.transferred = false;
     if (user && user !== u) user.sockets.delete(socket.id); // gọi hello lần nữa với danh tính khác
     clearTimeout(u.graceTimer);
     u.lastSeen = Date.now();
