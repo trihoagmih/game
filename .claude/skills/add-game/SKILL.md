@@ -1,6 +1,6 @@
 ---
 name: add-game
-description: Thêm một trò chơi mới vào Sảnh Trò Chơi (engine shared, handler server, view/contract, snapshot/recovery, UI client, tests, docs). Dùng khi người dùng muốn thêm game, tạo trò chơi mới, port một luật chơi mới vào lobby, hoặc hỏi cần sửa những file nào để có một game mới.
+description: Thêm một trò chơi mới vào Sảnh Trò Chơi (engine shared, handler server, view/contract, snapshot/recovery, UI client thiết kế qua skill UI và kiểm tra responsive, tests, docs). Dùng khi người dùng muốn thêm game, tạo trò chơi mới, port một luật chơi mới vào lobby, hoặc hỏi cần sửa những file nào để có một game mới.
 argument-hint: "[tên game] [mô tả luật ngắn]"
 ---
 
@@ -91,7 +91,60 @@ vào `GAMES` (từ đó sinh `GameId`/`isGame`).
   và dòng tóm tắt option trong hàm mô tả phòng nếu có option.
 - `components/CreateRoomDialog.tsx`: default option và field (dùng hằng min/max/default từ shared).
 - `components/Turn.tsx` nếu game có chỉ báo lượt.
-- Style trong `client/src/styles.css`, theo token/class sẵn có; kiểm tra mobile và bàn phím.
+- Style trong `client/src/styles.css`, theo token/class sẵn có. Bắt buộc làm theo mục 5a và 5b.
+
+### 5a. Thiết kế UI bắt buộc qua skill UI
+
+Không tự viết UI game “theo cảm tính”. Trước khi viết JSX/CSS cho màn hình game (và mỗi lần đổi layout lớn):
+
+1. **Gọi skill UI**: dùng skill `impeccable` nếu đã được cài trong phiên; nếu không có, dùng `ui-ux-pro-max`
+   (bố cục, responsive, accessibility, touch target) và `ui-styling` khi cần canvas/style chi tiết. Nếu không
+   skill nào khả dụng, nói rõ với người dùng thay vì bỏ qua bước này.
+2. **Đọc design system của repo**: `design-system/sanh-tro-choi/MASTER.md` (màu, typography, spacing,
+   component, anti-pattern). Nếu có `design-system/pages/<id>.md` thì file đó ghi đè MASTER.
+3. Đưa cho skill UI bối cảnh thật của khung phòng (bên dưới) và yêu cầu nó tối ưu không gian cho người chơi;
+   áp kết quả bằng token/class sẵn có, không thêm framework CSS mới.
+
+### 5b. Layout: không vỡ, responsive, tối ưu không gian
+
+Khung phòng đã cố định chiều cao (`.app.in-room` = `100dvh`, không cuộn trang). Game render bên trong
+`.game-area` (có `container-type: size`) → `.game-fit`. Vì vậy:
+
+- **Co theo vùng chơi, không theo viewport**: kích thước bàn/board tính bằng `cqw`/`cqh` của `.game-area`,
+  trừ đi chiều cao header/thanh hành động của chính game, giữ tỉ lệ khung. Mẫu có sẵn:
+  `.bg-col.caro-main { width: min(100cqw, 900px, max(250px, calc(100cqh - 156px))); }`,
+  `.tetris-boards { width: min(100%, clamp(270px, calc(100cqh - 194px), 460px)); }`.
+  Không hardcode `px` cho board, không dùng `100vh`/`100vw` trong game.
+- **Ưu tiên diện tích cho bàn chơi**: board là phần lớn nhất; thông tin phụ (điểm, lịch sử, log) gọn,
+  đặt cạnh board trên màn rộng và xếp dưới/thu gọn trên mobile. Không thêm header/khung trùng với
+  room header, StartBar, GameInfo đã có. Không để khoảng trống chết lớn quanh board trên desktop.
+- **Không vỡ layout**: mọi flex/grid child chứa text dùng `min-width: 0` + ellipsis cho tên người chơi dài;
+  không có cuộn ngang trang; nút/thanh hành động luôn thấy được mà không phải cuộn khi chơi.
+- **Breakpoint của repo**: `max-width: 640px` (điện thoại), `641px–1100px` (tablet), `min-width: 1100px`
+  (desktop), và `(max-height: 500px) and (orientation: landscape)` (điện thoại xoay ngang). Thêm rule
+  cho game mới ở đúng các breakpoint này khi cần.
+- **Cảm ứng**: target ≥ 44px với `(pointer: coarse)`; game cần phím mũi tên phải có nút điều khiển trên
+  màn cảm ứng; chặn cuộn/zoom ngoài ý muốn trong vùng thao tác (`touch-action`), nhưng không chặn cuộn trang ở chỗ khác.
+- Tôn trọng `prefers-reduced-motion`; màu không là kênh thông tin duy nhất (thêm icon/chữ).
+
+**Kiểm chứng bằng ảnh chụp thật** (Playwright/Chromium có sẵn): chạy `npm run dev`, tạo phòng game mới,
+vào trạng thái đang chơi, rồi chụp và đo ở ít nhất các kích thước:
+360×740, 390×844, 844×390 (ngang), 768×1024, 1366×768, 1920×1080. Với mỗi kích thước kiểm tra:
+
+```ts
+const report = await page.evaluate(() => {
+  const area = document.querySelector('.game-area');
+  return {
+    pageOverflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    areaScrolls: area ? area.scrollHeight > area.clientHeight + 1 : null,
+  };
+});
+```
+
+`pageOverflowX` phải là `false`; `areaScrolls` nên `false` từ 390×844 trở lên (màn quá thấp được phép cuộn
+trong vùng chơi). Xem ảnh chụp: board không bị cắt, không chồng lên nút, nút hành động thấy được, chữ không
+tràn. Lưu ảnh ở scratchpad (không commit `captures/`) và báo kích thước nào đã kiểm tra. Nếu không chạy
+được trình duyệt, nói rõ là chưa kiểm chứng layout.
 
 ## 6. Tests
 
@@ -139,6 +192,8 @@ Báo rõ checks nào đã chạy, Redis/Compose/browser checks nào bị skip.
 - [ ] `GameAction` (nếu có action mới) trong `contracts.ts`; `GameViews` trong `views.ts`
 - [ ] `server/src/games/<id>.ts` + đăng ký `GAMES` trong `index.ts`
 - [ ] `snapshot.ts` (class engine) + nhánh timer trong `resumeRoom.ts`
+- [ ] UI thiết kế qua skill `impeccable`/`ui-ux-pro-max` + `design-system/sanh-tro-choi/MASTER.md`
+- [ ] Layout co theo `cqw`/`cqh`, không cuộn ngang, đã chụp kiểm tra 6 kích thước màn hình
 - [ ] `client/src/games/<Ten>Game.tsx` + `RoomView.tsx` + `Lobby.tsx` + `CreateRoomDialog.tsx` (+ `Turn.tsx`, `styles.css`)
 - [ ] `server/test/<id>.test.ts`, `recovery.test.ts`, `e2e.ts`
 - [ ] `README.md`, `docs/architecture.md`
