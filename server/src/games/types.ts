@@ -21,7 +21,7 @@ export interface GameHandler {
   stand(id: string): void;
   onLeave(id: string): void;
   rename(id: string, name: string): void;
-  action(id: string, action: GameAction): void;
+  action(id: string, action: GameAction): void | { race: import('@game/shared/race').RaceSyncAck; broadcast: boolean };
   view(viewerId: string): GameViews[GameKind];
   dispose(): void;
   botName?(id: string): string | undefined;

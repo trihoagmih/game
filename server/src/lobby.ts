@@ -8,6 +8,10 @@ import type { GameServer } from './socketTypes.js';
 import type { GameHandler } from './games/types.js';
 import type { RoomState, RoomSummary, OnlineUser } from '@game/shared/contracts';
 import type { Cluster, StoredIdentity } from './cluster.js';
+import { GoldmineHandler } from './games/goldmine.js';
+import { SkyhopHandler } from './games/skyhop.js';
+import type { GoldmineView } from '@game/shared/goldmine';
+import type { SkyhopView } from '@game/shared/skyhop';
 
 export interface User {
   id: string; token: string; name: string; server: string; sockets: Set<string>;
@@ -87,7 +91,8 @@ export class Room {
       this._pending = false;
       if (!this.lobby.rooms.has(this.id)) return;
       const common = this.commonView();
-      for (const uid of this.members) this.lobby.toUser(uid).emit('room:state', this.viewFor(uid, common));
+      const race = this.handler instanceof GoldmineHandler || this.handler instanceof SkyhopHandler ? this.handler.view('') : undefined;
+      for (const uid of this.members) this.lobby.toUser(uid).emit('room:state', this.viewFor(uid, common, race));
       const summaryKey = JSON.stringify(this.summary());
       const presenceKey = JSON.stringify([this.name, [...this.members], this.handler.playerIds()]);
       if (summaryKey !== this._summaryKey || presenceKey !== this._presenceKey) {
@@ -118,10 +123,11 @@ export class Room {
     };
   }
 
-  viewFor(uid: string, common = this.commonView()): RoomState {
+  viewFor(uid: string, common = this.commonView(), race?: GoldmineView | SkyhopView): RoomState {
     // Each Handler is created from GAMES[this.game] and declares the matching view type,
     // so the game id and its view stay correlated even though TypeScript cannot follow that here.
-    return { ...common, state: this.handler.view(uid) } as RoomState;
+    const state = race ? { ...race, myId: race.seats.some((seat) => seat.id === uid) ? uid : null } : this.handler.view(uid);
+    return { ...common, state } as RoomState;
   }
 
   summary(): RoomSummary {

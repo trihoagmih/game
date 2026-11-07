@@ -158,3 +158,68 @@ test('chơi một mình bắt đầu được ngay, đứng dậy giữa ván l�
   assert.equal(h.timer, null);
   assert.equal(h.watchTimer, null);
 });
+
+test('lost sync ACKs retry idempotently, including multiple inputs at the same tick', (t) => {
+  const advance = clock(t);
+  const h = startSky(t, {}, [players[0]]);
+  advance(COUNTDOWN_MS + 300);
+  const batch: GameAction = { type: 'raceSync', gameNo: h.gameNo, offset: 0, tick: 10, inputs: [[0, 'flap'], [0, 'flap']] };
+  const first = h.action('a', batch);
+  const state = h.view('a').players[0];
+  const retry = h.action('a', batch);
+  assert.deepEqual(retry, first);
+  assert.equal(retry?.race.accepted, 2);
+  assert.equal(h.players[0].inputs.length, 2);
+  assert.deepEqual(h.view('a').players[0], state);
+  assert.throws(() => h.action('a', { ...batch, inputs: [[0, 'boom']] }), /không hợp lệ/);
+  assert.throws(() => h.action('a', { ...batch, offset: -1 }), /Thứ tự/);
+  assert.throws(() => h.action('a', { ...batch, offset: 3 }), /Thứ tự/);
+  assert.throws(() => h.action('a', { ...batch, gameNo: h.gameNo + 1 }), /Ván chơi/);
+});
+
+test('late uncommitted suffix is rejected atomically with an authoritative prefix', (t) => {
+  const advance = clock(t);
+  const h = startSky(t, {}, [players[0]]);
+  advance(COUNTDOWN_MS + 400);
+  h.action('a', { type: 'raceSync', gameNo: h.gameNo, offset: 0, tick: 10, inputs: [[0, 'flap']] });
+  const result = h.action('a', { type: 'raceSync', gameNo: h.gameNo, offset: 1, tick: 20, inputs: [[5, 'flap'], [15, 'flap']] });
+  assert.equal(result?.race.resync, true);
+  assert.equal(result?.race.accepted, 1);
+  assert.equal(h.players[0].game.tick, 10);
+  assert.deepEqual(h.players[0].inputs, [[0, 'flap']]);
+});
+
+test('race snapshots coalesce across players and publish within 200ms', (t) => {
+  const advance = clock(t);
+  const changed = t.mock.method(room, 'changed');
+  const h = startSky(t);
+  advance(COUNTDOWN_MS + 300);
+  changed.mock.resetCalls();
+  for (const player of players) {
+    const result = h.action(player.id, { type: 'raceSync', gameNo: h.gameNo, offset: 0, tick: 10, inputs: [[0, 'flap']] });
+    assert.equal(result?.broadcast, false);
+  }
+  assert.equal(changed.mock.callCount(), 0);
+  advance(200);
+  assert.equal(changed.mock.callCount(), 1);
+  advance(200);
+  assert.equal(changed.mock.callCount(), 1, 'idle interval does not rebroadcast');
+});
+
+test('final ACK remains available after finish and stale-game retries cannot start a new run', (t) => {
+  const advance = clock(t);
+  const h = startSky(t, {}, [players[0]]);
+  advance(COUNTDOWN_MS + 300);
+  h.action('a', { type: 'raceSync', gameNo: h.gameNo, offset: 0, tick: 10, inputs: [[0, 'flap']] });
+  assert.throws(() => h.action('a', { type: 'raceSync', gameNo: h.gameNo, offset: 0, tick: 10, inputs: [[1, 'flap']] }), /khớp/);
+  h.action('a', { type: 'giveup' });
+  const oldGameNo = h.gameNo;
+  const result = h.action('a', { type: 'raceSync', gameNo: oldGameNo, offset: 0, tick: 10, inputs: [[0, 'flap']] });
+  assert.equal(result?.race.done, true);
+  assert.equal(result?.race.accepted, 1);
+  assert.equal(result?.broadcast, false);
+  h.action('a', { type: 'start' });
+  assert.throws(() => h.action('a', { type: 'raceSync', gameNo: oldGameNo, offset: 0, tick: 10, inputs: [[0, 'flap']] }), /Ván chơi/);
+  assert.equal(h.players[0].game.tick, 0);
+  assert.deepEqual(h.players[0].inputs, []);
+});

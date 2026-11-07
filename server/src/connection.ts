@@ -233,10 +233,13 @@ export function handleConnection(socket: GameSocket, { lobby, voice, connections
 
   on('game:action', (a, me) => {
     const room = lobby.currentRoom(me);
+    let broadcast = true;
     try {
-      room.handler.action(me.id, a);
+      const result = room.handler.action(me.id, a);
+      broadcast = !result || result.broadcast;
+      return result ? { race: result.race } : undefined;
     } finally {
-      room.changed();
+      if (broadcast) room.changed();
     }
   });
 

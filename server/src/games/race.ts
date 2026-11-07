@@ -42,6 +42,7 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
   timer: ReturnType<typeof setTimeout> | null = null;
   watchTimer: ReturnType<typeof setInterval> | null = null;
   wins = new Map<string, RaceScore>();
+  syncDirty = false;
 
   constructor(room: RaceRoom, options: O) {
     this.room = room;
@@ -114,14 +115,23 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
       this.ready.toggle(id);
       return;
     }
-    if (!this.isPlaying()) throw new Error('Ván chưa bắt đầu');
+    if (!this.isPlaying()) {
+      const done = this.player(id);
+      if (action.type === 'raceSync' && done?.done && action.gameNo === this.gameNo) {
+        return { race: { gameNo: this.gameNo, tick: done.game.tick, accepted: done.inputs.length, done: true, resync: false }, broadcast: false };
+      }
+      throw new Error('Ván chưa bắt đầu');
+    }
     const p = this.player(id);
     if (!p) throw new Error('Bạn không chơi ván này');
-    if (p.done) return; // gói tin đến trễ sau khi đã dừng — bỏ qua êm
     if (action.type === 'raceSync') {
-      this.sync(p, action.tick, action.inputs);
-      return;
+      if (action.gameNo !== undefined && action.gameNo !== this.gameNo) throw new Error('Ván chơi đã thay đổi');
+      const wasDone = p.done;
+      const resync = p.done ? false : this.sync(p, action.tick, action.inputs, action.offset);
+      this.syncDirty = true;
+      return { race: { gameNo: this.gameNo, tick: p.game.tick, accepted: p.inputs.length, done: p.done, resync }, broadcast: !wasDone && p.done };
     }
+    if (p.done) return; // gói tin đến trễ sau khi đã dừng — bỏ qua êm
     if (action.type === 'giveup') {
       this.out(p, 'gaveUp');
       this.room.system(`${p.name} bỏ cuộc (${this.scoreOf(p.game)} điểm)`);
@@ -132,21 +142,40 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
   }
 
   /** Nhận lệnh mới (dữ liệu client, kiểm tra từng phần) rồi phát lại tới `rawTick`. */
-  sync(p: RacePlayer<G, C>, rawTick: unknown, rawInputs: unknown) {
+  sync(p: RacePlayer<G, C>, rawTick: unknown, rawInputs: unknown, offset?: number) {
     const tick = typeof rawTick === 'number' && Number.isSafeInteger(rawTick) ? rawTick : -1;
     if (tick < 0 || !Array.isArray(rawInputs)) throw new Error('Dữ liệu không hợp lệ');
     if (tick > this.clockTick(Date.now() + AHEAD_SLACK_MS)) throw new Error('Đồng hồ lệch quá nhiều');
-    if (rawInputs.length > MAX_INPUTS_PER_SYNC || p.inputs.length + rawInputs.length > MAX_INPUTS) throw new Error('Quá nhiều thao tác');
+    if (rawInputs.length > MAX_INPUTS_PER_SYNC || (offset === undefined && p.inputs.length + rawInputs.length > MAX_INPUTS)) throw new Error('Quá nhiều thao tác');
+    const inputs = rawInputs.map((raw: unknown) => this.parseInput(raw));
+    if (inputs.some((input) => !input)) throw new Error('Dữ liệu không hợp lệ');
+    const valid = inputs.filter((input): input is RaceInput<C> => input !== null);
+    if (offset !== undefined) {
+      if (!Number.isSafeInteger(offset) || offset < 0 || offset > p.inputs.length) throw new Error('Thứ tự lệnh không hợp lệ');
+      for (let i = 0; i < valid.length; i++) {
+        const input = valid[i];
+        if (input[0] > tick || (i > 0 && input[0] < valid[i - 1][0])) throw new Error('Thứ tự lệnh không hợp lệ');
+        const old = p.inputs[offset + i];
+        if (old && (old[0] !== input[0] || old[1] !== input[1])) throw new Error('Nhật ký lệnh không khớp');
+      }
+      const fresh = valid.slice(Math.max(0, p.inputs.length - offset));
+      // The server may have advanced an offline client. Reject the entire new suffix so
+      // accepted always refers to the same prefix on both sides, including after a lost ACK.
+      if (fresh.some((input) => input[0] < p.game.tick)) return true;
+      if (p.inputs.length + fresh.length > MAX_INPUTS) throw new Error('Quá nhiều thao tác');
+      p.inputs.push(...fresh);
+      this.advance(p, tick);
+      return false;
+    }
     let last = p.inputs.length ? p.inputs[p.inputs.length - 1][0] : 0;
-    for (const raw of rawInputs) {
-      const input = this.parseInput(raw);
-      if (!input) throw new Error('Dữ liệu không hợp lệ');
+    for (const input of valid) {
       // Lệnh cũ hơn chỗ server đã chạy tới thì không sửa được nữa — bỏ qua, client sẽ tự dựng lại
       if (input[0] < p.game.tick || input[0] < last || input[0] > tick) continue;
       p.inputs.push(input);
       last = input[0];
     }
     this.advance(p, tick);
+    return false;
   }
 
   parseInput(raw: unknown): RaceInput<C> | null {
@@ -195,7 +224,14 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
   arm() {
     this.clearTimers();
     if (!this.isPlaying() || !this.players.length) return;
-    this.watchTimer = setInterval(() => this.nudge(), 1000);
+    this.syncDirty = false;
+    let lastNudge = Date.now();
+    this.watchTimer = setInterval(() => {
+      if (Date.now() - lastNudge >= 1000) { this.nudge(); lastNudge = Date.now(); }
+      if (!this.syncDirty) return;
+      this.syncDirty = false;
+      this.room.changed();
+    }, 200);
     const end = this.startAt + this.maxTicks(this.players[0].game) * this.tickMs + BEHIND_SLACK_MS + 1000;
     if (!Number.isFinite(end)) return;
     this.timer = setTimeout(() => {

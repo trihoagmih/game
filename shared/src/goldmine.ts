@@ -26,8 +26,8 @@ const QUARTER = SWING.length - 1;
 /** Góc chỉ số 0..70 ứng với -70°..70° (bước 2°); 35 là thẳng xuống. */
 export const ANGLE_STEPS = 70;
 const ROPE_MIN = 22 * SUB;
-const EXTEND = 5 * SUB;
-const PULL = 6 * SUB;
+const EXTEND = 5 * SUB + (3 * SUB) / 4;
+const PULL = 7 * SUB;
 const MIN_PULL = SUB;
 const HOOK_R = 6;
 const BLAST_R = 72;

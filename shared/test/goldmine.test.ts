@@ -83,6 +83,17 @@ test('gắp được thì cộng tiền, vật nặng kéo chậm hơn, bắn tr
   assert.equal(miss.command('boom'), false, 'không có gì để nổ');
 });
 
+test('kéo vàng nhỏ ở giữa mỏ về trong 1,5 giây và phát lại khớp', () => {
+  const game = new GoldmineGame({ seed: 1, levels: 1 });
+  const replay = new GoldmineGame({ seed: 1, levels: 1 });
+  game.items = [item('goldXS', MINE.PIVOT_X, 300)];
+  replay.items = [item('goldXS', MINE.PIVOT_X, 300)];
+  shootStraightDown(game);
+  assert.ok(game.tick <= 75, 'một lượt vàng nhỏ không quá 1,5 giây ở 50 bước/giây');
+  replayRace(replay, [[0, 'shoot']], game.tick);
+  assert.deepEqual(replay.snapshot(), game.snapshot());
+});
+
 test('thuốc nổ phá món đang kéo; TNT phá mọi thứ quanh nó', () => {
   const game = new GoldmineGame({ seed: 1, levels: 1 });
   game.items = [item('rockL', MINE.PIVOT_X, 300)];

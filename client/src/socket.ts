@@ -34,11 +34,11 @@ export function request<E extends RequestEvent>(event: E, ...args: Record<never,
 }
 
 /** Như `request` nhưng luôn có payload — dùng khi tên sự kiện là tham số generic. */
-export function send<E extends RequestEvent>(event: E, payload: Requests[E]): Promise<Response<E>> {
+export function send<E extends RequestEvent>(event: E, payload: Requests[E], timeoutMs = 10000): Promise<Response<E>> {
   return new Promise((resolve, reject) => {
     if (!socket.connected) return reject(new Error('Mất kết nối tới máy chủ'));
     // Socket.IO's mapped tuple cannot preserve the correlation of generic E here.
-    const timed = socket.timeout(10000);
+    const timed = socket.timeout(timeoutMs);
     const emit = timed.emit.bind(timed) as (event: E, payload: Requests[E], ack: (err: Error | null, res: Ack<E>) => void) => void;
     emit(event, payload, (err, res) => {
       if (err) return reject(new Error('Máy chủ không phản hồi'));

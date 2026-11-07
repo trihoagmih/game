@@ -14,7 +14,7 @@ export type VoiceSignal = { description: { type: 'offer' | 'answer' | 'rollback'
   | { candidate: { candidate?: string; sdpMid?: string | null; sdpMLineIndex?: number | null; usernameFragment?: string | null } | null; description?: never };
 export interface IncomingSignal { from: string; data: VoiceSignal }
 export type GameAction =
-  | { type: 'raceSync'; tick: number; inputs: import('./race.js').RaceInput[] }
+  | { type: 'raceSync'; tick: number; inputs: import('./race.js').RaceInput[]; offset?: number; gameNo?: number }
   | { type: 'tetrisInput'; input: import('./tetris.js').TetrisInput; round: string }
   | { type: 'sync'; tick: number; inputs: import('./snake.js').SnakeInput[] }
   | { type: 'ready' | 'start' | 'rematch' | 'resign' | 'offerDraw' | 'requestUndo' | 'cancelRequest' | 'resetScore' | 'draw' | 'eat' | 'autoLay' | 'u' | 'next' | 'stop' | 'object' | 'giveup' | 'pause' | 'rabbit' | 'show' | 'rebuy' | 'sitout' | 'hint' | 'shuffle' | 'pass' }
@@ -81,6 +81,7 @@ export interface Responses {
   'lobby:list': { rooms: RoomSummary[]; online: OnlineUser[] };
   'room:create': { roomId: string; warning?: string | null };
   'room:join': { roomId: string; warning?: string | null };
+  'game:action': { race?: import('./race.js').RaceSyncAck };
   'game:query': { data: QueryResults[GameQuery['type']] };
   'voice:join': { iceServers: IceServer[]; peers: string[] };
 }
