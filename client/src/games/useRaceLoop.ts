@@ -1,69 +1,84 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { replayRace } from '@game/shared/race';
-import type { RaceEngine, RaceInput, RacePlayerView } from '@game/shared/race';
-import { request } from '../socket.js';
-
-// Vòng lặp của người đang chơi trong các trò đua phát lại (Bay qua khe, Đào vàng): tự chạy engine theo
-// đồng hồ, ghi lệnh [tick, lệnh], cứ SYNC_MS gửi lên server. Server đi trước (bị đẩy khi tab ẩn) hoặc
-// đã xử dừng thì dựng lại đúng trạng thái server từ các lệnh server đã nhận.
+import type { RaceEngine, RacePlayerView } from '@game/shared/race';
+import { send } from '../socket.js';
+import { advanceRaceFrame, RaceInputQueue } from './raceRuntime.js';
 
 const SYNC_MS = 300;
-/** Một khung hình chạy bù tối đa chừng này bước (tab vừa mở lại). */
-const MAX_CATCH_UP = 3000;
 
 interface Runtime<G, C extends string> {
   game: G;
-  log: RaceInput<C>[];
-  sent: number;
-  /** performance.now() ứng với bước 0. */
+  queue: RaceInputQueue<C>;
   base: number;
   lastSync: number;
   over: boolean;
+  recovery: { game: G; target: number; used: number; done: boolean } | null;
 }
 
 interface RaceLoopOptions<G> {
   me: RacePlayerView;
+  gameNo: number;
   tickMs: number;
-  /** performance.now() lúc bước 0 của ván. */
+  /** performance.now() ứng với bước 0 của ván. */
   startAt: number;
   create: () => G;
-  /** Vẽ một khung; `alpha` 0..1 là phần đã trôi giữa hai bước để nội suy. */
+  beforeStep?: (game: G) => void;
   draw: (game: G, alpha: number, now: number) => void;
 }
 
-export function useRaceLoop<G extends RaceEngine<C>, C extends string>({ me, tickMs, startAt, create, draw }: RaceLoopOptions<G>) {
+export function useRaceLoop<G extends RaceEngine<C>, C extends string>({ me, gameNo, tickMs, startAt, create, beforeStep, draw }: RaceLoopOptions<G>) {
   const runtime = useRef<Runtime<G, C> | null>(null);
-  if (!runtime.current) runtime.current = { game: create(), log: [], sent: 0, base: startAt, lastSync: 0, over: false };
+  if (!runtime.current) runtime.current = { game: create(), queue: new RaceInputQueue<C>(), base: startAt, lastSync: 0, over: false, recovery: null };
   const drawRef = useRef(draw);
-  useEffect(() => { drawRef.current = draw; }, [draw]);
+  const stepRef = useRef(beforeStep);
   const createRef = useRef(create);
-  useEffect(() => { createRef.current = create; }, [create]);
+  useEffect(() => { drawRef.current = draw; stepRef.current = beforeStep; createRef.current = create; }, [draw, beforeStep, create]);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const [countdown, setCountdown] = useState(() => Math.max(0, Math.ceil((startAt - performance.now()) / 1000)));
+  const countdownRef = useRef(countdown);
   const [over, setOver] = useState(false);
 
-  const sync = useCallback((final = false) => {
+  const recover = useCallback((tick: number, accepted: number, done: boolean) => {
     const r = runtime.current!;
-    if (!final && r.sent === r.log.length && performance.now() - r.lastSync < 1500) return;
-    r.lastSync = performance.now();
-    const inputs = r.log.slice(r.sent);
-    r.sent = r.log.length;
-    request('game:action', { type: 'raceSync', tick: r.game.tick, inputs }).catch(() => { /* lần gửi sau mang theo tick mới */ });
+    if (r.recovery && r.queue.log.length === accepted) {
+      r.recovery.target = Math.max(r.recovery.target, tick);
+      r.recovery.done ||= done;
+      return;
+    }
+    r.queue.reset(accepted);
+    r.recovery = { game: createRef.current(), target: tick, used: 0, done };
   }, []);
+
+  const finalAck = useRef(false);
+  const sync = useCallback(() => {
+    const r = runtime.current!;
+    if (r.recovery || r.queue.pending) return;
+    const now = performance.now();
+    const interval = r.queue.confirmed < r.queue.log.length || r.over ? SYNC_MS : 1500;
+    if (now - r.lastSync < interval) return;
+    // After a final ACK there is no more work; a lost final ACK still retries.
+    if (r.over && r.queue.confirmed === r.queue.log.length && finalAck.current) return;
+    const batch = r.queue.prepare(r.game.tick);
+    if (!batch) return;
+    r.lastSync = now;
+    send('game:action', { type: 'raceSync', gameNo, offset: batch.offset, tick: batch.tick, inputs: batch.inputs }, 1500).then(({ race }) => {
+      if (!mounted.current || r.queue.pending !== batch) return;
+      if (!race || race.gameNo !== gameNo) { r.queue.retry(batch); return; }
+      r.queue.acknowledge(batch, race.accepted);
+      if (race.resync || race.tick > r.game.tick || (race.done && !r.over)) {
+        recover(race.tick, race.accepted, race.done);
+      } else if (race.done) finalAck.current = true;
+    }).catch(() => {
+      // Keep the same unconfirmed suffix for retry, including the final batch.
+      if (mounted.current) r.queue.retry(batch);
+    });
+  }, [gameNo, recover]);
 
   useEffect(() => {
     const r = runtime.current!;
     if (me.tick <= r.game.tick && !(me.done && !r.over)) return;
-    const log = r.log.slice(0, me.accepted);
-    const game = createRef.current();
-    replayRace(game, log, me.tick);
-    r.game = game;
-    r.log = log;
-    r.sent = log.length;
-    if (me.done) {
-      r.over = true;
-      setOver(true);
-    }
-  }, [me.tick, me.done, me.accepted]);
+    recover(me.tick, me.accepted, me.done);
+  }, [me.tick, me.done, me.accepted, recover]);
 
   useEffect(() => {
     let frame = 0;
@@ -71,35 +86,44 @@ export function useRaceLoop<G extends RaceEngine<C>, C extends string>({ me, tic
       frame = requestAnimationFrame(loop);
       const r = runtime.current!;
       const now = performance.now();
-      setCountdown(now < r.base ? Math.ceil((r.base - now) / 1000) : 0);
-      if (!r.over && now >= r.base) {
-        const due = Math.min(Math.floor((now - r.base) / tickMs), r.game.tick + MAX_CATCH_UP);
-        while (!r.game.over && r.game.tick < due) r.game.step();
-        if (r.game.over) {
-          r.over = true;
-          setOver(true);
-          sync(true);
-        } else if (now - r.lastSync > SYNC_MS) sync();
+      const nextCountdown = now < r.base ? Math.ceil((r.base - now) / 1000) : 0;
+      if (nextCountdown !== countdownRef.current) {
+        countdownRef.current = nextCountdown;
+        setCountdown(nextCountdown);
       }
-      const alpha = r.over || now < r.base ? 0 : Math.min(1, Math.max(0, (now - r.base) / tickMs - r.game.tick));
+      if (r.recovery) {
+        const recovery = r.recovery;
+        recovery.used = advanceRaceFrame(recovery.game, recovery.target, r.queue.log, recovery.used);
+        if (recovery.game.over || recovery.game.tick >= recovery.target) {
+          r.game = recovery.game;
+          r.over = recovery.done || r.game.over;
+          r.recovery = null;
+          setOver(r.over);
+        }
+      } else if (!r.over && now >= r.base) {
+        const due = Math.floor((now - r.base) / tickMs);
+        advanceRaceFrame(r.game, due, [], 0, () => stepRef.current?.(r.game));
+        if (r.game.over) { r.over = true; setOver(true); }
+      }
+      sync();
+      const alpha = r.over || now < r.base ? 1 : Math.min(1, Math.max(0, (now - r.base) / tickMs - r.game.tick));
       drawRef.current(r.game, alpha, now);
     };
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
   }, [tickMs, sync]);
 
-  /** Ra lệnh ngay trên engine của mình; chỉ ghi lại để gửi khi engine nhận. */
   const command = useCallback((c: C) => {
     const r = runtime.current!;
-    if (r.over || performance.now() < r.base || !r.game.command(c)) return false;
-    r.log.push([r.game.tick, c]);
+    // Never stamp an input with an old tick while catching up after a background pause.
+    if (r.over || r.recovery || performance.now() < r.base || (performance.now() - r.base) / tickMs - r.game.tick > 2 || !r.game.command(c)) return false;
+    r.queue.log.push([r.game.tick, c]);
     return true;
-  }, []);
+  }, [tickMs]);
 
   return { command, countdown, over, runtime };
 }
 
-/** Người dùng bật giảm chuyển động thì tắt cuộn nền và hiệu ứng phụ. */
 export function prefersReducedMotion() {
   return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

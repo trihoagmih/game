@@ -85,3 +85,24 @@ test('spectator capacity reserves empty seats and rejected play preserves the ol
   assert.equal(extra.roomId, other.id);
   assert.ok(other.handler.playerIds().includes(extra.id));
 });
+
+test('race broadcast builds public mine snapshots once while preserving each viewer seat', async (t) => {
+  const { events, lobby, owner } = setup(t);
+  const room = lobby.createRoom(owner, { name: 'Mine', game: 'goldmine', options: {} });
+  t.after(() => room.handler.dispose());
+  lobby.join(owner, room, 'play');
+  const viewer = lobby.createUser('Spectator', 'default');
+  lobby.join(viewer, room, 'watch');
+  room.handler.action(owner.id, { type: 'start' });
+  await wait(0);
+  const build = t.mock.method(room.handler, 'view');
+  events.length = 0;
+  room.changed();
+  await wait(0);
+  assert.equal(build.mock.callCount(), 1);
+  const views = events.filter((e) => e.event === 'room:state').map((e) => e.data as RoomState);
+  assert.equal(views.length, 2);
+  assert.equal(views[0].game === 'goldmine' && views[0].state.myId, owner.id);
+  assert.equal(views[1].game === 'goldmine' && views[1].state.myId, null);
+  assert.ok(views[0].game === 'goldmine' && views[1].game === 'goldmine' && views[0].state.players === views[1].state.players);
+});

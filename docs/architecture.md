@@ -98,8 +98,23 @@ CI quality job chạy source policy, ESLint và strict typecheck cho source/conf
 
 ### Điều chỉnh Đào vàng và Bay qua khe
 
-Đào vàng giảm tốc móc và tăng sức nặng vàng lớn/đá. Bay qua khe tạo phòng ở chế độ sinh tồn, không giới hạn điểm hoặc thời lượng; mỗi 10 cột thu hẹp khe 4px, tối đa 24px. Kích thước khe của mỗi cột cố định theo chỉ số để hiển thị và va chạm thống nhất. Lực nảy thấp hơn để dễ chỉnh độ cao.
+Đào vàng tăng tốc phóng/kéo khoảng 15% so với nhịp cân bằng trước đó và giữ sức nặng vàng lớn/đá. Bay qua khe tạo phòng ở chế độ sinh tồn, không giới hạn điểm hoặc thời lượng; mỗi 10 cột thu hẹp khe 4px, tối đa 24px. Kích thước khe của mỗi cột cố định theo chỉ số để hiển thị và va chạm thống nhất. Lực nảy thấp hơn để dễ chỉnh độ cao.
 
 Hai game hiển thị kỷ lục chung theo workspace/sảnh (ví dụ b4) và game. Flappy Bird lưu số cột; Đào vàng lưu độc lập tiền cao nhất từng có và màn cao nhất từng tới. Mỗi kỷ lục có tên người giữ. Server cập nhật khi lượt chơi kết thúc từ điểm đã xác minh. PostgreSQL lưu bằng UPSERT max nguyên tử, không TTL; các shard chia sẻ database/namespace và cập nhật cache khoảng 2,5 giây. DATABASE_URL bật backend PostgreSQL; thiếu URL thì cảnh báo và dùng file local ghi nguyên tử, chỉ phù hợp một process trên persistent disk. Xoá phòng hay đổi thiết bị không xoá kỷ lục database. Lỗi ghi được log, kỷ lục chỉ công bố sau khi lưu thành công. Trên màn cảm ứng nhỏ, khi ván chạy, sân chơi phủ viewport và ẩn bảng phụ; nút bỏ cuộc vẫn truy cập được.
 
 Bay qua khe: từ cột thứ 11, khe dao động lên xuống theo chu kỳ 4,8 giây. Biên độ tăng mỗi 10 cột, tối đa 24px. Vị trí khe phụ thuộc chỉ số cột và tick của lượt bay; client, người xem và server tính cùng công thức.
+### Nhịp hiển thị và đồng bộ của game đua
+
+Đào vàng và Bay qua khe gửi `raceSync` kèm `gameNo` và vị trí `offset` trong nhật ký lệnh.
+Client giữ phần chưa được xác nhận, chỉ có một gói đang chờ và thử lại khi mất ACK;
+server so khớp phần trùng trước khi nhận phần mới nên retry không lặp thao tác.
+Nếu server đã tiến qua một lệnh chưa nhận trong lúc client offline, server từ chối toàn bộ
+phần mới và trả prefix xác nhận để client dựng lại theo trạng thái authoritative.
+Client cũ không gửi `offset` vẫn dùng đường xử lý cũ.
+
+Các cập nhật `raceSync` được gộp theo phòng mỗi 200 ms; kết thúc ván và thao tác phòng
+vẫn phát ngay. Một broadcast chỉ dựng public race view một lần, rồi gắn `myId` riêng
+cho từng người nhận; cách này chỉ áp dụng cho hai game đua có view công khai.
+Client chia chạy bù và replay thành các phần tối đa 250 bước / ngân sách 4 ms mỗi frame.
+Đào vàng giữ snapshot ngay trước bước cuối để nội suy khi một frame chạy nhiều tick;
+người xem dùng bộ đệm snapshot trễ 250 ms và vẽ bằng `requestAnimationFrame`.

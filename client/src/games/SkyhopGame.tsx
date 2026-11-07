@@ -281,7 +281,7 @@ function LocalPlay({ s, me, room, best }: { s: SkyhopView; me: SkyPlayerView; ro
     });
   }, [me.id, still]);
   const { command, countdown } = useRaceLoop<Engine, SkyCommand>({
-    me, tickMs: TICK_MS, startAt: room.receivedAt + s.startIn, create, draw,
+    me, gameNo: s.gameNo, tickMs: TICK_MS, startAt: room.receivedAt + s.startIn, create, draw,
   });
   const flap = useCallback(() => { command('flap'); }, [command]);
   useHotkeys(Object.fromEntries(KEYS.map((k) => [k, (e: KeyboardEvent) => { if (!e.repeat) flap(); }])));

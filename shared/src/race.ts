@@ -64,3 +64,12 @@ export interface RaceView<O extends object, P extends RacePlayerView> {
   workspaceRecord?: WorkspaceRecord | null;
   workspaceLevelRecord?: WorkspaceRecord | null;
 }
+
+/** Confirmed command prefix for retry-safe race sync; resync rejects uncommitted late inputs. */
+export interface RaceSyncAck {
+  gameNo: number;
+  tick: number;
+  accepted: number;
+  done: boolean;
+  resync: boolean;
+}

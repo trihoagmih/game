@@ -8,6 +8,8 @@ export const MINE_SCALE = 2;
 
 export interface MineScene {
   mine: MineSnapshot;
+  previous?: MineSnapshot;
+  alpha?: number;
   /** Bước hiện tại của ván (để biết hiệu ứng "+tiền"/vụ nổ mới cách đây bao lâu). */
   tick: number;
   now: number;
@@ -218,13 +220,24 @@ export function drawMine(cv: HTMLCanvasElement, sc: MineScene) {
   ctx.fillStyle = 'rgba(255,255,255,.07)';
   for (const [x, y, s] of SPECKS) ctx.fillRect(x, y, s, s);
 
-  for (const o of mine.items) item(ctx, o.kind, o.x, o.y, o.r, o.id, o.dir);
+  for (const o of mine.items) {
+    const old = sc.previous?.level === mine.level && !sc.still ? sc.previous.items.find((p) => p.id === o.id) : undefined;
+    const x = old ? old.x + (o.x - old.x) * (sc.alpha ?? 1) : o.x;
+    item(ctx, o.kind, x, o.y, o.r, o.id, o.dir);
+  }
 
   miner(ctx);
   winch(ctx, sc.still ? 0 : mine.hook.rope / 160);
 
-  const { dx, dy } = hookDir(mine.hook.angle);
-  const len = mine.hook.rope / 16;
+  const previous = sc.previous;
+  const blend = sc.still ? 1 : (sc.alpha ?? 1);
+  const continuous = previous?.level === mine.level && previous.hook.state === mine.hook.state;
+  const direction = hookDir(mine.hook.angle);
+  const oldDirection = continuous ? hookDir(previous.hook.angle) : direction;
+  const dx = oldDirection.dx + (direction.dx - oldDirection.dx) * blend;
+  const dy = oldDirection.dy + (direction.dy - oldDirection.dy) * blend;
+  const rope = continuous ? previous.hook.rope + (mine.hook.rope - previous.hook.rope) * blend : mine.hook.rope;
+  const len = rope / 16;
   const tx = MINE.PIVOT_X + (len * dx) / 1024;
   const ty = MINE.PIVOT_Y + (len * dy) / 1024;
   ctx.strokeStyle = '#e7e5e4';
