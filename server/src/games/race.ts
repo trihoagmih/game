@@ -191,6 +191,7 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
     if (!this.isPlaying() || !this.players.length) return;
     this.watchTimer = setInterval(() => this.nudge(), 1000);
     const end = this.startAt + this.maxTicks(this.players[0].game) * this.tickMs + BEHIND_SLACK_MS + 1000;
+    if (!Number.isFinite(end)) return;
     this.timer = setTimeout(() => {
       if (!this.isPlaying()) return;
       for (const p of this.players) if (!p.done) this.out(p, 'timedOut');

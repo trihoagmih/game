@@ -95,3 +95,9 @@ Source TS → shared/server ESM + declarations → copy `server/src/data` → Vi
 CI quality job chạy source policy, ESLint và strict typecheck cho source/config/scripts/tests; test job chạy luật, handler, worker, recovery và Redis thật; integration chạy compiled server; Docker build xác nhận đóng gói. Compose job dựng Redis + hai shard + Nginx và smoke routing/transfer/gameplay. Browser voice probes là lớp riêng cần môi trường thật, không được coi là đã chạy chỉ vì typecheck qua.
 
 Đọc tiếp [feature-development.md](feature-development.md), [conventions.md](conventions.md), [typescript.md](typescript.md), [scaling.md](scaling.md), [docker-setup.md](docker-setup.md).
+
+### Điều chỉnh Đào vàng và Bay qua khe
+
+Đào vàng giảm tốc móc và tăng sức nặng vàng lớn/đá. Bay qua khe tạo phòng ở chế độ sinh tồn, không giới hạn điểm hoặc thời lượng; mỗi 10 cột thu hẹp khe 4px, tối đa 24px. Khe của mỗi cột cố định theo chỉ số để hiển thị và va chạm thống nhất. Lực nảy thấp hơn để dễ chỉnh độ cao.
+
+Hai game hiển thị kỷ lục thiết bị (localStorage, từ điểm server xác nhận của những người chơi trên thiết bị) bên cạnh bảng kỷ lục phòng. Đây không phải bảng xếp hạng toàn hệ thống; xoá dữ liệu trình duyệt sẽ xoá kỷ lục thiết bị. Trên màn cảm ứng nhỏ, khi ván chạy, sân chơi phủ viewport và ẩn bảng phụ; nút bỏ cuộc vẫn truy cập được.

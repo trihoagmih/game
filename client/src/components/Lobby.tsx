@@ -20,7 +20,7 @@ export const GAME_META: Record<string, { name: string; Icon: LucideIcon; desc: s
   telephone: { name: 'Tam sao thất bản', Icon: MessagesSquare, desc: '3–12 người, viết → vẽ → đoán → vẽ… rồi xem câu chuyện thất bản' },
   onet: { name: 'Nối thú', Icon: PawPrint, desc: '1–8 người, nối cặp thú giống nhau, đua dọn sạch bàn' },
   tetris: { name: 'Tetris', Icon: Blocks, desc: 'Đấu 1v1, ai xóa đủ số hàng mục tiêu trước sẽ thắng' },
-  skyhop: { name: 'Bay qua khe', Icon: Bird, desc: '1–8 người, chạm để nảy qua khe cột, đua về đích hoặc sinh tồn' },
+  skyhop: { name: 'Bay qua khe', Icon: Bird, desc: '1–8 người, chạm để nảy qua khe cột, sinh tồn, khe hẹp dần để thử phá kỷ lục' },
   goldmine: { name: 'Đào vàng', Icon: Pickaxe, desc: '1–8 người cùng bản đồ, phóng móc gắp vàng, đạt mục tiêu từng màn' },
   snake: { name: 'Rắn săn mồi', Icon: Worm, desc: 'Rắn cổ điển màn hình LCD, 1–8 người đua điểm, 9 cấp tốc độ, mê cung' },
   quiz: { name: 'Đố vui', Icon: Lightbulb, desc: 'Kiểu Kahoot, 1–30 người, có bộ câu hỏi sẵn hoặc tự soạn' },

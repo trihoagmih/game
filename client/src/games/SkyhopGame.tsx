@@ -13,6 +13,7 @@ import GameOverDialog, { GoRanking } from '../components/GameOverDialog.js';
 import { drawSky, SKY_SCALE } from './skyhopRender.js';
 import type { SkyGhost, SkyMode } from './skyhopRender.js';
 import { prefersReducedMotion, useRaceLoop } from './useRaceLoop.js';
+import { usePersonalBest } from './usePersonalBest.js';
 import './SkyhopGame.css';
 
 // Bay qua khe — giao diện riêng: sân chơi dọc (màn tiêu đề, "Chuẩn bị!", thẻ kết quả có huy chương) và
@@ -28,13 +29,15 @@ export default function SkyhopGame({ room, state: s }: { room: ClientRoom; state
   const [giveup, setGiveup] = useState(false);
   const shown = me ?? s.players.find((p) => p.id === watchId) ?? s.players[0] ?? null;
   const { level, target } = s.options;
+  const deviceBest = usePersonalBest('sh', Math.max(0, ...s.players.map((p) => p.score)));
   const playing = s.status === 'playing';
   const live = playing && me && !me.done;
-  const best = s.wins.find((w) => w.id === (shown?.id ?? user.id))?.best ?? 0;
+  const best = Math.max(deviceBest, s.wins.find((w) => w.id === (shown?.id ?? user.id))?.best ?? 0);
 
   return (
-    <div className="sh">
+    <div className={`sh${s.status === 'playing' ? ' active' : ''}`}>
       <header className="sh-head">
+        <span className="sh-best" title="Kỷ lục trên thiết bị này">🏆 {best.toLocaleString('vi-VN')}</span>
         <span className="sh-mode"><Bird size={18} aria-hidden /> {target ? `Đua ${target} khe` : 'Sinh tồn'}</span>
         <span className="sh-chip">{DIFFICULTY[level - 1].name}</span>
         {live && (
@@ -239,7 +242,7 @@ function Watch({ s, room, shown, best }: { s: SkyhopView; room: ClientRoom; show
         drawSky(cv.current, {
           mode, tick: shown && shown.startTick !== null ? shown.tick - shown.startTick : 0, alpha: 0, now, sinceHit: -1,
           y: shown?.y ?? 230 * SUB, vy: shown?.vy ?? 0, score: shown?.score ?? 0, target: s.options.target,
-          speed: world.speed, gap: world.gap, gapCenter: (k) => world.gapCenter(k), dead: shown?.end === 'dead',
+          speed: world.speed, gap: world.gap, gapAt: (k) => world.gapAt(k), gapCenter: (k) => world.gapCenter(k), dead: shown?.end === 'dead',
           ghosts: ghostsOf(s, shown?.id ?? null), still,
         });
       }
@@ -275,7 +278,7 @@ function LocalPlay({ s, me, room, best }: { s: SkyhopView; me: SkyPlayerView; ro
       mode: game.startTick === null ? 'ready' : game.dead ? 'dead' : 'fly',
       tick: game.startTick === null ? 0 : game.tick - game.startTick, alpha, now,
       sinceHit: hitAt.current === null ? -1 : now - hitAt.current,
-      y: game.y, vy: game.vy, score: game.score, target: game.target, speed: game.speed, gap: game.gap,
+      y: game.y, vy: game.vy, score: game.score, target: game.target, speed: game.speed, gap: game.gap, gapAt: (k) => game.gapAt(k),
       gapCenter: (k) => game.gapCenter(k), dead: game.dead, ghosts: ghostsOf(sRef.current, me.id), still,
     });
   }, [me.id, still]);

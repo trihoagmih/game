@@ -92,3 +92,22 @@ test('sai một nhịp là kết quả khác — server không thể bị lừa 
   replayRace(copy, shifted, live.tick);
   assert.notEqual(copy.y, live.y);
 });
+
+test('khe thu hẹp dần theo cột và dừng ở mức sàn', () => {
+  const game = new SkyhopGame({ seed: 1, level: 2, target: 0 });
+  assert.equal(game.gapAt(0), 132);
+  assert.equal(game.gapAt(10), 128);
+  assert.equal(game.gapAt(60), 108);
+  assert.equal(game.gapAt(10000), 108);
+  game.tick = 30001;
+  assert.equal(game.over, false, 'không dừng ở giới hạn 10 phút cũ');
+});
+
+test('một lần bấm chỉ nâng chim khoảng 30px', () => {
+  const game = new SkyhopGame({ seed: 1, level: 1, target: 0 });
+  const initial = game.y;
+  game.command('flap');
+  while (game.tick === 0 || game.vy < 0) game.step();
+  const rise = (initial - game.y) / SUB;
+  assert.ok(rise > 20 && rise < 35);
+});

@@ -150,6 +150,19 @@ function miner(ctx: CanvasRenderingContext2D) {
   ctx.fill();
   ctx.fillStyle = '#fff7ae';
   ctx.fillRect(x + 6, ground - 46, 4, 4);
+  // Râu, mắt, và dây quần bảo hộ.
+  ctx.fillStyle = '#fff3d6';
+  ctx.beginPath();
+  ctx.ellipse(x + 2, ground - 33, 8, 6, 0, 0, Math.PI);
+  ctx.fill();
+  ctx.fillStyle = '#292524';
+  ctx.fillRect(x + 4, ground - 40, 2, 2);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(x - 6, ground - 29, 3, 16);
+  ctx.fillRect(x + 3, ground - 29, 3, 16);
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(x - 10, ground - 4, 9, 4);
+  ctx.fillRect(x + 1, ground - 4, 10, 4);
   ctx.strokeStyle = '#fcd9b6';
   ctx.lineWidth = 4;
   ctx.beginPath();

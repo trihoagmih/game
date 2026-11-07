@@ -25,6 +25,7 @@ export interface SkyScene {
   target: number;
   speed: number;
   gap: number;
+  gapAt: (k: number) => number;
   gapCenter: (k: number) => number;
   dead: boolean;
   ghosts: SkyGhost[];
@@ -143,12 +144,12 @@ export function drawSky(cv: HTMLCanvasElement, sc: SkyScene) {
   hills(ctx, HILLS_FAR, far, '#17384a');
   hills(ctx, HILLS_NEAR, near, '#1c4a3f');
 
-  const half = sc.gap / 2;
   const first = Math.max(0, Math.floor((scroll - SKY.FIRST_X - SKY.PILLAR_W) / SKY.SPACING));
   for (let k = first; k < first + 4; k++) {
     const x = pillarX(k) - scroll;
     if (x > SKY.W) break;
     const c = sc.gapCenter(k);
+    const half = sc.gapAt(k) >> 1;
     pillar(ctx, x, 0, c - half);
     cap(ctx, x, c - half - 14);
     pillar(ctx, x, c + half, SKY.GROUND);

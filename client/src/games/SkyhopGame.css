@@ -100,4 +100,13 @@
     .sh-card { animation: none; }
     .sh-row, .sh-bar > span { transition: none; }
   }
+
+  @media (max-width: 900px) and (pointer: coarse) {
+    .sh.active { position: fixed; inset: 0; z-index: 100; height: 100dvh; width: 100vw;
+      padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+      background: var(--bg, #0f172a); display: flex; flex-direction: column; gap: 6px; }
+    .sh.active .sh-side, .sh.active .sh-chip { display: none; }
+    .sh.active .sh-stage { flex: 1; height: auto; min-height: 0; width: 100%; }
+    .sh-best { font-size: 13px; white-space: nowrap; }
+  }
 }

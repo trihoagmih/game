@@ -1,4 +1,4 @@
-import { DIFFICULTY, MAX_TICKS, SKY_COMMANDS, SkyhopGame, TARGET, TICK_MS } from '@game/shared/skyhop';
+import { DIFFICULTY, MAX_TICKS, SKY_COMMANDS, SkyhopGame, TICK_MS } from '@game/shared/skyhop';
 import type { RaceEnd } from '@game/shared/race';
 import type { SkyCommand, SkyhopView } from '@game/shared/skyhop';
 import type { Room } from '../lobby.js';
@@ -21,7 +21,7 @@ export class SkyhopHandler extends RaceHandler<SkyhopGame, SkyCommand, SkyOption
     super(room, {
       maxSeats: clampInt(options.maxSeats, 1, 8, 4),
       level: clampInt(options.level, 1, DIFFICULTY.length, 2),
-      target: clampInt(options.target, TARGET.min, TARGET.max, TARGET.default),
+      target: 0,
     });
   }
 

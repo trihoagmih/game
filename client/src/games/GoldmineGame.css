@@ -108,4 +108,17 @@
     .gm-card { animation: none; }
     .gm-row, .gm-bar > span { transition: none; }
   }
+
+  @media (max-width: 900px) and (pointer: coarse) {
+    .gm.active { position: fixed; inset: 0; z-index: 100; height: 100dvh; width: 100vw;
+      padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+      background: var(--bg, #0f172a); display: flex; flex-direction: column; gap: 6px; }
+    .gm.active .gm-side, .gm.active .gm-chip { display: none; }
+    .gm.active .gm-stage { flex: 1; height: auto; min-height: 0; width: 100%; }
+    .gm-best { font-size: 13px; white-space: nowrap; }
+  }
+
+  .gm-shop { background: repeating-linear-gradient(0deg, #382416 0 38px, #2a1a10 38px 41px); border: 5px solid #a16207; box-shadow: inset 0 0 40px #0008; }
+  .gm-shop-sign { width: 100%; padding: 12px; text-align: center; font-weight: 900; letter-spacing: .12em; color: #422006; background: #fde68a; border-radius: 6px; box-shadow: 0 4px 0 #92400e; }
+  .gm-goods > li { background: #422d20; border-bottom: 6px solid #a16207; }
 }

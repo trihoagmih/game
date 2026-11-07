@@ -26,8 +26,8 @@ const QUARTER = SWING.length - 1;
 /** Góc chỉ số 0..70 ứng với -70°..70° (bước 2°); 35 là thẳng xuống. */
 export const ANGLE_STEPS = 70;
 const ROPE_MIN = 22 * SUB;
-const EXTEND = 7 * SUB;
-const PULL = 9 * SUB;
+const EXTEND = 5 * SUB;
+const PULL = 6 * SUB;
 const MIN_PULL = SUB;
 const HOOK_R = 6;
 const BLAST_R = 72;
@@ -36,9 +36,9 @@ export const ITEM_KINDS = {
   goldXS: { r: 7, value: 50, weight: 1 },
   goldS: { r: 11, value: 100, weight: 3 },
   goldM: { r: 17, value: 250, weight: 8 },
-  goldL: { r: 28, value: 500, weight: 24 },
-  rockS: { r: 12, value: 11, weight: 9 },
-  rockL: { r: 22, value: 20, weight: 22 },
+  goldL: { r: 28, value: 500, weight: 48 },
+  rockS: { r: 12, value: 11, weight: 24 },
+  rockL: { r: 22, value: 20, weight: 52 },
   diamond: { r: 7, value: 600, weight: 1 },
   bag: { r: 12, value: 0, weight: 3 },
   mouse: { r: 9, value: 2, weight: 2 },
@@ -114,7 +114,7 @@ export function hookDir(angle: number) {
 
 /** Góc con lắc ở bước lắc thứ `swing` (chu kỳ 4 × QUARTER bước). */
 export function swingAngle(swing: number) {
-  const p = swing % (4 * QUARTER);
+  const p = Math.floor(swing / 2) % (4 * QUARTER);
   const q = Math.floor(p / QUARTER);
   const i = p % QUARTER;
   const off = q === 0 ? SWING[i] : q === 1 ? SWING[QUARTER - i] : q === 2 ? -SWING[i] : -SWING[QUARTER - i];
