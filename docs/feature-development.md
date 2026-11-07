@@ -25,6 +25,8 @@
 
 ## Ví dụ: thêm một game
 
+Checklist chi tiết từng file (dùng được như skill `/add-game` trong Claude Code): [`.claude/skills/add-game/SKILL.md`](../.claude/skills/add-game/SKILL.md).
+
 1. Thêm engine TS trong `shared/src/`, type options/state/action rõ ràng, PRNG có seed/state khi cần replay hoặc recovery. Unit test luật, input sai, kết thúc ván và determinism; thêm export ESM `types`/`import` vào `shared/package.json`.
 2. Thêm game action/query contract dùng chung trong `contracts.ts` và kiểu view trong `shared/src/views.ts` (thêm vào `GameViews`). Tên action phân biệt bằng `type`, không mở rộng bằng index signature `any`.
 3. Thêm handler trong `server/src/games/` theo interface `GameHandler` (`server/src/games/types.ts`): `options`, `maxPlayers`, `playerIds`, `isPlaying`, `sit`, `stand`, `onLeave`, `rename`, `action`, `view(): XView`, `dispose`; query/stream chỉ nếu cần. Kiểm tra quyền/người chơi/tần suất ở boundary và quyền từng action trong handler.
