@@ -706,6 +706,8 @@ if (OTHER_PASSWORD) {
   await until(() => mine(b)!.tick === 50);
   assert.equal(mine(b)!.score, g.score, 'server phát lại ra đúng điểm');
   assert.deepEqual(mine(b)!.snake, g.snake);
+  // room:state tới từng người riêng; chờ view của người xem thay vì giả định nó tới cùng lúc với b
+  await until(() => v(c).players.find((x) => x.id === b.user.id)!.length === g.length);
   assert.equal(v(c).players.find((x) => x.id === b.user.id)!.length, g.length, 'người xem thấy rắn của b');
 
   // a: không rẽ → đâm viền phải sau 17 bước
