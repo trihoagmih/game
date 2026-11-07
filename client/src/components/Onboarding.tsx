@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Dices, Lock, UserRound, Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../store.js';
 import { AUTH_ERRORS, storage } from '../socket.js';
+import './Onboarding.css';
 
 /**
  * Một thẻ duy nhất cho toàn bộ luồng vào app: kết nối → mật khẩu → tên.

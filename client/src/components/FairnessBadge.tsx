@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ShieldCheck, ShieldAlert, Shield } from 'lucide-react';
 import Modal from './Modal.js';
 import type { FairnessView } from '@game/shared/views';
+import './FairnessBadge.css';
 
 type Revealed = Extract<NonNullable<FairnessView>, { leaves: string[] }>;
 interface VerifyResult { ok: boolean | null; reason: string }

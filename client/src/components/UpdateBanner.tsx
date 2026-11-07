@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useApp } from '../store.js';
+import './UpdateBanner.css';
 
 /** Thông báo khi server đã chạy bản deploy mới hơn bản đang mở trong trình duyệt. */
 export default function UpdateBanner() {

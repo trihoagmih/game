@@ -1,0 +1,26 @@
+/* CSS của components/Toasts.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  .toasts { position: fixed; top: calc(var(--topbar-h) + 12px); right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 60; pointer-events: none; }
+  .toast { background: #1e2848; border: 1px solid var(--line-strong); border-left: 4px solid var(--primary); padding: 10px 14px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.4); max-width: 360px; animation: toastin .2s ease-out; pointer-events: auto; }
+  .toast.error { border-left-color: var(--danger); }
+  @keyframes toastin { from { opacity: 0; transform: translateX(16px); } }
+  /* Toast: không đẩy nhau khi biến mất */
+  .toasts { flex-direction: column-reverse; top: auto; bottom: 16px; }
+  @media (min-width: 641px) {
+    .toasts { top: calc(var(--topbar-h) + 12px); bottom: auto; flex-direction: column; }
+  }
+  /* Thông báo: luôn ở trên, dưới header, không che bài trên tay */
+  .toasts { top: calc(var(--topbar-h) + 10px + env(safe-area-inset-top)); bottom: auto; flex-direction: column; }
+  @media (max-width: 640px) {
+    .toasts { left: 12px; right: 12px; align-items: center; }
+    .toast { max-width: 100%; }
+  }
+  /* Thông báo trong phòng: giữa màn hình, phía trên hàng nút / ô nhập chat ở đáy — không che tab ngăn bên / nút đầu phòng;
+     chạm xuyên qua được nên không bao giờ chặn thao tác */
+  .app.in-room .toasts { top: auto; left: 50%; right: auto; bottom: calc(env(safe-area-inset-bottom) + 76px); transform: translateX(-50%);
+    width: max-content; max-width: min(440px, calc(100vw - 24px)); align-items: center; flex-direction: column; }
+  .app.in-room .toast { pointer-events: none; max-width: 100%; text-align: center; border-left-width: 1px; border-radius: 99px; padding: 8px 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.55); animation: toastup .2s var(--ease-out); }
+  .app.in-room .toast.error { border-color: rgba(239,68,68,.7); background: #3a1620; }
+  @keyframes toastup { from { opacity: 0; transform: translateY(8px); } }
+}

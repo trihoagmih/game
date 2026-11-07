@@ -16,6 +16,7 @@ import ConfirmDialog from '../components/ConfirmDialog.js';
 import StartBar, { ReadyMark } from '../components/StartBar.js';
 import GameOverDialog, { GoRanking } from '../components/GameOverDialog.js';
 import { SPRITES, SPRITE_NAMES } from './onetSprites.js';
+import './OnetGame.css';
 
 // 36 hình thú (emoji) — chỉ số 1..36 khớp với giá trị ô trên server
 const ANIMALS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔',

@@ -1,0 +1,20 @@
+/* ===================================================================
+   Điểm vào CSS toàn app — import đầu tiên trong main.tsx.
+
+   Thứ tự @layer quyết định độ ưu tiên (layer sau thắng layer trước,
+   không phụ thuộc specificity hay thứ tự import). Khai báo một lần ở đây,
+   trước mọi file CSS khác, nên thứ tự import của component không còn quan trọng.
+   - tokens:     biến thiết kế (:root)
+   - base:       reset, thẻ HTML, tiện ích nhỏ (.muted, .row, .sr-only…)
+   - ui:         khối dựng dùng chung (.btn, .panel, .badge, .tabs…)
+   - layout:     khung app (topbar, main)
+   - components: CSS cạnh từng component trong components/
+   - games:      CSS cạnh từng màn hình trong games/
+   Mỗi file component/game bọc toàn bộ nội dung trong @layer tương ứng.
+   =================================================================== */
+@layer tokens, base, ui, layout, components, games;
+
+@import './tokens.css';
+@import './base.css';
+@import './ui.css';
+@import './layout.css';

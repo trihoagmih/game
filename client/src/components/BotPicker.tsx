@@ -1,6 +1,7 @@
 // Chọn mức độ để thêm máy (bot) vào bàn — dùng cho Cờ caro và Nối từ.
 import { Bot } from 'lucide-react';
 import type { Identity } from '@game/shared/contracts';
+import './BotPicker.css';
 
 export const BOT_LEVELS = [
   ['easy', 'Dễ'],

@@ -13,6 +13,7 @@ import StartBar, { ReadyMark } from '../components/StartBar.js';
 import { fmtNum } from '../format.js';
 import { PokerRules, BestHandPanel, myHole } from './PokerPanels.js';
 import { describeHand } from '@game/shared/poker';
+import './PokerGame.css';
 
 type Act = AppContextValue['act'];
 type BetOptions = PokerView['options'];

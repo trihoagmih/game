@@ -1,0 +1,51 @@
+/* Khung app (App.tsx): thanh trên, vùng nội dung chính, báo mất kết nối. */
+@layer layout {
+  .app { display: flex; flex-direction: column; min-height: 100%; }
+  .topbar {
+    position: sticky; top: 0; z-index: 20; height: var(--topbar-h); flex: none;
+    display: flex; align-items: center; gap: 10px; padding: 0 20px;
+    background: rgba(16,22,42,.82); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: var(--text); text-decoration: none; white-space: nowrap; }
+  .brand-logo { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; background: linear-gradient(135deg, #16a34a, #d97706); color: #fff; }
+  .server-badge { padding: 3px 10px; border-radius: 99px; background: var(--primary-soft); border: 1px solid rgba(34,197,94,.4); color: #bbf7d0; font-size: 12px; font-weight: 600; white-space: nowrap; max-width: 30vw; overflow: hidden; text-overflow: ellipsis; }
+  .topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; min-height: 36px; }
+  .conn { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
+  .conn.off { background: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,.2); animation: pulse 1s infinite; }
+  .user-chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 4px; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; max-width: 200px; }
+  .user-chip:hover { border-color: var(--line-strong); background: var(--panel-2); }
+  .avatar { width: 28px; height: 28px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: linear-gradient(135deg, #22c55e, #0ea5e9); color: #04121f; }
+  .user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .busy-bar { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; opacity: 0; pointer-events: none; transition: opacity .2s;
+    background: linear-gradient(90deg, transparent, var(--primary-hi), transparent); background-size: 40% 100%; background-repeat: no-repeat; }
+  .busy-bar.on { opacity: 1; animation: busy 1s linear infinite; }
+  @keyframes busy { from { background-position: -40% 0; } to { background-position: 140% 0; } }
+  .main { flex: 1; padding: 20px; max-width: 1500px; width: 100%; margin: 0 auto; }
+  .reconnect { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; align-items: center;
+    background: #7f1d1d; border: 1px solid var(--danger); padding: 8px 14px; border-radius: 99px; z-index: 100; box-shadow: var(--shadow); }
+  @media (max-width: 640px) {
+    .topbar { padding: 0 12px; }
+    .brand-name { display: none; }
+    .main { padding: 12px; }
+  }
+  /* Safe area (tai thỏ, thanh vuốt) */
+  .topbar { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-top: env(safe-area-inset-top); height: calc(var(--topbar-h) + env(safe-area-inset-top)); }
+  .main { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .reconnect { bottom: max(16px, env(safe-area-inset-bottom)); }
+  @media (pointer: coarse) {
+    .user-chip { height: 40px; }
+    .brand { min-height: 44px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .topbar { position: static; }
+    .main { padding-top: 10px; }
+  }
+  .user-chip { cursor: pointer; }
+  /* Trong phòng: app vừa đúng một màn hình, không cuộn trang */
+  .app.in-room { height: 100dvh; min-height: 0; overflow: hidden; }
+  .app.in-room .main { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 16px max(10px, env(safe-area-inset-bottom)); }
+  @media (max-width: 640px), (max-height: 500px) and (orientation: landscape) {
+    .app.in-room .topbar { display: none; }
+    .app.in-room .main { padding: 6px 8px max(6px, env(safe-area-inset-bottom)); }
+  }
+}

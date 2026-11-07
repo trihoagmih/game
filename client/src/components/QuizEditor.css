@@ -1,0 +1,16 @@
+/* CSS của components/QuizEditor.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  /* Soạn bộ câu hỏi */
+  .qe { display: flex; flex-direction: column; gap: 10px; }
+  .qe-sets { display: flex; gap: 8px; align-items: center; }
+  .qe-sets select { flex: 1; min-width: 0; min-height: 36px; padding: 0 8px; border-radius: 9px; background: #0c1124; border: 1px solid var(--line); }
+  .qe-help summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  .qe-help ul { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+  .qe-help code { background: #0c1124; padding: 0 4px; border-radius: 4px; }
+  .qe-text { width: 100%; min-height: 280px; resize: vertical; padding: 10px 12px; border-radius: 10px; background: #0c1124; border: 1px solid var(--line); color: var(--text); font-family: inherit; font-size: 15px; line-height: 1.55; }
+  .qe-text:focus { outline: none; border-color: var(--primary-hi); box-shadow: 0 0 0 3px var(--primary-soft); }
+  .qe-status { display: flex; align-items: center; gap: 6px; }
+  .qe-status.ok { color: #86efac; }
+  .qe-status.bad { color: #fca5a5; }
+  .qe-actions { flex-wrap: wrap; }
+}

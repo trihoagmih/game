@@ -17,6 +17,7 @@
 | State UI, toast, reconnect | `client/src/store.tsx`; transport/routing ở `socket.ts` |
 | Component dùng cho nhiều game | `client/src/components/`; giữ prop API nhỏ, có kiểu |
 | Canvas/skin chỉ cho một game | `client/src/games/<game>Render.ts`; không đổi engine để đổi skin |
+| Style | CSS cạnh TSX (`games/XGame.css` trong `@layer games`, `components/X.css` trong `@layer components`); khối dùng chung ở `client/src/styles/`. Xem [CSS](conventions.md#css) |
 | CPU-bound bot | `botPool.ts`/`botWorker.ts`; giữ bounded queue, timeout và stale-result guard |
 | Shard/routing/Redis | `cluster.ts`, tests cluster và Compose qua `deploy/nginx.conf` |
 | Checkpoint/khôi phục | `snapshot.ts`, `recovery.ts`, `resumeRoom.ts`; test round-trip private state và deadline |
@@ -32,7 +33,7 @@ Checklist chi tiết từng file (dùng được như skill `/add-game` trong Cl
 3. Thêm handler trong `server/src/games/` theo interface `GameHandler` (`server/src/games/types.ts`): `options`, `maxPlayers`, `playerIds`, `isPlaying`, `sit`, `stand`, `onLeave`, `rename`, `action`, `view(): XView`, `dispose`; query/stream chỉ nếu cần. Kiểm tra quyền/người chơi/tần suất ở boundary và quyền từng action trong handler.
 4. Đăng ký `GAMES` trong `server/src/games/index.ts`. View chỉ chứa dữ liệu người xem được phép biết; score do server xác minh. Với client simulation như Rắn, server replay inputs thay vì tin điểm client.
 5. Đăng ký prototype engine vào `snapshot.ts` nếu dùng class; handler registry được lấy từ `GAMES`. Thêm khôi phục timer trong `resumeRoom.ts` bằng absolute deadline (nhánh `instanceof` của handler mới). Không gọi constructor/start để khôi phục vì sẽ chia lại bài/đổi đáp án. Runtime handles và back-reference được rebuild.
-6. Thêm UI trong `client/src/games/` với props `{ room: ClientRoom; state: XView }`; đăng ký ở `GameScreen` trong `RoomView.tsx`, `Lobby.tsx` (metadata/group), `CreateRoomDialog.tsx` (options) và `Turn.tsx` nếu cần chỉ báo lượt. Tái sử dụng StartBar, GameInfo, GameOverDialog, hotkeys và voice shell.
+6. Thêm UI trong `client/src/games/` với props `{ room: ClientRoom; state: XView }` và `XGame.css` cạnh nó (`@layer games { … }`, import trong `XGame.tsx`; màu nhận diện `.g-<game>` trong `styles/ui.css`, thẻ sảnh `.game-card.g-<game>` trong `components/Lobby.css`); đăng ký ở `GameScreen` trong `RoomView.tsx`, `Lobby.tsx` (metadata/group), `CreateRoomDialog.tsx` (options) và `Turn.tsx` nếu cần chỉ báo lượt. Tái sử dụng StartBar, GameInfo, GameOverDialog, hotkeys và voice shell.
 7. Thêm integration test flow tạo/vào/ready/start/action/watch/leave; snapshot recovery test cho game mới. Nếu thêm worker hoặc shard flow, chạy tests tương ứng. Cập nhật README/architecture khi thiết kế đổi.
 
 ## Phân biệt các lớp kiểm thử

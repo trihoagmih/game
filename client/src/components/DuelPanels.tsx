@@ -7,6 +7,7 @@ import BotPicker, { canManageBots } from './BotPicker.js';
 import type { ReactNode } from 'react';
 import type { DuelView } from '@game/shared/views';
 import type { ClientRoom } from '../store.js';
+import './DuelPanels.css';
 
 /** Trạng thái chung của bàn cờ đối kháng (Cờ tướng, Cờ caro). */
 export type DuelState = DuelView<object> & { turn: string; moves: { san: string }[] };

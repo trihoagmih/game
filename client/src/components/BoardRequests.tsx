@@ -6,6 +6,7 @@ import { useApp } from '../store.js';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { DuelState } from './DuelPanels.js';
+import './BoardRequests.css';
 
 const KIND: Record<'undo' | 'draw', { icon: LucideIcon; ask: string; noun: string; detail: string }> = {
   undo: { icon: Undo2, ask: 'xin đi lại', noun: 'xin đi lại', detail: 'Nếu đồng ý, bàn cờ lùi lại nước vừa đi để người đó đi lại.' },

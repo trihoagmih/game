@@ -1,0 +1,16 @@
+/* CSS của games/DrawTools.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .sc-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 8px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+  .sc-palette { display: grid; grid-template-columns: repeat(8, 26px); gap: 4px; }
+  .sc-color { width: 26px; height: 26px; border-radius: 6px; border: 2px solid rgba(255,255,255,.2); cursor: pointer; padding: 0; }
+  .sc-color.on { outline: 3px solid var(--gold); outline-offset: 1px; }
+  .sc-sizes { display: flex; gap: 4px; }
+  .sc-size { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: #fff; border: 2px solid transparent; cursor: pointer; padding: 0; }
+  .sc-size span { border-radius: 50%; display: block; min-width: 3px; min-height: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+  .sc-size.on { border-color: var(--gold); }
+  .sc-toolbtns { display: flex; flex-wrap: wrap; gap: 4px; }
+  @media (max-width: 640px) {
+    .sc-palette { grid-template-columns: repeat(8, 1fr); width: 100%; }
+    .sc-color { width: 100%; height: 26px; }
+  }
+}

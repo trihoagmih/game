@@ -13,6 +13,7 @@ import GameInfo from '../components/GameInfo.js';
 import StartBar from '../components/StartBar.js';
 import GameOverDialog, { GoRanking } from '../components/GameOverDialog.js';
 import QuizEditor from '../components/QuizEditor.js';
+import './QuizGame.css';
 
 // 4 màu + hình cho 4 đáp án (người mù màu vẫn phân biệt được bằng hình)
 const SHAPES = [['▲', 'qz-red'], ['◆', 'qz-blue'], ['●', 'qz-yellow'], ['■', 'qz-green']];

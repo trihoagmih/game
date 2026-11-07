@@ -7,6 +7,7 @@
  * seats: [{ key, rel, node, active, me }]  — rel: vị trí tương đối so với người xem (0 = dưới cùng)
  */
 import type { ReactNode } from 'react';
+import './CardTable.css';
 
 export interface TableSeat { key: string | number; rel: number; node: ReactNode; active?: boolean; me?: boolean }
 

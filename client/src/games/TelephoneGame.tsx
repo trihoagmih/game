@@ -17,6 +17,7 @@ import GameOverDialog from '../components/GameOverDialog.js';
 import { useCountdown, useHotkeys } from '../hooks.js';
 import ScribbleCanvas, { renderOps } from './ScribbleCanvas.js';
 import DrawTools, { useDrawTools } from './DrawTools.js';
+import './TelephoneGame.css';
 
 export default function TelephoneGame({ room, state: s }: { room: ClientRoom; state: TelephoneView }) {
   const { act, call, user } = useRoomApp();

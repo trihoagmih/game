@@ -11,6 +11,7 @@ interface ConfirmDialogProps {
 }
 
 import Modal from './Modal.js';
+import './ConfirmDialog.css';
 
 /** Hộp xác nhận trong app (thay cho confirm() của trình duyệt): rõ ràng, có nút to, đóng bằng Esc. */
 export default function ConfirmDialog({ title, children, okLabel = 'Đồng ý', danger, icon, onOk, onClose }: ConfirmDialogProps) {

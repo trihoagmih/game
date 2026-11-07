@@ -1,0 +1,12 @@
+/* CSS của components/FairnessBadge.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  @media (pointer: coarse) {
+    .fair-badge { min-height: 40px; padding: 0 12px; }
+  }
+  /* Huy hiệu xáo bài kiểm chứng được */
+  .fair-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 4px 10px; font-size: 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); cursor: pointer; font: inherit; font-size: 12px; }
+  .fair-badge:hover { background: rgba(255,255,255,.08); }
+  .fair-badge.muted { color: var(--muted); }
+  .fair-info p { margin: 0 0 12px; line-height: 1.5; }
+  .fair-info code { word-break: break-all; font-size: 12px; }
+}

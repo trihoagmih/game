@@ -1,0 +1,33 @@
+/* CSS của games/XiangqiGame.tsx và games/CaroGame.tsx (cột bàn cờ dùng chung). Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .bg { display: flex; justify-content: center; }
+  .bg-col { display: flex; flex-direction: column; gap: 6px; flex: none; min-width: 0; }
+  .bg-col.xq-main { width: min(100cqw, 900px, max(250px, calc((100cqh - 156px) * 548 / 604))); max-width: none; }
+  .bg-col.caro-main { width: min(100cqw, 900px, max(250px, calc(100cqh - 156px))); max-width: none; }
+  .bg-board { position: relative; }
+  .bg .xq-player { min-height: 40px; padding: 4px 8px 4px 6px; gap: 8px; }
+  .bg .xq-chip, .bg .caro-chip { width: 28px; height: 28px; flex: none; font-size: 14px; }
+  .bg .pname { flex-wrap: nowrap; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .bg .pname > :first-child { overflow: hidden; text-overflow: ellipsis; }
+  .bg .clock { font-size: 17px; padding: 2px 8px; flex: none; }
+  @media (max-width: 640px) {
+    .bg-col.xq-main { width: min(100cqw, max(240px, calc((100cqh - 146px) * 548 / 604))); }
+    .bg-col.caro-main { width: min(100cqw, max(240px, calc(100cqh - 146px))); }
+    .bg-col { gap: 4px; }
+    .bg .xq-player { min-height: 36px; }
+    .bg .clock { font-size: 15px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .bg-col.xq-main, .bg-col.caro-main {
+      width: auto; display: grid; gap: 6px 10px; align-items: center;
+      grid-template-columns: auto minmax(200px, 260px); grid-template-rows: auto 1fr auto auto;
+      grid-template-areas: 'board top' 'board .' 'board bottom' 'board actions';
+    }
+    .bg-col > .xq-player:first-child { grid-area: top; }
+    .bg-col > .bg-board { grid-area: board; }
+    .bg-col > .xq-player:nth-child(3) { grid-area: bottom; }
+    .bg-col > .board-actions { grid-area: actions; justify-content: flex-start; }
+    .bg-col.xq-main > .bg-board { width: min(calc(100cqw - 280px), calc((100cqh - 4px) * 548 / 604)); }
+    .bg-col.caro-main > .bg-board { width: min(calc(100cqw - 280px), calc(100cqh - 4px)); }
+  }
+}

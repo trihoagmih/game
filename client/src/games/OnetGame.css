@@ -1,0 +1,70 @@
+/* CSS của games/OnetGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* ---------- Nối thú ---------- */
+  .onet { display: flex; justify-content: center; padding: 10px; height: max(100cqh, 420px); }
+  .onet-main { width: 100%; max-width: 1000px; height: 100%; display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
+  .onet-racers { display: flex; flex-wrap: wrap; gap: 6px; }
+  .onet-racer { flex: 1 1 130px; min-width: 0; padding: 6px 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 3px; text-align: left; color: inherit; font: inherit; }
+  button.onet-racer { cursor: pointer; }
+  .onet-racer.me .onet-rname { color: var(--gold); }
+  .onet-racer.shown { border-color: var(--primary-hi); }
+  .onet-racer.out { opacity: .5; }
+  .onet-rname { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .onet-pts { color: var(--text); font-variant-numeric: tabular-nums; }
+  .onet-progress { height: 5px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .onet-progress div { height: 100%; background: linear-gradient(90deg, #22c55e, #a3e635); transition: width .3s var(--ease-out); }
+  .onet-bar { display: flex; align-items: center; gap: 10px; }
+  .onet-level { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; flex: none; }
+  .onet-level b { color: var(--gold); }
+  .onet-shift { font-size: 12px; color: var(--muted); }
+  .onet-levelup { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 3; pointer-events: none; padding: 10px 18px; border-radius: 12px;
+    background: rgba(15,23,42,.9); border: 1px solid var(--gold); color: var(--gold); font-weight: 700; font-size: 18px; white-space: nowrap;
+    animation: onet-levelup 1.8s forwards; }
+  @keyframes onet-levelup { 0% { opacity: 0; } 12%, 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+  .onet-time { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 64px; }
+  .onet-time.low { color: #f87171; }
+  .onet-timebar { flex: 1; min-width: 40px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .onet-timebar div { height: 100%; background: linear-gradient(90deg, #34d399, #10b981); box-shadow: 0 0 8px rgba(52,211,153,.6); transition: width .25s linear; }
+  .onet-tools { display: inline-flex; gap: 4px; flex: none; }
+  .onet-score { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .onet-combo { color: var(--gold); font-weight: 600; }
+  .onet-stage { flex: 1; min-height: 0; position: relative; padding: 6px; background: radial-gradient(ellipse at top, #1e2a5a, #0f1733 70%); display: flex; justify-content: center; }
+  /* Bàn co theo khung còn lại (SVG giữ tỉ lệ), không tràn khỏi khu chơi */
+  .onet-board { display: block; width: 100%; height: 100%; min-height: 0; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+  .onet-tile { cursor: pointer; }
+  .onet-tile-face { stroke: #c8a07a; stroke-width: 1.2; transition: fill .1s; }
+  .onet-tile-edge { fill: rgba(140, 90, 50, .25); pointer-events: none; }
+  .onet-tile:hover .onet-tile-face { stroke: #fff; stroke-width: 2; }
+  .onet-tile.sel .onet-tile-face, .sel-face { fill: #fde68a !important; stroke: #f59e0b; stroke-width: 3; }
+  .onet-tile.hint .onet-tile-face { stroke: #22c55e; stroke-width: 3; animation: onet-pulse .8s ease-in-out infinite alternate; }
+  .onet-tile.bad .onet-in { animation: onet-shake .3s; }
+  .onet-tile.bad .onet-tile-face { stroke: #ef4444; stroke-width: 3; }
+  .onet-emoji { font-size: 26px; text-anchor: middle; dominant-baseline: central; pointer-events: none;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+  .onet-path { fill: none; stroke: #f43f5e; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px #fb7185); }
+  .onet-gone { animation: onet-fade .38s forwards; }
+  @keyframes onet-fade { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes onet-pulse { from { opacity: 1; } to { opacity: .55; } }
+  @keyframes onet-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+  .onet-wait { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 260px; text-align: center; padding: 16px; }
+  .onet-big { font-size: 26px; font-weight: 800; }
+  .onet-done { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); background: rgba(15,23,42,.9); border: 1px solid var(--line-strong);
+    padding: 6px 14px; border-radius: 999px; font-weight: 600; }
+  @media (max-width: 640px) {
+    .onet { padding: 6px; }
+    .onet-tl, .onet-score-unit, .onet-shift { display: none; }
+    .onet-bar { gap: 6px; }
+    .onet-tools .btn { padding: 0 8px; }
+    .onet-stage { padding: 2px; }
+    .onet-racer { flex-basis: 100px; padding: 4px 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .onet-tile.hint .onet-tile-face, .onet-tile.bad .onet-in, .onet-gone { animation: none; }
+    .onet-levelup { animation-duration: .01s; animation-delay: 1.5s; }
+  }
+  /* Nối thú — kiểu hình pixel cổ điển */
+  .onet-pixel { pointer-events: none; }
+  .onet-board.pixel .onet-tile-face { stroke: #b08d63; }
+  .onet-skin-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+}

@@ -26,6 +26,7 @@ import QuizGame from '../games/QuizGame.js';
 import WordGuessGame from '../games/WordGuessGame.js';
 import FairnessBadge from './FairnessBadge.js';
 import { useHotkeys } from '../hooks.js';
+import './RoomView.css';
 
 type Voice = ReturnType<typeof useVoice>;
 type ChatEntry = RoomState['chat'][number];

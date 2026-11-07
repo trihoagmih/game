@@ -1,0 +1,92 @@
+/* CSS của games/TelephoneGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* ===================================================================
+     Tam sao thất bản
+     =================================================================== */
+  .tp { display: flex; flex-direction: column; gap: 10px; max-width: 860px; margin: 0 auto; width: 100%; }
+  .tp-top { display: flex; align-items: center; gap: 12px; padding: 8px 14px; }
+  .tp-step { color: var(--muted); white-space: nowrap; }
+  .tp-step b { color: var(--text); }
+  .tp-title { flex: 1; text-align: center; font-weight: 700; font-size: 17px; }
+  .tp-progress { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .tp-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+  .tp-chip.done { color: var(--ok); border-color: rgba(34,197,94,.4); }
+  .tp-chip.gone { opacity: .45; text-decoration: line-through; }
+  .tp-task { display: flex; flex-direction: column; gap: 10px; }
+  .tp-text { display: flex; flex-direction: column; gap: 8px; padding: 14px; }
+  .tp-text label { font-weight: 600; }
+  .tp-row { display: flex; gap: 8px; }
+  .tp-row input { flex: 1; font-size: 18px; }
+  .tp-suggest { margin-left: 0; align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; }
+  .tp-prompt { padding: 10px 14px; font-size: 18px; text-align: center; }
+  .tp-prompt b { color: var(--gold); }
+  .tp-done-ov { flex-direction: row; font-size: 17px; font-weight: 600; background: rgba(15,23,42,.55); }
+  .tp-wait { padding: 18px; text-align: center; display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .tp-intro { padding: 24px 16px; text-align: center; }
+  .tp-big { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .tp-seats { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .tp-seats li { padding: 6px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 600; }
+  .tp-drawing { position: relative; border-radius: 12px; overflow: hidden; border: 2px solid var(--line-strong); background: #fff; line-height: 0; }
+  .tp-drawing canvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+  .tp-drawing.small { max-width: 520px; }
+  .tp-drawing-msg { position: absolute; inset: 0; display: grid; place-items: center; line-height: 1.4; }
+  .tp-album-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; }
+  .tp-album-tabs { flex-basis: 100%; overflow-x: auto; }
+  .tp-entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .tp-entry { display: flex; flex-direction: column; gap: 4px; animation: tp-in .35s var(--ease-out); }
+  .tp-entry.draw { align-items: center; }
+  .tp-entry.draw .tp-by { align-self: center; }
+  .tp-entry.draw .tp-drawing { width: 100%; }
+  .tp-bubble { align-self: flex-start; max-width: 100%; padding: 10px 16px; border-radius: 16px 16px 16px 4px; background: var(--panel-2); border: 1px solid var(--line-strong); font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+  .tp-bubble.first { background: rgba(251,191,36,.14); border-color: rgba(251,191,36,.45); }
+  @keyframes tp-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .tp-entry { animation: none; }
+  }
+  /* Bước đoán: tranh vừa màn hình để ô nhập luôn thấy được */
+  /* Bước vẽ: cả khu chơi, khung vẽ 4:3 co vừa phần còn lại (đo bằng container query) */
+  .tp.tp-fill { max-width: 1180px; height: max(100cqh, 480px); padding: 8px 0 0; }
+  .tp-fill .board-actions { flex: none; padding: 0; }
+  .tp-what { color: var(--gold); }
+  .tp-done-btn { flex: none; }
+  .tp-draw { flex: 1; min-height: 0; display: flex; gap: 10px; justify-content: center; align-items: center; container-type: size; }
+  /* Màn rộng: cột công cụ (148px + 10px khe) nằm sát khung vẽ, cả cụm ở giữa */
+  .tp-canvas-box { flex: none; width: min(100cqw - 158px, 100cqh * 4 / 3); }
+  .tp-draw:not(:has(.tp-tools)) .tp-canvas-box { width: min(100cqw, 100cqh * 4 / 3); }
+  .tp-canvas-box .sc-stage { width: 100%; }
+  .tp-canvas-box .sc-canvas { max-height: none; }
+  /* Cột công cụ dọc */
+  .tp-tools { flex: none; width: 148px; flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 12px; padding: 10px; overflow-y: auto; align-self: center; max-height: 100%; }
+  .tp-tools .sc-palette { grid-template-columns: repeat(4, 1fr); }
+  .tp-tools .sc-color { width: 100%; height: auto; aspect-ratio: 1; }
+  .tp-tools .sc-sizes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+  .tp-tools .sc-size { width: 100%; height: auto; aspect-ratio: 1; }
+  .tp-tools .sc-size span { max-width: 18px; max-height: 18px; }
+  .tp-tools .sc-toolbtns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .tp-tools .sc-toolbtns .btn { padding: 0; justify-content: center; min-height: 34px; }
+  .tp-tools .hide-sm { display: none; }
+  @media (max-width: 760px), (orientation: portrait) and (max-width: 900px) {
+    /* Điện thoại: khung vẽ trên, công cụ ngay dưới cho dễ với tay */
+    .tp-draw { flex-direction: column; gap: 8px; container-type: normal; align-items: stretch; }
+    .tp-canvas-box, .tp-draw:not(:has(.tp-tools)) .tp-canvas-box { flex: 1; width: auto; min-height: 0; container-type: size; display: grid; place-items: end center; }
+    .tp-canvas-box .sc-stage { width: min(100cqw, 100cqh * 4 / 3); }
+    .tp-tools { order: 2; width: auto; align-self: stretch; flex-direction: row; flex-wrap: wrap; gap: 8px; padding: 8px; max-height: none; overflow: visible; }
+    .tp-tools .sc-palette { grid-template-columns: repeat(8, 1fr); width: 100%; }
+    .tp-tools .sc-sizes { flex: 1; grid-template-columns: repeat(5, 34px); }
+    .tp-tools .sc-size { width: 34px; height: 34px; }
+    .tp-tools .sc-toolbtns { grid-template-columns: repeat(5, 34px); }
+    .tp-top { flex-wrap: wrap; gap: 4px 10px; padding: 8px 10px; }
+    .tp-fill .tp-title { order: 5; flex-basis: 100%; text-align: left; font-size: 16px; }
+    .tp-fill .tp-step { margin-right: auto; }
+    .tp.tp-fill { padding-top: 4px; }
+  }
+  .tp-task > .tp-drawing { width: min(100%, calc((100vh - 330px) * 4 / 3)); width: min(100%, calc((100dvh - 330px) * 4 / 3)); min-width: 240px; align-self: center; }
+  .tp-relay-draw { container-type: normal; flex-wrap: wrap; align-items: flex-start; }
+  .tp-relay-draw .tp-reference { flex: 1 1 260px; max-width: 440px; }
+  .tp-relay-draw .tp-canvas-box { flex: 1 1 300px; width: auto; max-width: 600px; }
+  @media (max-width: 700px) {
+    .tp-relay-draw .tp-reference { flex: none; width: min(100%, 320px); align-self: center; }
+    .tp-relay-draw .tp-canvas-box { flex: none; width: 100%; display: block; }
+    .tp-relay-draw .tp-canvas-box .sc-stage { width: 100%; }
+  }
+}

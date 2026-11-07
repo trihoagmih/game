@@ -1,0 +1,53 @@
+/* Biến thiết kế (design tokens). Chỉ đặt custom property và thiết lập gốc của :root ở đây. */
+@layer tokens {
+  :root {
+    /* Design system từ UI/UX Pro Max (.claude/skills/ui-ux-pro-max — "Card & Board Game"):
+       felt green + gold on dark. Tên biến theo vai trò (semantic tokens). */
+    --color-primary: #15803d;      --color-on-primary: #ffffff;
+    --color-secondary: #166534;    --color-on-secondary: #ffffff;
+    --color-accent: #d97706;       --color-on-accent: #000000;
+    --color-background: #0f172a;   --color-foreground: #ffffff;
+    --color-card: #192134;         --color-card-foreground: #ffffff;
+    --color-muted: #0f1f2b;        --color-muted-foreground: #94a3b8;
+    --color-border: rgba(255,255,255,.08);
+    --color-destructive: #dc2626;  --color-on-destructive: #ffffff;
+    --color-ring: #22c55e; /* #15803D của skill quá tối trên nền tối → dùng sắc sáng hơn cho vòng focus 3:1 */
+    /* Ánh xạ sang biến cũ đang dùng trong các component */
+    --bg: var(--color-background);
+    --bg2: #111b31;
+    --panel: var(--color-card);
+    --panel-2: #212c44;
+    --line: var(--color-border);
+    --line-strong: rgba(255,255,255,.14);
+    --text: #eef2f8;
+    --muted: var(--color-muted-foreground);
+    --primary: var(--color-primary);
+    --primary2: var(--color-secondary);
+    --primary-hi: var(--color-ring);
+    --primary-soft: rgba(34,197,94,.14);
+    --accent: var(--color-accent);
+    --ease-out: cubic-bezier(.2,.8,.2,1);
+    --danger: var(--color-destructive);
+    --warn: #f59e0b;
+    --ok: #22c55e;
+    --gold: #fbbf24;
+    --felt: #146c43;
+    --felt2: #0d4f30;
+    --radius: 12px;
+    --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 8px 24px rgba(0,0,0,.25);
+    --topbar-h: 56px;
+    font-family: Inter, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Màu thanh cuộn (dùng trong base.css) */
+  :root {
+    --scrollbar-thumb: rgba(148,163,184,.28);
+    --scrollbar-thumb-hover: rgba(148,163,184,.5);
+    --scrollbar-thumb-active: rgba(34,197,94,.6);
+  }
+  /* Điện thoại: thanh trên thấp hơn */
+  @media (max-width: 640px) {
+    :root { --topbar-h: 52px; }
+  }
+}

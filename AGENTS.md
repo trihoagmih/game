@@ -24,8 +24,9 @@
 | `server/src/` | HTTP/auth, connection, lobby, cluster, recovery, worker, metrics | UI, client prediction |
 | `server/src/data/` | Từ điển/bank câu hỏi cùng nguồn và giấy phép | Runtime state, snapshot, secret |
 | `server/test/` | Server unit, boundary, integration, Redis/Compose và browser probes | Code production dùng để tránh viết test |
-| `client/src/components/` | UI dùng chung và shell lobby/phòng | Luật authoritative, kết nối Redis |
-| `client/src/games/` | Màn hình/canvas, thao tác và prediction từng game | Logic chấm điểm được tin cậy thay server |
+| `client/src/styles/` | CSS nền: thứ tự `@layer`, tokens, base, khối UI dùng chung, khung app | Style riêng của một component/game |
+| `client/src/components/` | UI dùng chung và shell lobby/phòng; CSS cạnh TSX trong `@layer components` | Luật authoritative, kết nối Redis |
+| `client/src/games/` | Màn hình/canvas, thao tác và prediction từng game; CSS cạnh TSX trong `@layer games` | Logic chấm điểm được tin cậy thay server |
 | `client/src/socket.ts`, `store.tsx`, `voice*.ts` | Transport, app state và WebRTC lifecycle | Luật game cụ thể hoặc private server state |
 | `scripts/` | Build helpers, policy checks, runner có cleanup | Logic nghiệp vụ |
 | `config/` | Baseline nợ kiểu được ghi nhận | File phát sinh hoặc secret |

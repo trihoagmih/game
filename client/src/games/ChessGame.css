@@ -1,0 +1,39 @@
+/* CSS của games/ChessGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .check-badge { margin-left: 8px; background: var(--danger); padding: 1px 8px; border-radius: 6px; font-weight: 700; }
+  /* Cờ vua (Chess) */
+  .chess-wrap { display: flex; gap: 20px; align-items: flex-start; justify-content: center; flex-wrap: wrap; width: 100%; }
+  .chess-main { flex: 1; min-width: 300px; max-width: min(640px, max(360px, calc((100dvh - 330px) / 1.05))); display: flex; flex-direction: column; gap: 8px; }
+  .chess-side { width: 300px; display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 1000px) {
+    .chess-side { width: 100%; }
+  }
+  .chess-board-container { position: relative; width: 100%; border-radius: 14px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,.45); }
+  .chess-board { width: 100%; height: auto; display: block; }
+  .chess-sq.active { cursor: pointer; }
+  .chess-coords text { font-size: 13px; font-weight: 700; fill: #d5b88a; opacity: 0.9; }
+  .chess-player { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+  .chess-player.active { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+  .chess-chip { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; font-weight: 700; }
+  .chess-chip.w { background: #f8fafc; color: #1e293b; border: 2px solid #cbd5e1; }
+  .chess-chip.b { background: #1e293b; color: #f8fafc; border: 2px solid #475569; }
+  .chess-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .chess-captured { display: flex; align-items: center; gap: 3px; font-size: 14px; flex-wrap: wrap; }
+  .cap-icon { opacity: 0.85; line-height: 1; }
+  .cap-lead { font-size: 11px; font-weight: 700; color: var(--gold); margin-left: 2px; }
+  .chess-status { font-size: 15px; margin-bottom: 8px; }
+  .chess-result { text-align: center; padding: 8px; margin-bottom: 8px; }
+  .chess-result .big { font-size: 22px; font-weight: 700; }
+  .chess-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 36px; }
+  .chess-side > .panel:first-child { position: relative; min-height: 280px; display: flex; flex-direction: column; }
+  .chess-side > .panel:first-child .request { position: absolute; left: 10px; right: 10px; bottom: 10px; margin: 0; z-index: 2; box-shadow: 0 10px 30px rgba(0,0,0,.45); animation: fadein .15s; }
+  .chess-side > .panel:first-child .chess-actions { margin-top: auto; padding-top: 8px; }
+  /* Popup phong cấp */
+  .promo-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 10; animation: fadein .15s; }
+  .promo-dialog { background: var(--panel-2); border: 1px solid var(--line-strong); padding: 16px 20px; border-radius: 12px; text-align: center; box-shadow: 0 12px 36px rgba(0,0,0,.6); }
+  .promo-dialog h4 { margin: 0 0 4px; font-size: 16px; }
+  .promo-choices { display: flex; gap: 10px; margin-top: 14px; justify-content: center; }
+  .promo-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,.05); border: 1px solid var(--line); cursor: pointer; transition: all .15s; color: var(--text); }
+  .promo-btn:hover { background: rgba(255,255,255,.15); transform: translateY(-2px); border-color: var(--primary); }
+  .promo-btn span { font-size: 12px; font-weight: 600; }
+}

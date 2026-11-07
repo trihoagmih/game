@@ -1,0 +1,15 @@
+/* CSS của components/GameOverDialog.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  /* Popup hết ván dùng chung (components/GameOverDialog.tsx) */
+  .go { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 6px 4px 2px; }
+  .go-start { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; margin-top: 6px; }
+  .go-start .btn { width: 100%; min-height: 48px; justify-content: center; font-size: 16px; }
+  .go .bo-actions { flex-wrap: wrap; }
+  .go .bo-actions .btn { flex: 1 1 200px; }
+  .go-strip { position: sticky; top: 0; left: auto; transform: none; align-self: center; z-index: 7; max-width: 100%; flex: none; }
+  .go-rank { list-style: none; margin: 4px 0 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 4px; max-height: 40vh; overflow-y: auto; }
+  .go-rank li { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); text-align: left; }
+  .go-rank li.me { border-color: var(--gold); }
+  .go-pos { width: 22px; text-align: center; color: var(--muted); font-weight: 700; flex: none; }
+  .go-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+}

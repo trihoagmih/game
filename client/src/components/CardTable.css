@@ -1,0 +1,171 @@
+/* CSS của components/CardTable.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  .tl-timer { font-variant-numeric: tabular-nums; }
+  /* ---------- Phòng chờ & luật bài ---------- */
+  .tl-wait { display: flex; flex-direction: column; gap: 12px; }
+  .tl-seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .tl-seat-box { border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-align: center; background: #141b2b; min-height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
+  .tl-seat-box.empty { border-style: dashed; }
+  .rules summary { cursor: pointer; color: var(--primary); }
+  .rules li { margin: 4px 0; color: #c8d0e3; }
+  .tl-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .tl-timer { color: var(--gold); font-family: ui-monospace, Consolas, monospace; }
+  .tl-hand-back { display: flex; gap: 2px; align-items: center; flex-wrap: wrap; }
+  .tl-status { background: rgba(0,0,0,.4); padding: 4px 12px; border-radius: 99px; text-align: center; }
+  .tl-log { text-align: center; }
+  .tl-hand { display: flex; gap: 4px; padding-top: 18px; flex-wrap: wrap; justify-content: center; }
+  .tl-actions { justify-content: center; }
+  .tl-result { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .result-table { border-collapse: collapse; min-width: 360px; }
+  .result-table th, .result-table td { padding: 6px 12px; border-bottom: 1px solid var(--line); }
+  @media (max-width: 800px) {
+    .result-table { min-width: 0; width: 100%; }
+  }
+  /* ===================================================================
+     Bàn đánh bài dùng chung (CardTable) — Tá lả, Sâm lốc
+     Cùng ngôn ngữ với bàn Poker: nỉ xanh, viền gỗ, ghế quanh bàn, mình ngồi dưới.
+     =================================================================== */
+  .ct { padding: 48px 36px 56px; }
+  .ct-felt {
+    position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 440px; border-radius: 50% / 50%;
+    background: radial-gradient(ellipse at 50% 45%, #1a7a4c 0%, var(--felt2) 78%);
+    border: 12px solid #5b3a1e;
+    box-shadow: inset 0 2px 30px rgba(0,0,0,.5), 0 18px 40px rgba(0,0,0,.4);
+  }
+  .ct-felt.n2 { aspect-ratio: 2 / 1; min-height: 380px; }
+  /* Bàn co theo chiều cao màn hình để bài trên tay luôn nằm trong cùng một màn (không phải cuộn) */
+  .ct-felt { max-width: max(640px, calc((100dvh - 400px) * 16 / 9)); margin: 0 auto; }
+  .ct-felt.n2 { max-width: max(680px, calc((100dvh - 400px) * 2)); }
+  .ct-center {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; max-width: 46%;
+  }
+  .ct-seat { position: absolute; transform: translate(-50%, -50%); z-index: 2; width: max-content; max-width: min(320px, 36%); }
+  .ct-seat.bottom { transform: translate(-50%, -35%); }
+  .ct-arena { display: contents; }
+  /* Phỏm đã hạ nằm trên vùng nỉ riêng, không chen vào hàng bài đánh của ghế. */
+  .ct-with-content .ct-felt { aspect-ratio: auto; border-radius: 28px; }
+  .ct-with-content .ct-arena { display: block; position: relative; aspect-ratio: 16 / 9; min-height: 440px; }
+  .ct-with-content .ct-felt.n2 .ct-arena { aspect-ratio: 2 / 1; min-height: 380px; }
+  @media (min-width: 641px) and (max-width: 1100px) {
+    .ct-with-content .ct-arena { aspect-ratio: 4 / 3; }
+    .ct-with-content .ct-felt.n2 .ct-arena { aspect-ratio: 16 / 10; }
+  }
+  @media (max-width: 640px) {
+    .ct-with-content .ct-arena, .ct-with-content .ct-felt.n2 .ct-arena { display: contents; }
+  }
+  .seat-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .seat-me { font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 99px; background: rgba(34,197,94,.2); color: #bbf7d0; }
+  .tl-timer { display: inline-flex; align-items: center; gap: 3px; }
+  .tl-timer svg { flex: none; }
+  /* Chữ phụ trên nỉ: sắc xanh nhạt lấy từ màu nỉ thay vì xám (tương phản ≥ 4.5:1 trên #0d4f30) */
+  .felt-muted { color: rgba(220, 252, 231, .78); }
+  .tl-status { background: rgba(0,0,0,.4); }
+  /* Bài trên tay + nút: ngay dưới bàn */
+  .ct-hand-panel {
+    display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px 14px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+    transition: border-color .2s var(--ease-out);
+  }
+  .ct-hand-panel.turn { border-color: rgba(251,191,36,.6); }
+  .ct-hand-panel .tl-hand { padding-top: 14px; }
+  @media (max-width: 1100px) {
+    /* Tablet: bàn cao hơn để ghế không chạm nhau */
+    .ct-felt { aspect-ratio: 4 / 3; }
+    .ct-felt.n2 { aspect-ratio: 16 / 10; }
+    .ct-seat { max-width: min(280px, 40%); }
+  }
+  @media (max-width: 640px) {
+    /* Điện thoại: bàn dọc dạng lưới — đối thủ ở trên, giữa bàn, ghế mình ở dưới */
+    .ct { padding: 0; }
+    .ct-felt, .ct-felt.n2 {
+      max-width: none; margin: 0;
+      aspect-ratio: auto; min-height: 0; border-radius: 28px; border-width: 8px; padding: 10px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;
+    }
+    .ct-seat, .ct-seat.bottom { position: static; transform: none; max-width: none; width: auto; order: 0; }
+    .ct-center { position: static; transform: none; grid-column: 1 / -1; order: 1; max-width: none; min-height: 120px; justify-content: center; padding: 6px 0; }
+    .ct-seat.bottom { order: 2; grid-column: 1 / -1; }
+  }
+  /* Bàn bài: giữ chỗ cho nội dung thay đổi theo lượt */
+  .tl-timer.off { visibility: hidden; }
+  .ct-center .tl-log { min-height: calc(3 * 1.45em); display: flex; flex-direction: column; justify-content: flex-end; }
+  @media (max-width: 640px) {
+    .ct-center .tl-status { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ct-hand-panel .tl-hand { min-height: 168px; align-content: flex-start; }
+    .tl-actions > .your-turn, .tl-actions > .muted:first-child { flex-basis: 100%; text-align: center; }
+  }
+  /* ---------- Tá lả / Sâm lốc: bàn co theo chiều cao vùng chơi ---------- */
+  .ct-felt, .ct-felt.n2 { min-height: 280px; }
+  .ct-felt { max-width: max(500px, calc((100cqh - 330px) * 16 / 9)); }
+  .ct-felt.n2 { max-width: max(540px, calc((100cqh - 330px) * 2)); }
+  @media (max-width: 1100px) and (min-width: 641px) {
+    .ct-felt { max-width: max(420px, calc((100cqh - 330px) * 4 / 3)); }
+    .ct-felt.n2 { max-width: max(460px, calc((100cqh - 330px) * 16 / 10)); }
+  }
+  .ct { padding: 40px 32px 48px; }
+  /* ---------- Điện thoại: bàn bài Tá lả / Sâm lốc gọn trong một màn ---------- */
+  @media (max-width: 640px) {
+    .ct { padding: 0; }
+    .ct-felt, .ct-felt.n2 { max-width: none; min-height: 0; padding: 8px; gap: 6px; border-width: 6px; border-radius: 20px; }
+    .ct-center { min-height: 0; padding: 2px 0; gap: 4px; }
+    .ct-center .tl-log { display: none; }
+    .ct .card.sm { width: 26px; height: 37px; font-size: 11px; }
+    .ct .card.sm .c-big { font-size: 14px; }
+    .ct .card.md { width: 40px; height: 57px; font-size: 14px; }
+    .ct .card.md .c-big { font-size: 22px; }
+    /* Bài trên tay: một hàng, các lá tự chồng nhẹ lên nhau cho vừa bề ngang */
+    .ct-hand-panel { padding: 8px 10px; gap: 8px; border-radius: 12px; }
+    .ct-hand-panel .tl-hand { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 44px); justify-content: center; min-height: 0; padding: 14px 10px 0 0; gap: 0; }
+    .ct-hand-panel .tl-actions { gap: 4px; }
+    .ct-hand-panel .tl-actions .btn { padding: 0 10px; font-size: 13px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .tl-board > .ct, .sl-board > .ct { flex: 1 1 0; min-width: 0; padding: 18px 10px 22px; }
+    .ct-felt, .ct-felt.n2 { min-height: 0; max-width: none; aspect-ratio: auto; height: calc(100cqh - 44px); }
+    .ct-hand-panel { flex: 0 0 min(400px, 48%); padding: 8px; gap: 6px; }
+    .ct-hand-panel .tl-hand { min-height: 0; padding-top: 12px; gap: 3px; }
+    .ct-hand-panel .tl-actions .btn { padding: 0 8px; font-size: 12.5px; }
+    .ct-center .tl-log { display: none; }
+    .ct .card.sm { width: 24px; height: 34px; font-size: 10px; }
+    .ct .card.md { width: 36px; height: 52px; font-size: 13px; }
+    .ct-seat { max-width: 44%; }
+  }
+  /* Bàn bài: người ngồi chờ ván sau */
+  .ct-waiting { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; padding: 8px 12px; margin-top: 8px;
+    border-radius: 10px; background: var(--panel); border: 1px dashed var(--line-strong); }
+  /* Phỏm: người chơi ngồi ngoài bàn; toàn bộ nền nỉ dành cho bài. */
+  .ct.ct-outside { display: grid; grid-template-columns: minmax(140px, 190px) minmax(0, 1fr) minmax(140px, 190px); grid-template-rows: auto auto auto; align-items: center; gap: 14px; padding: 12px 0; width: 100%; }
+  .ct-outside-opponents { display: contents; }
+  .ct-outside-seat { min-width: 0; }
+  .ct-outside.n4 .rel-1, .ct-outside.n3 .rel-1 { grid-column: 1; grid-row: 2; }
+  .ct-outside.n4 .rel-3, .ct-outside.n3 .rel-2 { grid-column: 3; grid-row: 2; }
+  .ct-outside.n4 .rel-2, .ct-outside.n2 .rel-1 { grid-column: 2; grid-row: 1; justify-self: center; width: min(100%, 300px); }
+  .ct.ct-outside .ct-felt { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; justify-content: center; gap: 16px; width: 100%; max-width: none; height: auto; min-height: 320px; aspect-ratio: auto; border-radius: 36px; border-width: 8px; padding: 20px 12px; }
+  .ct.ct-outside .ct-center { position: static; transform: none; max-width: none; width: 100%; min-height: 0; padding: 0; }
+  .ct-outside-self { grid-column: 2; grid-row: 3; justify-self: center; width: min(100%, 340px); min-width: 0; }
+  .ct-outside .tl-head > .seat-name { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .ct-outside .tl-hand-back { min-width: 0; }
+  .ct-outside .card-fan { max-width: 100%; flex-wrap: wrap; }
+  @container (max-width: 640px) {
+    .ct-outside .tl-status { white-space: normal; overflow: visible; border-radius: 12px; }
+  }
+  @container (max-width: 900px) {
+    /* Giữ đúng vòng ngồi ở mọi kích thước: bạn → trái → trên → phải. */
+    .ct.ct-outside { display: grid; grid-template-columns: minmax(0, 22%) minmax(0, 1fr) minmax(0, 22%); gap: 8px; padding: 0; align-items: center; }
+    .ct-outside-opponents { display: contents; }
+    .ct.ct-outside .ct-felt { min-width: 0; min-height: 260px; padding: 14px 6px; border-width: 5px; border-radius: 26px; }
+    .ct-outside .tl-head { gap: 4px; }
+    .ct-outside .tl-hand-back .card-fan { display: none; }
+    .ct-outside .tl-status { white-space: normal; overflow: visible; border-radius: 12px; padding: 6px; font-size: 12px; }
+    .ct-outside .tl-log { display: none; }
+    .ct-outside-self { width: min(100%, 340px); }
+  }
+  @container (max-width: 440px) {
+    .ct.ct-outside { grid-template-columns: minmax(0, 23%) minmax(0, 1fr) minmax(0, 23%); gap: 5px; }
+    .ct-outside .tl-head { flex-direction: column; align-items: flex-start; font-size: 12px; }
+    .ct-outside .tl-timer { font-size: 11px; }
+    .ct-outside .card.sm { width: 25px; height: 36px; font-size: 11px; }
+    .ct-outside .card.sm .c-big { font-size: 14px; }
+  }
+}

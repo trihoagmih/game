@@ -4,6 +4,7 @@ import { Plus, Save, Trash2, Upload, Check, AlertTriangle } from 'lucide-react';
 import { parseQuizText, QUIZ_TEMPLATE } from '@game/shared/quiz';
 import Modal from './Modal.js';
 import ConfirmDialog from './ConfirmDialog.js';
+import './QuizEditor.css';
 
 const KEY = 'gl_quiz_sets';
 interface QuizSet { id: string; title: string; text: string; updated: number }

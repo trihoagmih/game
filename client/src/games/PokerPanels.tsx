@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { describeHand, HAND_NAMES_VI } from '@game/shared/poker';
 import Card from '../components/Card.js';
 import type { PokerView } from '@game/shared/views';
+import './PokerPanels.css';
 
 // Ví dụ cho từng bộ, từ yếu tới mạnh (cùng thứ tự HAND_NAMES_VI)
 const EXAMPLES = [

@@ -1,0 +1,20 @@
+/* CSS của games/PokerPanels.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .pk-best { display: flex; flex-direction: column; gap: 8px; }
+  .pk-best.folded { opacity: .7; }
+  .pk-best-head { display: flex; align-items: baseline; gap: 8px; }
+  .pk-best-head h4 { margin-bottom: 0; }
+  .pk-best-name { font-size: 18px; font-weight: 700; color: var(--gold); }
+  .pk-best-cards { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pk-best-card { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .pk-best-src { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .pk-best-draw { color: #93c5fd; font-weight: 600; }
+  .pk-rules ul { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; color: #c8d0e3; }
+  .pk-ranks { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 4px; counter-reset: rk; }
+  .pk-ranks li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 8px; border-radius: 8px; flex-wrap: wrap; counter-increment: rk; }
+  .pk-ranks li::before { content: counter(rk) "."; color: var(--muted); width: 1.5em; }
+  .pk-ranks li.cur { background: rgba(251,191,36,.12); outline: 1px solid var(--gold); }
+  .pk-rank-name { flex: 1; font-weight: 600; min-width: 120px; }
+  .pk-rank-you { color: var(--gold); font-weight: 400; font-size: 12px; }
+  .pk-rank-cards { display: flex; gap: 3px; }
+}

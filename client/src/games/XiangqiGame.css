@@ -1,0 +1,54 @@
+/* CSS của games/XiangqiGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* ---------- Cờ tướng ---------- */
+  .xq { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; justify-content: center; } /* bàn cờ + cột thông tin nằm giữa vùng chơi */
+  .xq-main { flex: 1; min-width: 300px; max-width: min(680px, max(360px, calc((100dvh - 330px) / 1.1))); display: flex; flex-direction: column; gap: 8px; }
+  .xq-side { width: 300px; display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 1000px) {
+    .xq-side { width: 100%; }
+  }
+  .xq-board { width: 100%; height: auto; display: block; }
+  .xq-bg { stroke: #3a2009; stroke-opacity: .5; stroke-width: 1.5; }
+  .xq-board { border-radius: 16px; box-shadow: 0 18px 40px rgba(0,0,0,.45); }
+  .xq-grain { fill: #000; mix-blend-mode: multiply; pointer-events: none; }
+  .xq-river-band { fill: rgba(150, 95, 35, .12); }
+  .xq-lines line, .xq-lines polyline { stroke: #5a3510; stroke-width: 1.4; stroke-linecap: round; }
+  .xq-lines .edge { stroke: #5a3510; stroke-width: 2; }
+  .xq-lines .frame { stroke: #5a3510; stroke-width: 3.5; }
+  .xq-lines .river { fill: #6b3f16; font-size: 26px; letter-spacing: .3em; font-family: 'KaiTi', 'STKaiti', 'Noto Serif CJK SC', serif; }
+  .xq-files text { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .xq-files .r { fill: #a1141c; }
+  .xq-files .b { fill: #2b1a0c; }
+  /* Nước vừa đi: chấm ở ô cũ + 4 góc khung ở ô mới (kiểu bàn cờ truyền thống) */
+  .xq-last { pointer-events: none; }
+  .xq-last .from { fill: rgba(37,99,235,.35); stroke: rgba(29,78,216,.8); stroke-width: 1.5; }
+  .xq-last polyline { fill: none; stroke: #1d4ed8; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .xq-pt.active { cursor: pointer; }
+  .xq-piece { transition: transform .12s var(--ease-out); }
+  .xq-piece .rim { stroke: #3e2410; stroke-width: 1; }
+  .xq-piece .disc { stroke: rgba(90,55,20,.55); stroke-width: 1; }
+  .xq-piece .bevel { fill: none; stroke: rgba(255,255,255,.75); stroke-width: 1.2; stroke-linecap: round; pointer-events: none; }
+  .xq-piece .inner { fill: none; stroke-width: 1.3; }
+  .xq-piece text { font-size: 23px; font-weight: 700; paint-order: stroke; stroke: rgba(255,250,235,.85); stroke-width: 1.4px; font-family: 'KaiTi', 'STKaiti', 'Noto Serif CJK SC', 'SimSun', serif; pointer-events: none; }
+  .xq-piece.r text { fill: #b3121b; }
+  .xq-piece.r .inner { stroke: #b3121b; }
+  .xq-piece.b text { fill: #1d140c; }
+  .xq-piece.b .inner { stroke: #1d140c; }
+  .xq-piece.sel .rim { stroke: #1d4ed8; stroke-width: 3.5; }
+  .xq-piece.check .rim { stroke: #e11d48; stroke-width: 4; animation: checkpulse .8s infinite alternate; }
+  .xq-dot { fill: #16a34a; stroke: #fff; stroke-width: 2; pointer-events: none; }
+  .xq-cap { fill: none; stroke: #dc2626; stroke-width: 3; stroke-dasharray: 6 4; pointer-events: none; }
+  .xq-chip { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #f6e7c8; font-weight: 700; font-family: 'KaiTi', serif; }
+  .xq-chip.r { color: #c0161f; border: 2px solid #c0161f; }
+  .xq-chip.b { color: #111; border: 2px solid #111; }
+  .xq-status { font-size: 15px; margin-bottom: 8px; }
+  .xq-result { text-align: center; padding: 8px; margin-bottom: 8px; }
+  .xq-result .big { font-size: 22px; font-weight: 700; }
+  .xq-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 36px; }
+  /* Khung trạng thái + nút của Cờ tướng / Caro: chừa chỗ cố định để các panel bên dưới không nhảy */
+  .xq-side > .panel:first-child { position: relative; min-height: 280px; display: flex; flex-direction: column; }
+  /* Yêu cầu cầu hòa / đi lại nổi lên trên vùng nút thay vì đẩy các panel bên dưới */
+  .xq-side > .panel:first-child .request { position: absolute; left: 10px; right: 10px; bottom: 10px; margin: 0; z-index: 2; box-shadow: 0 10px 30px rgba(0,0,0,.45); animation: fadein .15s; }
+  .xq-side > .panel:first-child .xq-actions { margin-top: auto; padding-top: 8px; }
+  @keyframes checkpulse { to { stroke-width: 7; } }
+}

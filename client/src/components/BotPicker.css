@@ -1,0 +1,8 @@
+/* CSS của components/BotPicker.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  /* ---------- Chơi với máy ---------- */
+  /* Nút trông như .btn nhưng là <select> trong suốt phủ lên trên: bấm là mở danh sách mức độ (dùng tốt cả trên điện thoại) */
+  .bot-pick { position: relative; display: inline-flex; align-items: center; gap: 6px; overflow: hidden; }
+  .bot-pick select { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; font-size: 16px; }
+  .bot-pick:focus-within { box-shadow: 0 0 0 3px var(--primary-soft); }
+}

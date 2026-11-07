@@ -13,6 +13,7 @@ interface CardProps {
 }
 
 import { SUIT_SYMBOL, RANK_LABEL, isRed } from '@game/shared/cards';
+import './Card.css';
 
 /** Lá bài. card = "AS" | "??" (úp). */
 export default function Card({ card, size = 'md', selected, focused, dim, locked, highlight, onClick, title }: CardProps) {

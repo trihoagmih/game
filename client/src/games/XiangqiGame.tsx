@@ -10,6 +10,8 @@ import GameInfo from '../components/GameInfo.js';
 import { RequestOverlay, ResultOverlay, BoardActions } from '../components/BoardRequests.js';
 import type { XiangqiView } from '@game/shared/views';
 import type { ClientRoom } from '../store.js';
+import './XiangqiGame.css';
+import './BoardColumn.css';
 
 const CELL = 56;
 const PAD = 50; // chừa chỗ cho số cột hai bên

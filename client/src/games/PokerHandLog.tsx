@@ -11,6 +11,7 @@ import Card from '../components/Card.js';
 import Modal from '../components/Modal.js';
 import { cardLabel } from '@game/shared/cards';
 import { fmtNum, fmtTime } from '../format.js';
+import './PokerHandLog.css';
 
 const fmtNet = (n: number) => (n > 0 ? `+${fmtNum(n)}` : n < 0 ? `−${fmtNum(-n)}` : '0');
 const STREETS: [string, string, number][] = [['preflop', 'Preflop', 0], ['flop', 'Flop', 3], ['turn', 'Turn', 4], ['river', 'River', 5]];

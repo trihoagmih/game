@@ -219,7 +219,7 @@ Before delivering any UI code, verify:
 
 File trên được sinh bởi `.claude/skills/ui-ux-pro-max` (`--design-system --persist`). Những điểm đã điều chỉnh cho app này:
 
-- **Token màu** nằm ở đầu `client/src/styles.css` (`--color-primary`, `--color-accent`, `--color-card`…), đúng bảng màu trên. Component dùng biến, không dùng mã màu trực tiếp.
+- **Token màu** nằm ở `client/src/styles/tokens.css` (`--color-primary`, `--color-accent`, `--color-card`…), đúng bảng màu trên. Component dùng biến, không dùng mã màu trực tiếp.
 - **Vòng focus** dùng `#22C55E` thay cho `#15803D`: màu gốc quá tối trên nền tối, không đạt tương phản 3:1 cho chỉ báo focus.
 - **Phong cách**: lấy chiều sâu nhẹ (bóng 1–2 lớp cho bàn chơi và lá bài) thay vì 3D/WebGL — đúng mục "Avoid: Complex shadows, 3D effects" và giữ hiệu năng trên điện thoại.
 - **Nút**: `.btn.primary` (xanh nỉ, chữ trắng 5:1) cho hành động thường; `.btn.cta` (vàng `#D97706`, chữ đen 7.9:1) cho **một** hành động chính mỗi màn hình (Tiếp tục, Vào sảnh, Sẵn sàng, Chia bài).

@@ -1,0 +1,7 @@
+/* CSS của components/ConfirmDialog.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  /* Hộp xác nhận trong app */
+  .confirm-body { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 18px; line-height: 1.5; }
+  .confirm-icon { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(245,158,11,.15); color: var(--gold); }
+  .confirm-icon.danger { background: rgba(220,38,38,.18); color: #fca5a5; }
+}

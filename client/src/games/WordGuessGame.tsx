@@ -16,6 +16,7 @@ import GameInfo from '../components/GameInfo.js';
 import StartBar from '../components/StartBar.js';
 import GameOverDialog from '../components/GameOverDialog.js';
 import ConfirmDialog from '../components/ConfirmDialog.js';
+import './WordGuessGame.css';
 
 const PART_NAMES: Record<string, string> = { onset: 'Âm đầu', rhyme: 'Vần', tone: 'Thanh' };
 const RANK: Record<string, number> = { g: 3, y: 2, x: 1 };

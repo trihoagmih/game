@@ -1,0 +1,10 @@
+/* CSS của components/Modal.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(3,6,15,.65); backdrop-filter: blur(2px); display: grid; place-items: center; z-index: 50; padding: 16px; animation: fadein .15s; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; width: 100%; max-width: 440px; box-shadow: 0 24px 60px rgba(0,0,0,.5); max-height: calc(100vh - 32px); overflow-y: auto; }
+  .modal.wide { max-width: 720px; }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  @media (max-width: 640px) {
+    .modal { padding: 16px; border-radius: 14px; }
+  }
+}
