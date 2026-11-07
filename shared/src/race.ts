@@ -40,6 +40,8 @@ export interface RacePlayerView extends Identity {
   endedAt: number | null;
 }
 
+export interface WorkspaceRecord extends Identity { score: number; at: number }
+
 export interface RaceScore extends Identity { games: number; wins: number; best: number }
 
 export interface RaceResult { winner: string | null; ranking: string[]; endedAt: number }
@@ -59,4 +61,6 @@ export interface RaceView<O extends object, P extends RacePlayerView> {
   players: P[];
   result: RaceResult | null;
   wins: RaceScore[];
+  workspaceRecord?: WorkspaceRecord | null;
+  workspaceLevelRecord?: WorkspaceRecord | null;
 }

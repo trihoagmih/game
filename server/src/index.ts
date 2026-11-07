@@ -12,6 +12,8 @@ import { Voice } from './voice.js';
 import { createMetrics } from './metrics.js';
 import { clusterFromEnv } from './cluster.js';
 import { Recovery } from './recovery.js';
+import { Pool } from 'pg';
+import { FileRecordBackend, PostgresRecordBackend, WorkspaceRecords } from './workspaceRecords.js';
 import { botPool } from './botPool.js';
 
 // Voice chat: tắt / bật lại (vd. hết hạn mức TURN miễn phí) → báo mọi người, đưa tất cả ra khỏi kênh thoại khi tắt
@@ -33,6 +35,23 @@ const io: GameServer = new Server(server, {
 const lobby = new Lobby(io);
 const cluster = clusterFromEnv();
 if (cluster) { lobby.cluster = cluster; await cluster.start(lobby); }
+const recordsPool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL, max: 4, connectionTimeoutMillis: 5000, query_timeout: 5000 })
+  : null;
+recordsPool?.on('error', () => console.error('[workspace-records] database connection failed'));
+const recordBackend = recordsPool
+  ? new PostgresRecordBackend(recordsPool, process.env.WORKSPACE_RECORDS_NAMESPACE || 'game:v1')
+  : new FileRecordBackend(process.env.WORKSPACE_RECORDS_FILE || './data/workspace-records.json');
+if (recordBackend instanceof PostgresRecordBackend) await recordBackend.init();
+else {
+  await recordBackend.load();
+  console.warn('[workspace-records] DATABASE_URL missing; local file mode requires a persistent writable disk and a single process');
+}
+lobby.records = new WorkspaceRecords(recordBackend, () => {
+  for (const room of lobby.rooms.values()) if (room.game === 'skyhop' || room.game === 'goldmine') room.changed();
+});
+const recordsTimer = setInterval(() => lobby.records.refresh(), 2500);
+recordsTimer.unref();
 const recovery = cluster ? new Recovery(cluster, lobby, process.env.SNAPSHOT_KEY) : null;
 if (recovery) { await recovery.restore(); recovery.start(); }
 const connections = new ConnectionCounter(); // số socket đồng thời theo IP
@@ -76,8 +95,10 @@ async function shutdown(signal: string) {
     voice.stop();
     metrics.close();
     clearInterval(metricsTimer);
+    clearInterval(recordsTimer);
     await botPool.close();
     await new Promise<void>((resolve) => io.close(() => resolve()));
+    if (recordsPool) await recordsPool.end();
     if (cluster) await cluster.close();
     clearTimeout(deadline);
     process.exit(0);

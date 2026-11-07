@@ -11,15 +11,15 @@ export const SKY = { W: 288, H: 512, GROUND: 448, BIRD_X: 76, BIRD_R: 11, PILLAR
 /** Số đơn vị con trong một px. */
 export const SUB = 16;
 export const TICK_MS = 20;
-/** Trần thời lượng một ván (10 phút) để ván sinh tồn không kéo dài vô hạn. */
-export const MAX_TICKS = (10 * 60 * 1000) / TICK_MS;
+/** Sinh tồn kết thúc khi va chạm hoặc bỏ cuộc, không giới hạn thời lượng. */
+export const MAX_TICKS = Number.POSITIVE_INFINITY;
 /** Ván nhiều người không chờ mãi: quá chừng này mà chưa chạm thì chim tự cất cánh. */
 export const READY_TICKS = (5 * 1000) / TICK_MS;
 export const GRAVITY = 9;
-export const FLAP_V = -128;
+export const FLAP_V = -96;
 export const MAX_FALL = 170;
 /** Khe kế tiếp lệch tối đa chừng này so với khe trước (px) để luôn bay kịp. */
-const MAX_SHIFT = 150;
+const MAX_SHIFT = 100;
 const EDGE = 48;
 const READY_Y = 230;
 
@@ -30,7 +30,7 @@ export const DIFFICULTY = [
   { name: 'Cổ điển', speed: 52, gap: 116 },
 ] as const;
 /** Số khe cần qua để về đích; 0 = sinh tồn, ai trụ lâu nhất thắng. */
-export const TARGET = { min: 0, max: 200, default: 30 } as const;
+export const TARGET = { min: 0, max: 200, default: 0 } as const;
 
 /** Huy chương theo số khe, như bảng điểm cổ điển. */
 export const MEDALS = [
@@ -91,6 +91,8 @@ export class SkyhopGame implements RaceEngine<SkyCommand> {
   get over() { return this.dead || this.finished || this.tick >= MAX_TICKS; }
   get speed() { return DIFFICULTY[this.level - 1].speed; }
   get gap() { return DIFFICULTY[this.level - 1].gap; }
+  /** Mỗi 10 cột thu hẹp 4px, tối đa 24px; từng cột giữ nguyên khe khi xuất hiện. */
+  gapAt(k: number) { return this.gap - Math.min(24, Math.floor(k / 10) * 4); }
   /** Quãng đã cuộn (đơn vị con); đứng yên khi còn ở màn Chuẩn bị. */
   get scroll() { return this.startTick === null ? 0 : (this.tick - this.startTick) * this.speed; }
 
@@ -101,7 +103,7 @@ export class SkyhopGame implements RaceEngine<SkyCommand> {
   }
 
   /** Tâm khe của cột thứ k (px), sinh lần lượt từ hạt giống nên không phụ thuộc lúc hỏi. */
-  gapCenter(k: number) {
+  baseGapCenter(k: number) {
     const half = this.gap >> 1;
     const lo = half + EDGE;
     const hi = SKY.GROUND - half - EDGE;
@@ -113,12 +115,21 @@ export class SkyhopGame implements RaceEngine<SkyCommand> {
     return this.gaps[k];
   }
 
+  /** Cột từ thứ 11 bắt đầu dao động; chu kỳ 4,8s, biên độ tối đa 24px.
+   * Đồng hồ của lượt bay và chỉ số cột quyết định hoàn toàn vị trí khe. */
+  gapCenter(k: number, flightTick = this.startTick === null ? 0 : this.tick - this.startTick) {
+    const amplitude = Math.min(24, Math.floor(k / 10) * 4);
+    const phase = (Math.max(0, flightTick) + k * 37) % 240;
+    const triangle = phase < 120 ? phase : 240 - phase;
+    return this.baseGapCenter(k) + Math.trunc(amplitude * (triangle - 60) / 60);
+  }
+
   /** Chim có chạm cột thứ k không (cột trên từ trần tới mép khe, cột dưới từ mép khe tới đất). */
   hitsPillar(k: number) {
     const x0 = pillarX(k) * SUB - this.scroll;
     const x1 = x0 + SKY.PILLAR_W * SUB;
     const c = this.gapCenter(k);
-    const half = this.gap >> 1;
+    const half = this.gapAt(k) >> 1;
     const cx = SKY.BIRD_X * SUB;
     const r = SKY.BIRD_R * SUB;
     return circleHitsRect(cx, this.y, r, x0, 0, x1, (c - half) * SUB)

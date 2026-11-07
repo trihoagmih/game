@@ -95,3 +95,11 @@ Source TS → shared/server ESM + declarations → copy `server/src/data` → Vi
 CI quality job chạy source policy, ESLint và strict typecheck cho source/config/scripts/tests; test job chạy luật, handler, worker, recovery và Redis thật; integration chạy compiled server; Docker build xác nhận đóng gói. Compose job dựng Redis + hai shard + Nginx và smoke routing/transfer/gameplay. Browser voice probes là lớp riêng cần môi trường thật, không được coi là đã chạy chỉ vì typecheck qua.
 
 Đọc tiếp [feature-development.md](feature-development.md), [conventions.md](conventions.md), [typescript.md](typescript.md), [scaling.md](scaling.md), [docker-setup.md](docker-setup.md).
+
+### Điều chỉnh Đào vàng và Bay qua khe
+
+Đào vàng giảm tốc móc và tăng sức nặng vàng lớn/đá. Bay qua khe tạo phòng ở chế độ sinh tồn, không giới hạn điểm hoặc thời lượng; mỗi 10 cột thu hẹp khe 4px, tối đa 24px. Kích thước khe của mỗi cột cố định theo chỉ số để hiển thị và va chạm thống nhất. Lực nảy thấp hơn để dễ chỉnh độ cao.
+
+Hai game hiển thị kỷ lục chung theo workspace/sảnh (ví dụ b4) và game. Flappy Bird lưu số cột; Đào vàng lưu độc lập tiền cao nhất từng có và màn cao nhất từng tới. Mỗi kỷ lục có tên người giữ. Server cập nhật khi lượt chơi kết thúc từ điểm đã xác minh. PostgreSQL lưu bằng UPSERT max nguyên tử, không TTL; các shard chia sẻ database/namespace và cập nhật cache khoảng 2,5 giây. DATABASE_URL bật backend PostgreSQL; thiếu URL thì cảnh báo và dùng file local ghi nguyên tử, chỉ phù hợp một process trên persistent disk. Xoá phòng hay đổi thiết bị không xoá kỷ lục database. Lỗi ghi được log, kỷ lục chỉ công bố sau khi lưu thành công. Trên màn cảm ứng nhỏ, khi ván chạy, sân chơi phủ viewport và ẩn bảng phụ; nút bỏ cuộc vẫn truy cập được.
+
+Bay qua khe: từ cột thứ 11, khe dao động lên xuống theo chu kỳ 4,8 giây. Biên độ tăng mỗi 10 cột, tối đa 24px. Vị trí khe phụ thuộc chỉ số cột và tick của lượt bay; client, người xem và server tính cùng công thức.

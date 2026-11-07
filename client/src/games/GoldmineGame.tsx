@@ -38,6 +38,7 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
   const [watchId, setWatchId] = useState<string | null>(null);
   const [giveup, setGiveup] = useState(false);
   const shown = me ?? s.players.find((p) => p.id === watchId) ?? s.players[0] ?? null;
+  const best = s.workspaceRecord?.score ?? 0;
   const playing = s.status === 'playing';
   const live = playing && me && !me.done;
   const [local, setLocal] = useState<Local | null>(null);
@@ -46,9 +47,11 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
   const shopping = live ? local?.phase === 'shop' : s.status === 'playing' && shown?.mine.phase === 'shop' && !shown.done;
 
   return (
-    <div className={`gm${shopping ? ' shopping' : ''}`}>
+    <div className={`gm${playing ? ' active' : ''}${shopping ? ' shopping' : ''}`}>
       <header className="gm-head">
+        <span className="gm-best" title={`Kỷ lục workspace · ${s.workspaceRecord?.name ?? 'Chưa có kỷ lục'}`}>🏆 {best.toLocaleString('vi-VN')}$ {s.workspaceRecord && <span>· {s.workspaceRecord.name}</span>}</span>
         <span className="gm-title"><Pickaxe size={18} aria-hidden /> Đào vàng</span>
+        <span className="gm-level-best" title={`Kỷ lục màn · ${s.workspaceLevelRecord?.name ?? 'Chưa có kỷ lục'}`}>⛏ Màn {s.workspaceLevelRecord?.score ?? 0}</span>
         <span className="gm-chip">{s.options.levels} màn · 60 giây/màn</span>
         {live && (
           <button className="btn sm ghost gm-giveup" onClick={() => setGiveup(true)} aria-label="Bỏ cuộc" title="Bỏ cuộc">
@@ -99,6 +102,11 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
       )}
 
       <GameInfo>
+        <div className="panel small">
+          <b>Kỷ lục workspace</b>
+          <p>Tiền: {money(best)} · {s.workspaceRecord?.name ?? 'Chưa có'}</p>
+          <p>Màn: {s.workspaceLevelRecord?.score ?? 0} · {s.workspaceLevelRecord?.name ?? 'Chưa có'}</p>
+        </div>
         <Records s={s} me={user.id} />
         <div className="panel small muted gm-rules">
           <b>Luật chơi</b>
@@ -213,6 +221,7 @@ function Shop({ mine, seconds, onBuy, onLeave }: {
   return (
     <section className="gm-shop" aria-label="Cửa hàng">
       <header className="gm-shop-head">
+        <div className="gm-shop-sign" aria-hidden>⛏ TIỆM ĐỒ THỢ MỎ ⛏</div>
         <h3><ShoppingBag size={18} aria-hidden /> Cửa hàng</h3>
         <span className="gm-shop-money">Có <b>{money(mine.money)}</b></span>
         <span className="muted small">Màn {mine.level + 1} cần {money(goalFor(mine.level + 1))} · còn {seconds} giây</span>

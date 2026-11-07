@@ -116,7 +116,6 @@ const FIELDS: Record<string, Field[]> = {
   ],
   skyhop: [
     ['level', 'Độ khó', 'select', DIFFICULTY.map((d, i): [string, string] => [String(i + 1), d.name])],
-    ['target', 'Số khe cần qua để về đích (0 = sinh tồn, ai trụ lâu nhất thắng)', TARGET.min, TARGET.max],
     ['maxSeats', 'Số người chơi tối đa (1 = chơi một mình)', 1, 8],
   ],
   goldmine: [

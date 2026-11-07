@@ -76,19 +76,21 @@ jobs:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           APP_SERVERS: ${{ secrets.APP_SERVERS }}
           TRUST_PROXY: ${{ vars.TRUST_PROXY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          WORKSPACE_RECORDS_NAMESPACE: ${{ vars.WORKSPACE_RECORDS_NAMESPACE || 'game:v1' }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          envs: APP_PASSWORD,APP_SERVERS,TRUST_PROXY
+          envs: APP_PASSWORD,APP_SERVERS,TRUST_PROXY,DATABASE_URL,WORKSPACE_RECORDS_NAMESPACE
           script: |
             set -e
             IMAGE=${{ needs.docker.outputs.image }}:latest
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             docker pull "$IMAGE"
             docker rm -f game-lobby 2>/dev/null || true
-            docker run -d --name game-lobby --restart unless-stopped --read-only --cap-drop ALL --security-opt no-new-privileges -p ${{ secrets.APP_PORT || 80 }}:3001 -e APP_PASSWORD="$APP_PASSWORD" -e APP_SERVERS="$APP_SERVERS" -e TRUST_PROXY="$TRUST_PROXY" "$IMAGE"
+            docker run -d --name game-lobby --restart unless-stopped --read-only --cap-drop ALL --security-opt no-new-privileges -p ${{ secrets.APP_PORT || 80 }}:3001 -e APP_PASSWORD="$APP_PASSWORD" -e APP_SERVERS="$APP_SERVERS" -e TRUST_PROXY="$TRUST_PROXY" -e DATABASE_URL="$DATABASE_URL" -e WORKSPACE_RECORDS_NAMESPACE="$WORKSPACE_RECORDS_NAMESPACE" "$IMAGE"
             docker image prune -f
 
       - name: Tóm tắt

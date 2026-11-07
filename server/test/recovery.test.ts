@@ -106,7 +106,11 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
   if (guess) assert.equal(guess[1].game?.secret, guess[0].game?.secret);
   resumeRoom(restored);
   if (tetris) assert.ok(tetris[1].timer);
-  if (race) assert.ok(race[1].timer && race[1].watchTimer, 'hẹn giờ của ván đua được đặt lại');
+  if (race) {
+    assert.ok(race[1].watchTimer, 'nhịp server được khôi phục');
+    if (game === 'skyhop') assert.equal(race[1].timer, null, 'sinh tồn không có hạn chót');
+    else assert.ok(race[1].timer, 'hạn chót ván được khôi phục');
+  }
   t.after(() => restored.handler.dispose());
 });
 

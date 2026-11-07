@@ -68,22 +68,24 @@ test('tùy chọn phòng bị kẹp về khoảng hợp lệ', () => {
   assert.deepEqual(mine.options, { maxSeats: 1, levels: 10 });
 });
 
-test('server tự phát lại lệnh để tính điểm, về đích thì thắng', (t) => {
+test('server phát lại điểm sinh tồn, chỉ kết thúc khi va chạm', (t) => {
   const advance = clock(t);
   const h = startSky(t);
-  const local = new SkyhopGame({ seed: h.seed, level: 1, target: 5 });
+  const local = new SkyhopGame({ seed: h.seed, level: 1, target: 0 });
   const inputs = playSky(local, 10_000);
-  assert.equal(local.finished, true);
+  while (!local.over) local.step();
+  assert.equal(local.dead, true);
+  assert.equal(h.options.target, 0);
 
   advance(COUNTDOWN_MS);
   stream(h, 'a', inputs, local.tick, advance);
   const me = h.view('a').players.find((p) => p.id === 'a');
-  assert.deepEqual([me?.score, me?.end, me?.done], [5, 'finished', true]);
+  assert.deepEqual([me?.score, me?.end, me?.done], [local.score, 'dead', true]);
   // Bình không gửi gì nên đã bị đẩy tới lúc rơi; hết người chơi là ván kết thúc
   assert.equal(h.status, 'over');
   assert.equal(h.players[1].end, 'dead');
   assert.equal(h.result?.winner, 'a');
-  assert.deepEqual(h.view('b').wins.map((w) => [w.id, w.wins, w.best]), [['a', 1, 5], ['b', 0, 0]]);
+  assert.deepEqual(h.view('b').wins.map((w) => [w.id, w.wins, w.best]), [['a', 1, local.score], ['b', 0, 0]]);
 });
 
 test('từ chối tick vượt đồng hồ server và lệnh sai dạng; lệnh cũ bị bỏ qua', (t) => {
@@ -147,7 +149,8 @@ test('Đào vàng: view không lộ giá trị túi bí ẩn, hạt giống ẩn
 test('chơi một mình bắt đầu được ngay, đứng dậy giữa ván là bỏ cuộc, dispose dọn hẹn giờ', (t) => {
   clock(t);
   const h = startSky(t, {}, [players[0]]);
-  assert.ok(h.timer && h.watchTimer);
+  assert.equal(h.timer, null);
+  assert.ok(h.watchTimer);
   assert.throws(() => h.sit(players[1]), /đang diễn ra/);
   h.stand('a');
   assert.equal(h.status, 'over');

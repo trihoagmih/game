@@ -286,3 +286,17 @@ Chi tiết build, exports và phạm vi kiểu dữ liệu: [docs/typescript.md]
 
 Mã nguồn phát hành theo [giấy phép MIT](LICENSE). Riêng dữ liệu bên thứ ba trong `server/src/data/` giữ giấy phép gốc
 (xem [README](server/src/data/README.md)): `vi-words.txt` theo GNU GPL phiên bản 2, không thuộc phạm vi giấy phép MIT.
+
+### Kỷ lục workspace cho Đào vàng và Bay qua khe
+
+Kỷ lục dùng chung giữa các phòng trong cùng workspace (ví dụ b4), tách riêng theo game. Flappy Bird lưu số cột vượt qua. Đào vàng lưu hai mốc độc lập: số tiền cao nhất từng có (mua đồ không hạ kỷ lục) và màn cao nhất từng tới, mỗi mốc kèm người đạt trước. Server cập nhật khi lượt chơi kết thúc, từ điểm đã xác nhận.
+
+**PostgreSQL là nơi lưu chính:** đặt DATABASE_URL trong biến môi trường/secret của host; dùng WORKSPACE_RECORDS_NAMESPACE nếu nhiều môi trường chung database (mặc định game:v1). Server tự tạo bảng workspace_game_records, cần quyền CREATE TABLE ở lần khởi động đầu và SELECT/INSERT/UPDATE khi chạy. UPSERT giữ max nguyên tử giữa nhiều shard; bằng điểm giữ người đạt trước. Mọi shard cần dùng cùng database và namespace. Kết nối tuân theo TLS của nhà cung cấp; không tắt xác thực certificate.
+
+Compose đã có PostgreSQL 17 với volume postgres-data; thêm POSTGRES_PASSWORD riêng vào .env. Redeploy node ứng dụng hoặc restart database không xoá kỷ lục nếu volume còn. Không chạy docker compose down -v nếu muốn giữ dữ liệu. Cần backup database ra nơi khác và kiểm tra khôi phục; volume không thay thế backup. Với database được quản lý, bật backup/PITR theo gói dịch vụ.
+
+Render: đặt DATABASE_URL trong dashboard. VPS qua Actions: thêm secret DATABASE_URL và repository variable WORKSPACE_RECORDS_NAMESPACE (ví dụ b4). Không có URL thì server cảnh báo và dùng file local WORKSPACE_RECORDS_FILE (mặc định ./data/workspace-records.json), chỉ dành cho một process với disk có quyền ghi và bền vững; chế độ này không đồng bộ nhiều shard.
+
+Xoá phòng, đổi thiết bị hoặc xoá dữ liệu trình duyệt không xoá kỷ lục database. Kỷ lục phòng và kỷ lục workspace là hai phạm vi riêng.
+
+Bay qua khe: từ cột thứ 11, khe dao động lên xuống theo chu kỳ 4,8 giây. Biên độ tăng mỗi 10 cột, tối đa 24px. Vị trí khe phụ thuộc chỉ số cột và tick của lượt bay; client, người xem và server tính cùng công thức.

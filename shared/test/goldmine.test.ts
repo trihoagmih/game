@@ -47,7 +47,7 @@ test('bản đồ mỗi màn tất định, món không chồng nhau, nằm dư�
 });
 
 test('móc lắc như con lắc: bắt đầu ở giữa, chậm dần ở hai đầu, đối xứng', () => {
-  const angles = Array.from({ length: 180 }, (_, t) => swingAngle(t));
+  const angles = Array.from({ length: 360 }, (_, t) => swingAngle(t));
   assert.equal(angles[0], ANGLE_STEPS / 2);
   assert.equal(Math.max(...angles), ANGLE_STEPS);
   assert.equal(Math.min(...angles), 0);
@@ -175,4 +175,27 @@ test('phát lại theo từng đoạn (cả lệnh ở cửa hàng) ra đúng tr
     used = replayRace(copy, inputs, tick, used);
   }
   assert.deepEqual(copy.snapshot(), live.snapshot());
+});
+
+test('vàng lớn và đá kéo chậm hơn rõ rệt so với vàng nhỏ', () => {
+  const duration = (kind: ItemKind) => {
+    const game = new GoldmineGame({ seed: 1, levels: 1 });
+    game.items = [item(kind, MINE.PIVOT_X, 260)];
+    return shootStraightDown(game);
+  };
+  assert.ok(duration('goldL') > duration('goldXS') * 3);
+  assert.ok(duration('rockL') > duration('goldXS') * 3);
+  assert.ok(duration('rockS') > duration('goldS') * 2);
+});
+
+test('mua đồ giảm tiền hiện có nhưng giữ mốc tiền cao nhất', () => {
+  const game = new GoldmineGame({ seed: 1, levels: 3 });
+  game.collect(item('goldL', 100, 200));
+  game.openShop();
+  game.offers = [{ good: 'strength', price: 100, bought: false }];
+  assert.equal(game.command('buy0'), true);
+  assert.equal(game.money, 400);
+  assert.equal(game.peakMoney, 500);
+  game.startLevel(2);
+  assert.equal(game.peakMoney, 500);
 });

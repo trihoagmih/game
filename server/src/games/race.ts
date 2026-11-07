@@ -25,7 +25,7 @@ export interface RacePlayer<G, C extends string> extends Identity {
   endedAt: number | null;
 }
 
-type RaceRoom = Pick<Room, 'ownerId' | 'system' | 'changed'>;
+type RaceRoom = Pick<Room, 'ownerId' | 'system' | 'changed'> & Partial<Pick<Room, 'recordScore' | 'workspaceRecord'>>;
 
 /** Lớp con thêm luật riêng và `implements GameHandler` với kiểu view của mình. */
 export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O extends { maxSeats: number }> {
@@ -165,7 +165,13 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
     this.checkEnd();
   }
 
+  protected publishRecord(p: RacePlayer<G, C>) {
+    this.room.recordScore?.({ id: p.id, name: p.name, score: this.scoreOf(p.game), at: Date.now() });
+  }
+
   out(p: RacePlayer<G, C>, end: RaceEnd) {
+    if (p.done) return;
+    this.publishRecord(p);
     p.done = true;
     p.end = end;
     p.endedAt = Math.max(0, Date.now() - this.startAt);
@@ -191,6 +197,7 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
     if (!this.isPlaying() || !this.players.length) return;
     this.watchTimer = setInterval(() => this.nudge(), 1000);
     const end = this.startAt + this.maxTicks(this.players[0].game) * this.tickMs + BEHIND_SLACK_MS + 1000;
+    if (!Number.isFinite(end)) return;
     this.timer = setTimeout(() => {
       if (!this.isPlaying()) return;
       for (const p of this.players) if (!p.done) this.out(p, 'timedOut');
@@ -239,6 +246,8 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
   raceView<E extends object>(viewerId: string, extra: (p: RacePlayer<G, C>) => E): RaceView<O, RacePlayerView & E> {
     const playing = this.isPlaying();
     return {
+      workspaceRecord: this.room.workspaceRecord?.() ?? null,
+      workspaceLevelRecord: this.room.workspaceRecord?.('level') ?? null,
       options: this.options,
       seats: this.seats,
       ...this.ready.view(this.playerIds()),
