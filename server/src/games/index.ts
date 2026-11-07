@@ -11,6 +11,7 @@ import { ScribbleHandler } from './scribble.js';
 import { TelephoneHandler } from './telephone.js';
 import { OnetHandler } from './onet.js';
 import { SnakeHandler } from './snake.js';
+import { TetrisHandler } from './tetris.js';
 
 /**
  * Các trò chơi. Mỗi Handler điều khiển một bàn trong một phòng và cần có:
@@ -33,6 +34,7 @@ export const GAMES = {
   telephone: { name: 'Tam sao thất bản', Handler: TelephoneHandler },
   onet: { name: 'Nối thú', Handler: OnetHandler },
   snake: { name: 'Rắn săn mồi', Handler: SnakeHandler },
+  tetris: { name: 'Tetris', Handler: TetrisHandler },
 };
 
 export type GameId = keyof typeof GAMES;

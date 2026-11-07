@@ -69,6 +69,10 @@
       "types": "./dist/contracts.d.ts",
       "import": "./dist/contracts.js"
     },
+    "./tetris": {
+      "types": "./dist/tetris.d.ts",
+      "import": "./dist/tetris.js"
+    },
     "./snake": {
       "types": "./dist/snake.d.ts",
       "import": "./dist/snake.js"

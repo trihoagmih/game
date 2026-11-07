@@ -640,6 +640,33 @@ if (OTHER_PASSWORD) {
   console.log('✔ Nối thú cổ điển OK');
 }
 
+// ---------- Tetris ----------
+{
+  const v = (x: Client) => viewOf(x, 'tetris');
+  a.state = b.state = c.state = null;
+  const { roomId } = await a.req('room:create', { name: 'Tetris test', game: 'tetris', options: { targetLines: 8 } });
+  await b.req('room:join', { roomId, mode: 'play' });
+  await c.req('room:join', { roomId, mode: 'watch' });
+  await assert.rejects(a.act({ type: 'start' }), /sẵn sàng/);
+  await b.act({ type: 'ready' });
+  await a.act({ type: 'start' });
+  await until(() => v(c).status === 'playing');
+  const state = v(c);
+  assert.equal(state.options.targetLines, 8);
+  assert.equal(state.mySeat, -1);
+  assert.deepEqual(state.boards[0], state.boards[1]);
+  assert.ok(state.round && state.startsAt);
+  const drop = { type: 'tetrisInput', input: 'drop', round: state.round } as const;
+  await assert.rejects(c.act(drop), /xem/);
+  await wait(Math.max(0, state.startsAt - Date.now()) + 25);
+  await b.act(drop);
+  await until(() => v(c).boards[1]?.grid.some((row) => /[A-Z]/.test(row)));
+  await b.req('room:leave', {});
+  await until(() => v(c).result?.winnerId === a.user.id);
+  await a.req('room:delete', { roomId });
+  console.log('✔ Tetris OK');
+}
+
 // ---------- Rắn săn mồi ----------
 {
   const v = (x: Client) => viewOf(x, 'snake');

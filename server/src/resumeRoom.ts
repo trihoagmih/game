@@ -9,6 +9,7 @@ import { QuizHandler } from './games/quiz.js';
 import { SamLocHandler } from './games/samloc.js';
 import { ScribbleHandler } from './games/scribble.js';
 import { SnakeHandler } from './games/snake.js';
+import { TetrisHandler } from './games/tetris.js';
 import { TalaHandler } from './games/tala.js';
 import { TelephoneHandler } from './games/telephone.js';
 import { WordChainHandler } from './games/wordchain.js';
@@ -63,6 +64,8 @@ export function resumeRoom(room: Room) {
       });
       if (h.phase === 'draw') h._scheduleHints();
     }
+  } else if (h instanceof TetrisHandler && h.isPlaying()) {
+    h.schedule();
   } else if (h instanceof SnakeHandler && h.status === 'playing') {
     if (h.deadline) h.timer = arm(h.deadline, () => {
       for (const p of h.players) if (!p.done) h._out(p, 'timedOut');
