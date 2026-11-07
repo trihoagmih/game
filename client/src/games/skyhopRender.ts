@@ -1,14 +1,22 @@
 import { MAX_FALL, SKY, SUB, pillarX } from '@game/shared/skyhop';
 
 // Vẽ Bay qua khe lên canvas: trời đêm, đồi xa cuộn chậm (tắt khi giảm chuyển động), cột đá, dải cỏ,
-// chim của mình và "bóng" của người khác ở đúng khoảng cách họ đang đi trước/sau.
+// chim của mình và "bóng" của người khác ở đúng khoảng cách họ đang đi trước/sau. Màn tiêu đề (chờ
+// ván), "Chuẩn bị!" (chưa chạm lần nào) và lóe trắng khi va là phần trình bày, không ảnh hưởng luật.
 
 export const SKY_SCALE = 2;
 
 export interface SkyGhost { id: string; name: string; tick: number; y: number; done: boolean }
 
+export type SkyMode = 'title' | 'ready' | 'fly' | 'dead';
+
 export interface SkyScene {
+  mode: SkyMode;
   tick: number;
+  /** ms kể từ lúc va (lóe trắng); âm hoặc rất lớn thì không vẽ. */
+  sinceHit: number;
+  /** Thời gian thực (ms) để chim nhấp nhô ở màn tiêu đề / Chuẩn bị. */
+  now: number;
   /** 0..1, phần đã trôi giữa hai bước để chuyển động mượt. */
   alpha: number;
   y: number;
@@ -21,6 +29,31 @@ export interface SkyScene {
   dead: boolean;
   ghosts: SkyGhost[];
   still: boolean;
+}
+
+function banner(ctx: CanvasRenderingContext2D, text: string, y: number, size: number, fill: string) {
+  ctx.font = `800 ${size}px Inter, system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(4, size / 6);
+  ctx.strokeStyle = 'rgba(15,23,42,.85)';
+  ctx.strokeText(text, SKY.W / 2, y);
+  ctx.fillStyle = fill;
+  ctx.fillText(text, SKY.W / 2, y);
+}
+
+/** Gợi ý chạm: vòng tròn nhấp nháy dưới chim. */
+function tapHint(ctx: CanvasRenderingContext2D, x: number, y: number, now: number, still: boolean) {
+  const pulse = still ? 0.5 : (now % 1000) / 1000;
+  ctx.strokeStyle = `rgba(253, 230, 138, ${0.9 - pulse * 0.7})`;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 14 + pulse * 12, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = '#fde68a';
+  ctx.beginPath();
+  ctx.arc(x, y, 7, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 const HILLS_FAR = [0, 380, 40, 350, 90, 372, 150, 330, 210, 360, 260, 340, 288, 380];
@@ -147,13 +180,25 @@ export function drawSky(cv: HTMLCanvasElement, sc: SkyScene) {
     ctx.globalAlpha = 1;
   }
 
-  bird(ctx, SKY.BIRD_X, (sc.y + sc.vy * sc.alpha) / SUB, sc.vy, sc.dead);
+  // Nhấp nhô khi đang chờ chỉ là trình bày; vị trí thật của chim vẫn do engine giữ
+  const hover = sc.mode === 'title' || sc.mode === 'ready' ? (sc.still ? 0 : Math.sin(sc.now / 180) * 5) : 0;
+  const birdX = sc.mode === 'title' ? SKY.W / 2 : SKY.BIRD_X;
+  bird(ctx, birdX, (sc.y + sc.vy * sc.alpha) / SUB + hover, sc.mode === 'fly' || sc.mode === 'dead' ? sc.vy : 0, sc.dead);
 
-  ctx.font = '800 40px Inter, system-ui, sans-serif';
-  ctx.lineWidth = 6;
-  ctx.strokeStyle = 'rgba(15,23,42,.8)';
-  ctx.fillStyle = '#fff';
-  const label = sc.target ? `${sc.score}/${sc.target}` : String(sc.score);
-  ctx.strokeText(label, SKY.W / 2, 64);
-  ctx.fillText(label, SKY.W / 2, 64);
+  if (sc.mode === 'title') {
+    banner(ctx, 'BAY QUA KHE', 150, 34, '#fde68a');
+    return;
+  }
+  banner(ctx, sc.target ? `${sc.score}/${sc.target}` : String(sc.score), 64, 40, '#fff');
+  if (sc.mode === 'ready') {
+    banner(ctx, 'Chuẩn bị!', 150, 30, '#86efac');
+    tapHint(ctx, SKY.BIRD_X, (sc.y / SUB) + 70, sc.now, sc.still);
+    ctx.font = '600 13px Inter, system-ui, sans-serif';
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText('Chạm để bay', SKY.BIRD_X, sc.y / SUB + 104);
+  }
+  if (sc.sinceHit >= 0 && sc.sinceHit < 220 && !sc.still) {
+    ctx.fillStyle = `rgba(255,255,255,${0.75 * (1 - sc.sinceHit / 220)})`;
+    ctx.fillRect(0, 0, SKY.W, SKY.H);
+  }
 }

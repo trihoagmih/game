@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { replayRace } from '../src/race.js';
 import type { RaceInput } from '../src/race.js';
-import { DIFFICULTY, SKY, SUB, SkyhopGame, pillarX } from '../src/skyhop.js';
+import { DIFFICULTY, READY_TICKS, SKY, SUB, SkyhopGame, medalFor, pillarX } from '../src/skyhop.js';
 import type { SkyCommand } from '../src/skyhop.js';
 
 /** Chơi tự động: nảy khi đã rơi xuống dưới tâm khe sắp tới. Trả về các lệnh đã dùng. */
@@ -17,13 +17,30 @@ function autopilot(game: SkyhopGame, ticks: number) {
   return inputs;
 }
 
-test('không chạm gì thì rơi xuống đất trước cột đầu tiên, 0 điểm', () => {
+test('màn Chuẩn bị: chim lơ lửng, cột đứng yên tới lần chạm đầu', () => {
+  const game = new SkyhopGame({ seed: 1, level: 2, target: 0 });
+  for (let i = 0; i < 100; i++) game.step();
+  assert.deepEqual([game.startTick, game.scroll, game.vy], [null, 0, 0]);
+  const y = game.y;
+  assert.equal(game.command('flap'), true);
+  game.step();
+  assert.equal(game.startTick, 100);
+  assert.ok(game.y < y, 'lần chạm đầu nảy lên');
+  assert.equal(game.scroll, game.speed);
+});
+
+test('không chạm gì: quá thời gian chuẩn bị thì tự cất cánh rồi rơi, 0 điểm', () => {
   const game = new SkyhopGame({ seed: 1, level: 2, target: 0 });
   while (!game.over) game.step();
+  assert.equal(game.startTick, READY_TICKS);
   assert.equal(game.dead, true);
   assert.equal(game.score, 0);
-  assert.ok(game.tick < 200);
+  assert.ok(game.tick < READY_TICKS + 200);
   assert.equal(game.command('flap'), false, 'đã thua thì không nhận lệnh');
+});
+
+test('huy chương theo số khe', () => {
+  assert.deepEqual([9, 10, 25, 39, 40, 99].map((n) => medalFor(n)?.name ?? null), [null, 'Đồng', 'Bạc', 'Vàng', 'Bạch kim', 'Bạch kim']);
 });
 
 test('khe sinh từ hạt giống: cùng hạt giống cùng dãy, khe nằm trong màn và không lệch quá xa', () => {

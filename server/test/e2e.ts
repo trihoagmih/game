@@ -670,7 +670,7 @@ if (OTHER_PASSWORD) {
 // ---------- Rắn săn mồi ----------
 {
   const v = (x: Client) => viewOf(x, 'snake');
-  const { SnakeGame, W, DIRS } = await import('@game/shared/snake');
+  const { SnakeGame, W, DIRS, START_LEN } = await import('@game/shared/snake');
   a.state = b.state = c.state = null;
   const { roomId } = await a.req('room:create', { name: 'Rắn test', game: 'snake', options: { level: 9, maze: 'box', maxSeats: 2 } });
   await b.req('room:join', { roomId, mode: 'play' });
@@ -710,11 +710,11 @@ if (OTHER_PASSWORD) {
   await until(() => v(c).players.find((x) => x.id === b.user.id)!.length === g.length);
   assert.equal(v(c).players.find((x) => x.id === b.user.id)!.length, g.length, 'người xem thấy rắn của b');
 
-  // a: không rẽ → đâm viền phải sau 17 bước
+  // a: không rẽ → đi thẳng tới viền phải thì đâm
   await a.act({ type: 'sync', tick: 30, inputs: [] });
   await until(() => mine(a)!.done);
   assert.equal(mine(a)!.dead, true);
-  assert.equal(mine(a)!.tick, W - 1 - 6);
+  assert.equal(mine(a)!.tick, W - 1 - (START_LEN + 1)); // đầu rắn xuất phát ở cột START_LEN + 1
   await a.act({ type: 'sync', tick: 31, inputs: [] }); // gói đến trễ sau khi chết: bỏ qua êm
   assert.equal(v(c).status, 'playing');
   await b.act({ type: 'giveup' });

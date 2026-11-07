@@ -93,12 +93,14 @@
 - Dùng phím mũi tên để di chuyển hoặc xoay, Z để xoay trái, Space để thả ngay. Điện thoại có nút điều khiển.
 
 **Bay qua khe** (1–8 người, chạm để nảy)
-- Chạm màn hình / `Space` / `↑` để nảy, luồn qua khe giữa các cột đá; chạm cột hoặc đất là dừng. 3 độ khó (tốc độ cuộn, độ rộng khe)
-- Đích N khe (ai qua đủ trước thắng) hoặc **sinh tồn** (mục tiêu 0: qua nhiều khe nhất thắng). Mọi người cùng dãy cột; người khác hiện thành chấm mờ ở đúng khoảng cách đang dẫn/bị bỏ lại
+- Chim lơ lửng ở màn **Chuẩn bị!** tới lần chạm đầu (tối đa 5 giây). Chạm màn hình / `Space` / `↑` để nảy, luồn qua khe giữa các cột đá; chạm cột hoặc đất là dừng. 3 độ khó (Dễ, Vừa, Cổ điển)
+- Huy chương Đồng 10 · Bạc 20 · Vàng 30 · Bạch kim 40 khe, thẻ kết quả có kỷ lục trong phòng
+- Đích N khe (ai qua đủ sớm nhất thắng, tính cả lúc chờ) hoặc **sinh tồn** (mục tiêu 0). Mọi người cùng dãy cột; người khác hiện thành chấm mờ ở đúng khoảng cách đang dẫn/bị bỏ lại; "Bảng đua" có thanh tiến độ từng người
 
 **Đào vàng** (1–8 người, móc câu)
-- Móc lắc qua lại; chạm / `Space` / `↓` để phóng, `B` dùng thuốc nổ phá món đang kéo. Vàng to, đá nặng kéo chậm; kim cương nhẹ mà đắt; túi `?` là tiền hoặc thuốc nổ
-- 1–10 màn, mỗi màn 60 giây, mục tiêu tiền cộng dồn tăng dần; không đạt là dừng. Mọi người cùng bản đồ, nhiều tiền nhất thắng
+- Móc lắc như con lắc; chạm / `Space` / `↓` để phóng, `↑` hoặc `B` ném thuốc nổ phá món đang kéo. Vàng 4 cỡ, đá, kim cương, chuột chạy qua lại (có con ôm kim cương), thùng **TNT** nổ phá mọi thứ quanh nó, túi `?` (tiền, thuốc nổ hoặc nước tăng lực)
+- 1–10 màn, mỗi màn 60 giây, mục tiêu cộng dồn 650$, 1.195$, 2.010$, 3.095$…; không đạt là dừng. Qua màn thì vào **cửa hàng** (thuốc nổ, nước tăng lực, cỏ may mắn, sách sưu tầm đá, nước đánh bóng kim cương; phím 1–5 mua, Enter sang màn)
+- Mọi người cùng bản đồ, nhiều tiền nhất thắng; "Bảng tiền" hiện tiến độ tới mục tiêu của từng người
 
 Hai trò này giống Rắn: client tự chạy engine và gửi lệnh `[bước, lệnh]` (`raceSync`), server **phát lại** để tự tính điểm (`shared/src/race.ts`, `skyhop.ts`, `goldmine.ts`). Vật lý dùng số nguyên, góc móc lấy từ bảng sin/cos hằng số để trình duyệt nào cũng ra cùng kết quả với server
 

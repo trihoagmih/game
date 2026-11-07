@@ -92,7 +92,7 @@ vào `GAMES` (từ đó sinh `GameId`/`isGame`).
 - `components/CreateRoomDialog.tsx`: default option và field (dùng hằng min/max/default từ shared).
 - `components/Turn.tsx` nếu game có chỉ báo lượt.
 - Style đặt cạnh TSX: `client/src/games/<Ten>Game.css` bọc trong `@layer games` và được import ở chính file đó (xem mục CSS trong `docs/conventions.md`); dùng token trong `client/src/styles/tokens.css`. Bắt buộc làm theo mục 5a và 5b.
-- Trò kiểu "client chơi, server phát lại" (đua song song): dùng lại `RaceHandler` (`server/src/games/race.ts`), `replayRace` (`shared/src/race.ts`), `useRaceLoop` và `components/RaceShell.tsx` như Bay qua khe/Đào vàng.
+- Trò kiểu "client chơi, server phát lại" (đua song song): dùng lại `RaceHandler` (`server/src/games/race.ts`), `replayRace` (`shared/src/race.ts`) và hook `useRaceLoop` như Bay qua khe/Đào vàng; giao diện thì tự thiết kế cho trò mới (tham khảo nhiều game khác, không sao chép khung của một game).
 
 ### 5a. Thiết kế UI bắt buộc qua skill UI
 

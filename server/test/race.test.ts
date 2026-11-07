@@ -123,7 +123,7 @@ test('Đào vàng: view không lộ giá trị túi bí ẩn, hạt giống ẩn
   h.action('a', { type: 'start' });
   const items = h.view('a').players[0].mine.items;
   assert.ok(items.length > 0);
-  for (const item of items) assert.deepEqual(Object.keys(item).sort(), ['id', 'kind', 'r', 'x', 'y']);
+  for (const item of items) assert.deepEqual(Object.keys(item).sort(), ['dir', 'id', 'kind', 'r', 'x', 'y'], 'không có roll/run của túi bí ẩn');
 
   // An bắn theo đúng engine của mình; Bình không làm gì
   const local = new GoldmineGame({ seed: h.seed, levels: 1 });

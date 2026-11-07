@@ -1,5 +1,6 @@
-// Bay qua khe — chạm để nảy lên, luồn qua khe giữa các cột đá. Mọi người cùng hạt giống nên gặp
-// cùng một dãy cột. Toàn bộ vật lý tính bằng số nguyên (đơn vị 1/16 px) để client và server phát lại
+// Bay qua khe — cơ chế theo kiểu game chạm-để-bay cổ điển: chim lơ lửng ở màn "Chuẩn bị" cho tới lần
+// chạm đầu, sau đó trọng lực kéo xuống, mỗi lần chạm nảy lên một nhịp; luồn qua khe giữa các cột, mỗi
+// khe một điểm, huy chương theo điểm. Mọi người cùng hạt giống nên gặp cùng một dãy cột. Toàn bộ vật lý tính bằng số nguyên (đơn vị 1/16 px) để client và server phát lại
 // ra đúng một kết quả trên mọi trình duyệt.
 
 import { rng } from './onet.js';
@@ -12,28 +13,40 @@ export const SUB = 16;
 export const TICK_MS = 20;
 /** Trần thời lượng một ván (10 phút) để ván sinh tồn không kéo dài vô hạn. */
 export const MAX_TICKS = (10 * 60 * 1000) / TICK_MS;
+/** Ván nhiều người không chờ mãi: quá chừng này mà chưa chạm thì chim tự cất cánh. */
+export const READY_TICKS = (5 * 1000) / TICK_MS;
 export const GRAVITY = 9;
 export const FLAP_V = -128;
 export const MAX_FALL = 170;
 /** Khe kế tiếp lệch tối đa chừng này so với khe trước (px) để luôn bay kịp. */
 const MAX_SHIFT = 150;
 const EDGE = 48;
+const READY_Y = 230;
 
 /** Độ khó: tốc độ cuộn (đơn vị con / bước) và chiều cao khe (px). */
 export const DIFFICULTY = [
   { name: 'Dễ', speed: 36, gap: 150 },
   { name: 'Vừa', speed: 44, gap: 132 },
-  { name: 'Khó', speed: 52, gap: 116 },
+  { name: 'Cổ điển', speed: 52, gap: 116 },
 ] as const;
 /** Số khe cần qua để về đích; 0 = sinh tồn, ai trụ lâu nhất thắng. */
 export const TARGET = { min: 0, max: 200, default: 30 } as const;
+
+/** Huy chương theo số khe, như bảng điểm cổ điển. */
+export const MEDALS = [
+  { min: 40, name: 'Bạch kim' },
+  { min: 30, name: 'Vàng' },
+  { min: 20, name: 'Bạc' },
+  { min: 10, name: 'Đồng' },
+] as const;
+export const medalFor = (score: number) => MEDALS.find((m) => score >= m.min) ?? null;
 
 export type SkyCommand = 'flap';
 export const SKY_COMMANDS: readonly SkyCommand[] = ['flap'];
 
 export interface SkyOptions { seed: number; level: number; target: number }
 
-export interface SkyPlayerView extends RacePlayerView { y: number; vy: number }
+export interface SkyPlayerView extends RacePlayerView { y: number; vy: number; startTick: number | null }
 export type SkyhopView = RaceView<{ level: number; target: number }, SkyPlayerView>;
 
 export const pillarX = (k: number) => SKY.FIRST_X + k * SKY.SPACING;
@@ -57,6 +70,8 @@ export class SkyhopGame implements RaceEngine<SkyCommand> {
   declare dead: boolean;
   declare finished: boolean;
   declare flapQueued: boolean;
+  /** Bước của lần chạm đầu tiên (cột bắt đầu chạy); null khi còn ở màn Chuẩn bị. */
+  declare startTick: number | null;
 
   constructor({ seed, level, target }: SkyOptions) {
     this.level = Math.min(DIFFICULTY.length, Math.max(1, Math.floor(level) || 2));
@@ -64,19 +79,20 @@ export class SkyhopGame implements RaceEngine<SkyCommand> {
     this.rand = rng(seed);
     this.gaps = [];
     this.tick = 0;
-    this.y = 220 * SUB;
-    this.vy = FLAP_V; // nảy sẵn một cái lúc xuất phát để kịp phản ứng
+    this.y = READY_Y * SUB;
+    this.vy = 0;
     this.score = 0;
     this.dead = false;
     this.finished = false;
     this.flapQueued = false;
+    this.startTick = null;
   }
 
   get over() { return this.dead || this.finished || this.tick >= MAX_TICKS; }
   get speed() { return DIFFICULTY[this.level - 1].speed; }
   get gap() { return DIFFICULTY[this.level - 1].gap; }
-  /** Quãng đã cuộn (đơn vị con). */
-  get scroll() { return this.tick * this.speed; }
+  /** Quãng đã cuộn (đơn vị con); đứng yên khi còn ở màn Chuẩn bị. */
+  get scroll() { return this.startTick === null ? 0 : (this.tick - this.startTick) * this.speed; }
 
   command(command: SkyCommand) {
     if (command !== 'flap' || this.over || this.flapQueued) return false;
@@ -111,6 +127,14 @@ export class SkyhopGame implements RaceEngine<SkyCommand> {
 
   step() {
     if (this.over) return;
+    if (this.startTick === null) {
+      if (!this.flapQueued && this.tick < READY_TICKS) {
+        this.tick++;
+        return;
+      }
+      this.startTick = this.tick;
+      this.flapQueued = true;
+    }
     if (this.flapQueued) {
       this.vy = FLAP_V;
       this.flapQueued = false;

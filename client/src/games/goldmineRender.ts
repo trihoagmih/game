@@ -1,4 +1,4 @@
-import { ITEM_KINDS, MINE, hookDir } from '@game/shared/goldmine';
+import { ITEM_KINDS, LEVEL_TICKS, MINE, TICK_MS, hookDir } from '@game/shared/goldmine';
 import type { ItemKind, MineSnapshot } from '@game/shared/goldmine';
 
 // Vẽ Đào vàng lên canvas: bầu trời chạng vạng, người đào bên tời, dây và móc theo góc của engine,
@@ -8,11 +8,16 @@ export const MINE_SCALE = 2;
 
 export interface MineScene {
   mine: MineSnapshot;
-  /** Lóe sáng khi vừa dùng thuốc nổ (thời điểm performance.now()). */
-  boomAt: number;
+  /** Bước hiện tại của ván (để biết hiệu ứng "+tiền"/vụ nổ mới cách đây bao lâu). */
+  tick: number;
   now: number;
   still: boolean;
+  /** Màn chờ: chỉ vẽ cảnh, không vẽ thanh trạng thái. */
+  title: boolean;
 }
+
+const money = (n: number) => `${n.toLocaleString('vi-VN')}$`;
+const FX_TICKS = 50;
 
 const SPECKS = Array.from({ length: 70 }, (_, i) => [(i * 131) % MINE.W, MINE.GROUND + 8 + ((i * 89) % (MINE.H - MINE.GROUND - 10)), 1 + (i % 3)] as const);
 const STRATA = [150, 215, 290, 350];
@@ -31,7 +36,7 @@ function lump(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, id
   ctx.closePath();
 }
 
-function item(ctx: CanvasRenderingContext2D, kind: ItemKind, x: number, y: number, r: number, id: number) {
+function item(ctx: CanvasRenderingContext2D, kind: ItemKind, x: number, y: number, r: number, id: number, dir: -1 | 0 | 1 = 1) {
   if (kind === 'goldS' || kind === 'goldM' || kind === 'goldL') {
     const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
     g.addColorStop(0, '#fef3c7');
@@ -71,6 +76,44 @@ function item(ctx: CanvasRenderingContext2D, kind: ItemKind, x: number, y: numbe
     ctx.stroke();
     ctx.fillStyle = '#ecfeff';
     ctx.fillRect(x - 1.5, y - r + 1, 2.5, 4);
+    return;
+  }
+  if (kind === 'tnt') {
+    ctx.fillStyle = '#b91c1c';
+    ctx.strokeStyle = '#450a0a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(x - r, y - r, r * 2, r * 2, 3);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#fee2e2';
+    ctx.font = '800 9px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TNT', x, y + 1);
+    return;
+  }
+  if (kind === 'mouse' || kind === 'mouseGem') {
+    ctx.fillStyle = '#a8a29e';
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + dir * r * 0.9, y - r * 0.2, r * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f9a8d4';
+    ctx.beginPath();
+    ctx.arc(x + dir * r * 0.75, y - r * 0.75, r * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x + dir * r * 1.05 - 1, y - r * 0.35, 2, 2);
+    ctx.strokeStyle = '#78716c';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - dir * r, y);
+    ctx.quadraticCurveTo(x - dir * r * 1.8, y - r, x - dir * r * 2.2, y - r * 0.2);
+    ctx.stroke();
+    if (kind === 'mouseGem') item(ctx, 'diamond', x + dir * r * 1.5, y + r * 0.2, 6, 0);
     return;
   }
   ctx.fillStyle = '#a16207';
@@ -162,7 +205,7 @@ export function drawMine(cv: HTMLCanvasElement, sc: MineScene) {
   ctx.fillStyle = 'rgba(255,255,255,.07)';
   for (const [x, y, s] of SPECKS) ctx.fillRect(x, y, s, s);
 
-  for (const o of mine.items) item(ctx, o.kind, o.x, o.y, o.r, o.id);
+  for (const o of mine.items) item(ctx, o.kind, o.x, o.y, o.r, o.id, o.dir);
 
   miner(ctx);
   winch(ctx, sc.still ? 0 : mine.hook.rope / 160);
@@ -181,7 +224,7 @@ export function drawMine(cv: HTMLCanvasElement, sc: MineScene) {
   ctx.save();
   ctx.translate(tx, ty);
   ctx.rotate(-Math.atan2(dx, dy));
-  if (mine.hook.grab) item(ctx, mine.hook.grab, 0, 14, ITEM_KINDS[mine.hook.grab].r, 1);
+  if (mine.hook.grab) item(ctx, mine.hook.grab, 0, ITEM_KINDS[mine.hook.grab].r + 6, ITEM_KINDS[mine.hook.grab].r, 1);
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
@@ -192,11 +235,67 @@ export function drawMine(cv: HTMLCanvasElement, sc: MineScene) {
   ctx.stroke();
   ctx.restore();
 
-  const flash = sc.now - sc.boomAt;
-  if (flash >= 0 && flash < 350 && !sc.still) {
-    ctx.fillStyle = `rgba(253, 186, 116, ${0.55 * (1 - flash / 350)})`;
-    ctx.beginPath();
-    ctx.arc(tx, ty + 10, 26 + flash / 12, 0, Math.PI * 2);
-    ctx.fill();
+  dynamiteSticks(ctx, mine.dynamite);
+  if (mine.blast) {
+    const age = sc.tick - mine.blast.at;
+    if (age >= 0 && age < FX_TICKS) {
+      const k = age / FX_TICKS;
+      ctx.fillStyle = `rgba(253, 186, 116, ${0.7 * (1 - k)})`;
+      ctx.beginPath();
+      ctx.arc(mine.blast.x, mine.blast.y, sc.still ? 40 : 20 + k * 60, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  if (sc.title) return;
+  // Canvas bị co nhỏ (điện thoại) thì phóng chữ lên để vẫn đọc được
+  const k = Math.min(1.9, Math.max(1, 520 / (cv.clientWidth || MINE.W)));
+  hud(ctx, mine, k);
+  if (mine.cash) {
+    const age = sc.tick - mine.cash.at;
+    if (age >= 0 && age < FX_TICKS * 2) {
+      ctx.globalAlpha = 1 - age / (FX_TICKS * 2);
+      label(ctx, mine.cash.amount ? `+${money(mine.cash.amount)}` : 'Túi bất ngờ!', MINE.PIVOT_X + 60, MINE.PIVOT_Y - 4 - (sc.still ? 0 : age / 4), 18 * k, '#86efac', 'left');
+      ctx.globalAlpha = 1;
+    }
+  }
+  if (mine.phase === 'play' && mine.levelTick < 120) {
+    ctx.fillStyle = 'rgba(15,23,42,.6)';
+    ctx.fillRect(0, MINE.H / 2 - 44 * k, MINE.W, 88 * k);
+    label(ctx, `Màn ${mine.level}`, MINE.W / 2, MINE.H / 2 - 6 * k, 30 * k, '#fde68a', 'center');
+    label(ctx, `Mục tiêu: ${money(mine.goal)}`, MINE.W / 2, MINE.H / 2 + 26 * k, 18 * k, '#fff', 'center');
+  }
+}
+
+function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, fill: string, align: CanvasTextAlign) {
+  ctx.font = `800 ${size}px Inter, system-ui, sans-serif`;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'alphabetic';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(3, size / 5);
+  ctx.strokeStyle = 'rgba(15,23,42,.85)';
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill;
+  ctx.fillText(text, x, y);
+}
+
+/** Thanh trạng thái trên bầu trời như bản cổ điển: tiền/mục tiêu bên trái, thời gian/màn bên phải. */
+function hud(ctx: CanvasRenderingContext2D, mine: MineSnapshot, k: number) {
+  const seconds = Math.ceil(((LEVEL_TICKS - mine.levelTick) * TICK_MS) / 1000);
+  const big = 17 * k;
+  const small = 15 * k;
+  label(ctx, `Tiền: ${money(mine.money)}`, 12, 8 + big, big, mine.money >= mine.goal ? '#86efac' : '#fde68a', 'left');
+  label(ctx, `Mục tiêu: ${money(mine.goal)}`, 12, 14 + big + small, small, '#fed7aa', 'left');
+  label(ctx, `${mine.phase === 'play' ? seconds : 0} giây`, MINE.W - 12, 8 + big, big, seconds <= 10 ? '#fca5a5' : '#fde68a', 'right');
+  label(ctx, `Màn ${mine.level}`, MINE.W - 12, 14 + big + small, small, '#fed7aa', 'right');
+}
+
+/** Số thuốc nổ: các thỏi đỏ cạnh người đào. */
+function dynamiteSticks(ctx: CanvasRenderingContext2D, count: number) {
+  for (let i = 0; i < Math.min(count, 6); i++) {
+    const x = MINE.PIVOT_X + 30 + i * 9;
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(x, MINE.GROUND - 20, 6, 18);
+    ctx.fillStyle = '#fde68a';
+    ctx.fillRect(x + 2, MINE.GROUND - 24, 2, 4);
   }
 }

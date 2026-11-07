@@ -1,13 +1,111 @@
 /* CSS của games/GoldmineGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
 @layer games {
-  /* Màn hình ngang 640 × 400 */
-  .rc.mine { --rc-ratio: 1.6; }
-  .rc.mine .rc-screen { background: #2a1a0e; }
-  .rc.mine .rc-tag svg { color: #fdba74; }
-  /* Vùng chơi dọc (điện thoại): màn hình ngang chỉ chiếm theo bề rộng — giữ nút sát ngay dưới màn
-     hình và dồn cả nhóm vào giữa thay vì để khoảng trống giữa thanh trạng thái và sân chơi. */
-  @container (max-aspect-ratio: 1/1) {
-    .rc.mine { justify-content: center; }
-    .rc.mine > .rc-stage { flex: none; min-height: 0; height: calc((100cqw - 16px) / 1.6); }
+  /* Hẹp: đầu → mỏ (cao theo bề rộng, tỉ lệ 640 × 400) → nút → bảng tiền, cả nhóm căn giữa theo chiều dọc;
+     thiếu chỗ thì mỏ và bảng cùng co lại. Rộng: bảng tiền sang cột phải. */
+  .gm { --gm-ratio: 1.6; --gm-gold: #fbbf24; box-sizing: border-box; height: max(100cqh, 300px); padding: 8px; gap: 8px;
+    display: flex; flex-direction: column; justify-content: center; }
+  .gm-head { flex: none; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .gm-stage { flex: 0 1 auto; height: calc((100cqw - 16px) / var(--gm-ratio)); min-height: 150px; container-type: size; display: grid; place-items: center; }
+  .gm.shopping .gm-stage { flex: 1 1 auto; height: auto; }
+  .gm-pad { flex: none; display: flex; justify-content: center; gap: 8px; }
+  .gm-side { flex: 0 3 auto; min-height: 90px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+
+  @container (min-aspect-ratio: 7/4) {
+    .gm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas: "stage head" "stage side" "pad side"; }
+    .gm-head { grid-area: head; }
+    .gm-stage, .gm.shopping .gm-stage { grid-area: stage; height: auto; min-height: 0; }
+    .gm-pad { grid-area: pad; }
+    .gm-side { grid-area: side; min-height: 0; }
+  }
+
+  .gm-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; white-space: nowrap; }
+  .gm-title svg { color: var(--gm-gold); }
+  .gm-chip { padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #fde68a; background: rgba(217,119,6,.14); border: 1px solid rgba(217,119,6,.4); white-space: nowrap; }
+  .gm-giveup { margin-left: auto; min-width: 36px; min-height: 36px; justify-content: center; }
+
+  .gm-screen { position: relative; width: min(100cqw, calc(100cqh * var(--gm-ratio))); aspect-ratio: var(--gm-ratio);
+    border-radius: 14px; overflow: hidden; background: #2a1a0e; border: 2px solid #78350f; box-shadow: 0 0 0 4px rgba(217,119,6,.12), 0 14px 34px rgba(0,0,0,.4); }
+  .gm-screen canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+  .gm-screen.live { cursor: pointer; }
+  .gm-screen:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 3px; }
+  .gm-overlay { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .gm-count { font-size: clamp(48px, 24cqmin, 110px); font-weight: 800; color: #fde68a; text-shadow: 0 4px 0 rgba(66,32,6,.8); font-variant-numeric: tabular-nums; }
+  .gm-title-card, .gm-card { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); width: min(80%, 320px);
+    display: grid; justify-items: center; gap: 4px; padding: 12px 16px; text-align: center; pointer-events: none;
+    border-radius: 12px; background: #fef3c7; color: #422006; border: 3px solid #a16207; box-shadow: 0 6px 0 rgba(66,32,6,.45); }
+  .gm-title-card strong, .gm-card strong { font-size: clamp(18px, 7cqmin, 26px); font-weight: 800; color: #b45309; }
+  .gm-title-card span, .gm-card span { font-size: 13px; }
+  .gm-card { animation: gm-pop .25s var(--ease-out); }
+
+  .gm-pad .btn { min-height: 44px; touch-action: manipulation; }
+  .gm-dyn b { color: #fca5a5; }
+
+  /* Cửa hàng */
+  .gm-shop { box-sizing: border-box; width: min(100cqw, 760px); max-height: 100cqh; overflow-y: auto; display: grid; gap: 10px; padding: 14px;
+    border-radius: 14px; background: linear-gradient(#3b2414, #2a1a0e); border: 2px solid #78350f; color: #fef3c7; }
+  .gm-shop-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .gm-shop-head h3 { margin: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 18px; color: #fde68a; }
+  .gm-shop-money b { color: #86efac; font-variant-numeric: tabular-nums; }
+  .gm-goods { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .gm-goods li { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ic name" "note note" "price btn"; align-items: center; gap: 4px 8px;
+    padding: 10px; border-radius: 10px; background: rgba(254,243,199,.07); border: 1px solid rgba(253,230,138,.2); }
+  .gm-goods li.bought { opacity: .6; }
+  .gm-good-ic { grid-area: ic; }
+  .gm-good-ic.dynamite { color: #f87171; }
+  .gm-good-ic.strength { color: #4ade80; }
+  .gm-good-ic.clover { color: #86efac; }
+  .gm-good-ic.rockBook { color: #cbd5e1; }
+  .gm-good-ic.polish { color: #67e8f9; }
+  .gm-good-name { grid-area: name; font-weight: 700; }
+  .gm-good-note { grid-area: note; color: #e7d5b0; }
+  .gm-good-price { grid-area: price; color: var(--gm-gold); font-variant-numeric: tabular-nums; }
+  .gm-goods .btn { grid-area: btn; justify-self: end; min-height: 36px; }
+  .gm-next { justify-self: end; min-height: 44px; }
+
+  /* Sảnh chờ và bảng tiền */
+  .gm-panel { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+  .gm-panel h3 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .gm-seats, .gm-ledger { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .gm-seats li { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 9px; background: var(--panel-2); min-width: 0; }
+  .gm-seats li svg { flex: none; color: var(--gm-gold); }
+  .gm-seats li.me .gm-name { color: var(--gold); }
+  .gm-lobby-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .gm-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .gm-row { box-sizing: border-box; width: 100%; min-height: 44px; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid transparent; color: var(--text); font: inherit; text-align: left;
+    transition: border-color .15s var(--ease-out), opacity .15s var(--ease-out); }
+  button.gm-row { cursor: pointer; }
+  button.gm-row:hover { border-color: var(--line-strong); }
+  .gm-row.shown { border-color: var(--gm-gold); }
+  .gm-row.me .gm-name { color: var(--gold); }
+  .gm-row.out { opacity: .6; }
+  .gm-rank { font-weight: 800; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+  .gm-who { display: grid; gap: 3px; min-width: 0; }
+  .gm-sub { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gm-bar { height: 5px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .gm-bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #d97706, #fbbf24); transition: width .3s var(--ease-out); }
+  .gm-bar.ok > span { background: linear-gradient(90deg, #16a34a, #86efac); }
+  .gm-money { font-size: 16px; color: var(--gm-gold); font-variant-numeric: tabular-nums; }
+  .gm-note { margin: 0; text-align: center; }
+
+  .gm-records ol { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+  .gm-records li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px; font-size: 13px; }
+  .gm-records li.me .gm-name { color: var(--gold); }
+  .gm-rules ul { margin: 6px 0 0; padding-left: 18px; }
+  .gm-rules li + li { margin-top: 4px; }
+
+  @keyframes gm-pop { from { transform: translate(-50%, -40%); opacity: 0; } }
+
+  @media (max-width: 640px) {
+    .gm { padding: 4px; gap: 6px; }
+  }
+  @media (pointer: coarse) {
+    .gm-giveup { min-width: 44px; min-height: 44px; }
+    .gm-goods .btn { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gm-card { animation: none; }
+    .gm-row, .gm-bar > span { transition: none; }
   }
 }

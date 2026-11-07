@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SnakeGame, replay, mazeWalls, MAZES, W, H, START_LEN, BONUS_EVERY } from '../src/snake.js';
 
-test('khởi đầu: rắn dài 5, đi sang phải, mồi không đè lên rắn/tường, xuất phát không đụng tường', () => {
+test('khởi đầu: rắn dài START_LEN đốt, đi sang phải, mồi không đè lên rắn/tường, xuất phát không đụng tường', () => {
   for (const maze of MAZES) {
     const g = new SnakeGame({ seed: 7, maze, level: 9 });
     assert.equal(g.length, START_LEN);
@@ -62,14 +62,17 @@ test('ăn mồi: dài thêm, điểm = cấp; mỗi 5 mồi hiện con thưởng
 });
 
 test('cắn vào thân thì chết, nhưng được đi vào ô đuôi vừa rời', () => {
+  // Thân nằm ngang, đầu ở cột 6 đi sang phải (dựng tay, không phụ thuộc độ dài xuất phát)
+  const line = (n: number) => Array.from({ length: n }, (_, i) => (H - 3) * W + 6 - i);
   const g = new SnakeGame({ seed: 9 });
   g.food = 0; // đặt mồi ở góc, ngoài đường đi
   // Vòng vuông 2×2 với rắn dài 4 → đầu đi đúng vào ô đuôi cũ
-  g.snake = g.snake.slice(0, 4);
+  g.snake = line(4);
   g.turn('up'); g.step(); g.turn('left'); g.step(); g.turn('down'); g.step();
   assert.ok(g.alive);
   const h = new SnakeGame({ seed: 9 });
   h.food = 0; // đặt mồi ở góc, ngoài đường đi
+  h.snake = line(5);
   h.turn('up'); h.step(); h.turn('left'); h.step(); h.turn('down'); h.step();
   assert.equal(h.alive, false);
 });

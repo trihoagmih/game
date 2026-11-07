@@ -49,6 +49,6 @@ export class SkyhopHandler extends RaceHandler<SkyhopGame, SkyCommand, SkyOption
   }
 
   view(viewerId: string): SkyhopView {
-    return this.raceView(viewerId, (p) => ({ y: p.game.y, vy: p.game.vy }));
+    return this.raceView(viewerId, (p) => ({ y: p.game.y, vy: p.game.vy, startTick: p.game.startTick }));
   }
 }
