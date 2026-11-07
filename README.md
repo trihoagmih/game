@@ -256,10 +256,15 @@ server/src/       Express + Socket.IO
 server/src/games/ Lớp điều phối từng game (ghế, hẹn giờ, quyền thao tác)
   duel.ts         Khung chung cờ 2 người có đồng hồ (Cờ tướng, Cờ caro)
   cardTable.ts    Khung chung bài đánh theo lượt (Tá lả, Sâm lốc)
-server/src/data/  Từ điển tiếng Việt cho Nối từ (MIT, xem README trong thư mục)
+server/src/data/  Từ điển và bộ câu hỏi (giấy phép riêng, xem README trong thư mục)
 client/src/       React UI: sảnh, phòng, bàn cờ, bàn bài, phím tắt
 ```
 
 > Dữ liệu (người dùng, phòng, điểm) chỉ lưu trong bộ nhớ server, khởi động lại server là mất. Muốn lưu lâu dài thì cần thêm cơ sở dữ liệu (Redis / Postgres).
 
 Chi tiết build, exports và phạm vi kiểu dữ liệu: [docs/typescript.md](docs/typescript.md).
+
+## Giấy phép
+
+Mã nguồn phát hành theo [giấy phép MIT](LICENSE). Riêng dữ liệu bên thứ ba trong `server/src/data/` giữ giấy phép gốc
+(xem [README](server/src/data/README.md)): `vi-words.txt` theo GNU GPL phiên bản 2, không thuộc phạm vi giấy phép MIT.
