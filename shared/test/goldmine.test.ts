@@ -187,3 +187,15 @@ test('vàng lớn và đá kéo chậm hơn rõ rệt so với vàng nhỏ', () 
   assert.ok(duration('rockL') > duration('goldXS') * 3);
   assert.ok(duration('rockS') > duration('goldS') * 2);
 });
+
+test('mua đồ giảm tiền hiện có nhưng giữ mốc tiền cao nhất', () => {
+  const game = new GoldmineGame({ seed: 1, levels: 3 });
+  game.collect(item('goldL', 100, 200));
+  game.openShop();
+  game.offers = [{ good: 'strength', price: 100, bought: false }];
+  assert.equal(game.command('buy0'), true);
+  assert.equal(game.money, 400);
+  assert.equal(game.peakMoney, 500);
+  game.startLevel(2);
+  assert.equal(game.peakMoney, 500);
+});

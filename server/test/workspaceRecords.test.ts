@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createClient } from 'redis';
-import { FileRecordBackend, RedisRecordBackend, WorkspaceRecords } from '../src/workspaceRecords.js';
+import { Pool } from 'pg';
+import { FileRecordBackend, PostgresRecordBackend, WorkspaceRecords } from '../src/workspaceRecords.js';
 import { Lobby } from '../src/lobby.js';
 import { GoldmineHandler } from '../src/games/goldmine.js';
 
@@ -46,30 +46,39 @@ test('server-verified score is visible in another room in the same workspace onl
   first.handler.sit(owner);
   first.handler.action(owner.id, { type: 'start' });
   first.handler.players[0].game.money = 650;
+  first.handler.players[0].game.peakMoney = 900;
+  first.handler.players[0].game.level = 3;
   first.handler.action(owner.id, { type: 'giveup' });
   await Promise.resolve();
-  assert.equal(second.workspaceRecord()?.score, 650);
+  assert.equal(second.workspaceRecord()?.score, 900);
   assert.ok(second.handler instanceof GoldmineHandler);
-  assert.equal(second.handler.view(secondOwner.id).workspaceRecord?.score, 650);
+  assert.equal(second.handler.view(secondOwner.id).workspaceRecord?.score, 900);
+  assert.equal(second.workspaceRecord('level')?.score, 3);
   assert.equal(other.workspaceRecord(), null);
   lobby.rooms.delete(first.id);
   assert.equal(second.workspaceRecord()?.name, 'An');
 });
 
-test('Redis records use atomic max across shards and never expire', { skip: !process.env.TEST_REDIS_URL }, async (t) => {
-  const client = createClient({ url: process.env.TEST_REDIS_URL });
-  await client.connect();
-  const prefix = 'test:workspace-records:' + crypto.randomUUID();
+test('PostgreSQL keeps atomic max across nodes, restarts and isolated metrics', { skip: !process.env.TEST_DATABASE_URL }, async (t) => {
+  const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
+  const namespace = 'test-' + crypto.randomUUID();
   t.after(async () => {
-    const keys = await client.keys(prefix + '*');
-    if (keys.length) await client.del(keys);
-    await client.quit();
+    await pool.query('DELETE FROM workspace_game_records WHERE namespace = $1', [namespace]);
+    await pool.end();
   });
-  const a = new WorkspaceRecords(new RedisRecordBackend(client, prefix));
-  const b = new WorkspaceRecords(new RedisRecordBackend(client, prefix));
+  const backend = new PostgresRecordBackend(pool, namespace);
+  await Promise.all([backend.init(), new PostgresRecordBackend(pool, namespace).init()]);
+  const a = new WorkspaceRecords(backend);
+  const b = new WorkspaceRecords(new PostgresRecordBackend(pool, namespace));
   await Promise.all([a.submit('b4', 'skyhop', record(20)), b.submit('b4', 'skyhop', record(50)), a.submit('b4', 'skyhop', record(30))]);
-  const stored = new RedisRecordBackend(client, prefix);
-  assert.equal((await stored.read(a.key('b4', 'skyhop')))?.score, 50);
-  assert.equal(await stored.read(a.key('other', 'skyhop')), null);
-  assert.equal(await client.ttl(prefix + ':workspace-record:' + a.key('b4', 'skyhop')), -1);
+  const restarted = new PostgresRecordBackend(pool, namespace);
+  assert.equal((await restarted.read(a.key('b4', 'skyhop')))?.score, 50);
+  await b.submit('b4', 'skyhop', record(50, 'Tie'));
+  assert.equal((await restarted.read(a.key('b4', 'skyhop')))?.name, 'An');
+  await a.submit('b4', 'goldmine', record(900));
+  await b.submit('b4', 'goldmine:level', record(5));
+  assert.equal((await restarted.read(a.key('b4', 'goldmine')))?.score, 900);
+  assert.equal((await restarted.read(a.key('b4', 'goldmine:level')))?.score, 5);
+  assert.equal(await restarted.read(a.key('other', 'skyhop')), null);
+  assert.equal(await new PostgresRecordBackend(pool, namespace + '-other').read(a.key('b4', 'skyhop')), null);
 });

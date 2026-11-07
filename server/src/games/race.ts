@@ -165,9 +165,13 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
     this.checkEnd();
   }
 
+  protected publishRecord(p: RacePlayer<G, C>) {
+    this.room.recordScore?.({ id: p.id, name: p.name, score: this.scoreOf(p.game), at: Date.now() });
+  }
+
   out(p: RacePlayer<G, C>, end: RaceEnd) {
     if (p.done) return;
-    this.room.recordScore?.({ id: p.id, name: p.name, score: this.scoreOf(p.game), at: Date.now() });
+    this.publishRecord(p);
     p.done = true;
     p.end = end;
     p.endedAt = Math.max(0, Date.now() - this.startAt);
@@ -243,6 +247,7 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
     const playing = this.isPlaying();
     return {
       workspaceRecord: this.room.workspaceRecord?.() ?? null,
+      workspaceLevelRecord: this.room.workspaceRecord?.('level') ?? null,
       options: this.options,
       seats: this.seats,
       ...this.ready.view(this.playerIds()),

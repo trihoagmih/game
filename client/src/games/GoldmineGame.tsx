@@ -49,8 +49,9 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
   return (
     <div className={`gm${playing ? ' active' : ''}${shopping ? ' shopping' : ''}`}>
       <header className="gm-head">
-        <span className="gm-best" title={`Kỷ lục workspace · ${s.workspaceRecord?.name ?? 'Chưa có kỷ lục'}`}>🏆 {best.toLocaleString('vi-VN')} {s.workspaceRecord && <span>· {s.workspaceRecord.name}</span>}</span>
+        <span className="gm-best" title={`Kỷ lục workspace · ${s.workspaceRecord?.name ?? 'Chưa có kỷ lục'}`}>🏆 {best.toLocaleString('vi-VN')}$ {s.workspaceRecord && <span>· {s.workspaceRecord.name}</span>}</span>
         <span className="gm-title"><Pickaxe size={18} aria-hidden /> Đào vàng</span>
+        <span className="gm-level-best" title={`Kỷ lục màn · ${s.workspaceLevelRecord?.name ?? 'Chưa có kỷ lục'}`}>⛏ Màn {s.workspaceLevelRecord?.score ?? 0}</span>
         <span className="gm-chip">{s.options.levels} màn · 60 giây/màn</span>
         {live && (
           <button className="btn sm ghost gm-giveup" onClick={() => setGiveup(true)} aria-label="Bỏ cuộc" title="Bỏ cuộc">
@@ -101,6 +102,11 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
       )}
 
       <GameInfo>
+        <div className="panel small">
+          <b>Kỷ lục workspace</b>
+          <p>Tiền: {money(best)} · {s.workspaceRecord?.name ?? 'Chưa có'}</p>
+          <p>Màn: {s.workspaceLevelRecord?.score ?? 0} · {s.workspaceLevelRecord?.name ?? 'Chưa có'}</p>
+        </div>
         <Records s={s} me={user.id} />
         <div className="panel small muted gm-rules">
           <b>Luật chơi</b>

@@ -95,27 +95,55 @@ export function isRecord(value: unknown): value is WorkspaceRecord {
     && 'at' in value && typeof value.at === 'number' && Number.isFinite(value.at);
 }
 
-/** Redis Lua giữ max khi nhiều shard đồng thời hoàn tất ván. Không đặt TTL. */
-export class RedisRecordBackend implements RecordBackend {
-  constructor(private client: Pick<import('./cluster.js').Cluster['client'], 'get' | 'eval'>, private prefix: string) {}
-  private key(key: string) { return this.prefix + ':workspace-record:' + key; }
-  async read(key: string) {
-    const raw = await this.client.get(this.key(key));
-    if (!raw) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (!isRecord(parsed)) throw new Error('Invalid workspace record');
-    return parsed;
+/** PostgreSQL là nguồn kỷ lục chính; UPSERT giữ max dưới cập nhật đồng thời. */
+export class PostgresRecordBackend implements RecordBackend {
+  constructor(private pool: import('pg').Pool, private namespace = 'game:v1') {}
+
+  async init() {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      // Hai shard có thể khởi động đồng thời trên database mới.
+      await client.query('SELECT pg_advisory_xact_lock(61023511)');
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS workspace_game_records (
+          namespace text NOT NULL,
+          record_key text NOT NULL,
+          score bigint NOT NULL CHECK (score > 0),
+          record jsonb NOT NULL,
+          PRIMARY KEY (namespace, record_key)
+        )
+      `);
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
   }
+
+  async read(key: string) {
+    const result = await this.pool.query<{ record: unknown }>(
+      'SELECT record FROM workspace_game_records WHERE namespace = $1 AND record_key = $2',
+      [this.namespace, key],
+    );
+    const record = result.rows[0]?.record;
+    if (record === undefined) return null;
+    if (!isRecord(record)) throw new Error('Invalid workspace record');
+    return record;
+  }
+
   async update(key: string, record: WorkspaceRecord) {
-    const raw = await this.client.eval(`
-      local old = redis.call('GET', KEYS[1])
-      if old and cjson.decode(old).score >= tonumber(ARGV[1]) then return old end
-      redis.call('SET', KEYS[1], ARGV[2])
-      return ARGV[2]
-    `, { keys: [this.key(key)], arguments: [String(record.score), JSON.stringify(record)] });
-    if (typeof raw !== 'string') throw new Error('Invalid Redis record response');
-    const parsed: unknown = JSON.parse(raw);
-    if (!isRecord(parsed)) throw new Error('Invalid workspace record');
-    return parsed;
+    const result = await this.pool.query<{ record: unknown }>(`
+      INSERT INTO workspace_game_records (namespace, record_key, score, record)
+      VALUES ($1, $2, $3, $4::jsonb)
+      ON CONFLICT (namespace, record_key) DO UPDATE SET
+        record = CASE WHEN EXCLUDED.score > workspace_game_records.score
+          THEN EXCLUDED.record ELSE workspace_game_records.record END,
+        score = GREATEST(workspace_game_records.score, EXCLUDED.score)
+      RETURNING record
+    `, [this.namespace, key, record.score, JSON.stringify(record)]);
+    const saved = result.rows[0]?.record;
+    if (!isRecord(saved)) throw new Error('Invalid workspace record');
+    return saved;
   }
 }

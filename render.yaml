@@ -16,3 +16,5 @@ services:
         sync: false
       - key: APP_SERVERS    # nhiều server, vd {"Bên A":"mk-A","Bên B":"mk-B"} — thay cho APP_PASSWORD
         sync: false
+      - key: DATABASE_URL   # URL PostgreSQL riêng (Supabase/Neon/Render), nhập trong dashboard
+        sync: false

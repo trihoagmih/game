@@ -62,4 +62,5 @@ export interface RaceView<O extends object, P extends RacePlayerView> {
   result: RaceResult | null;
   wins: RaceScore[];
   workspaceRecord?: WorkspaceRecord | null;
+  workspaceLevelRecord?: WorkspaceRecord | null;
 }

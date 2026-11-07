@@ -26,6 +26,12 @@ export class GoldmineHandler extends RaceHandler<GoldmineGame, MineCommand, Mine
 
   protected createGame(seed: number) { return new GoldmineGame({ seed, levels: this.options.levels }); }
   protected maxTicks(game: GoldmineGame) { return game.maxTicks; }
+  protected override publishRecord(p: MinePlayer) {
+    const record = { id: p.id, name: p.name, at: Date.now() };
+    this.room.recordScore?.({ ...record, score: Math.max(p.game.money, p.game.peakMoney ?? 0) });
+    this.room.recordScore?.({ ...record, score: p.game.level }, 'level');
+  }
+
   protected scoreOf(game: GoldmineGame) { return game.money; }
   protected endOf(game: GoldmineGame): RaceEnd { return game.cleared ? 'finished' : 'dead'; }
 

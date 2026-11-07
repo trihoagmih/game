@@ -196,6 +196,7 @@ export class GoldmineGame implements RaceEngine<MineCommand> {
   declare levelTick: number;
   declare shopLeft: number;
   declare money: number;
+  declare peakMoney: number;
   declare dynamite: number;
   declare boosts: Boosts;
   /** Hàng đã mua, có hiệu lực từ màn kế tiếp. */
@@ -218,6 +219,7 @@ export class GoldmineGame implements RaceEngine<MineCommand> {
     this.levels = Math.min(LEVEL_COUNT.max, Math.max(LEVEL_COUNT.min, Math.floor(levels) || LEVEL_COUNT.default));
     this.tick = 0;
     this.money = 0;
+    this.peakMoney = 0;
     this.dynamite = START_DYNAMITE;
     this.pending = { ...NO_BOOSTS };
     this.failed = false;
@@ -371,6 +373,7 @@ export class GoldmineGame implements RaceEngine<MineCommand> {
       } else amount = luck ? 300 + ((o.roll * 7) % 501) : 10 + ((o.roll * 7) % 391);
     }
     this.money += amount;
+    this.peakMoney = Math.max(this.peakMoney ?? 0, this.money);
     this.cash = { amount, at: this.tick };
   }
 

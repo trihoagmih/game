@@ -57,13 +57,13 @@ export class Room {
     this._presenceKey = null;
   }
 
-  workspaceRecord() {
-    return this.lobby.records.get(this.server, this.game);
+  workspaceRecord(metric: 'score' | 'level' = 'score') {
+    return this.lobby.records.get(this.server, metric === 'level' ? this.game + ':level' : this.game);
   }
 
-  recordScore(record: WorkspaceRecord) {
+  recordScore(record: WorkspaceRecord, metric: 'score' | 'level' = 'score') {
     if (this.lobby.frozen || this.lobby.draining) return;
-    void this.lobby.records.submit(this.server, this.game, record)
+    void this.lobby.records.submit(this.server, metric === 'level' ? this.game + ':level' : this.game, record)
       .catch(() => console.error('[workspace-records] save failed'));
   }
 
