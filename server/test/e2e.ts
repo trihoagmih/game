@@ -728,6 +728,66 @@ if (OTHER_PASSWORD) {
   console.log('✔ Rắn săn mồi OK');
 }
 
+// ---------- Bay qua khe & Đào vàng (đua song song, server phát lại) ----------
+{
+  const { SkyhopGame } = await import('@game/shared/skyhop');
+  const { GoldmineGame } = await import('@game/shared/goldmine');
+  const sky = (x: Client) => viewOf(x, 'skyhop');
+  a.state = b.state = c.state = null;
+  const { roomId } = await a.req('room:create', { name: 'Bay test', game: 'skyhop', options: { level: 1, target: 3, maxSeats: 2 } });
+  await b.req('room:join', { roomId, mode: 'play' });
+  await c.req('room:join', { roomId, mode: 'watch' });
+  await until(() => sky(c).seats.length === 2);
+  await b.act({ type: 'ready' });
+  await a.act({ type: 'start' });
+  await until(() => sky(c).status === 'playing' && sky(c).seed);
+  const s0 = sky(c);
+  await assert.rejects(b.act({ type: 'raceSync', tick: 5000, inputs: [] }), /lệch/);
+  await assert.rejects(c.act({ type: 'raceSync', tick: 1, inputs: [] }), /xem/);
+  // b nảy đều tay ở máy mình; server phải ra đúng độ cao đó
+  const local = new SkyhopGame({ seed: s0.seed, level: 1, target: 3 });
+  const flaps: [number, 'flap'][] = [];
+  for (let t = 0; t < 60; t++) {
+    if (t % 18 === 0 && local.command('flap')) flaps.push([local.tick, 'flap']);
+    local.step();
+  }
+  assert.ok(!local.over, 'còn bay sau 60 bước');
+  await wait(Math.max(0, s0.startIn + 60 * s0.tickMs));
+  await b.act({ type: 'raceSync', tick: 60, inputs: flaps });
+  const bird = () => sky(c).players.find((p) => p.id === b.user.id)!;
+  await until(() => bird().tick === 60);
+  assert.deepEqual([bird().y, bird().vy, bird().accepted], [local.y, local.vy, flaps.length], 'người xem thấy đúng trạng thái server phát lại');
+  await a.act({ type: 'giveup' });
+  await b.act({ type: 'giveup' });
+  await until(() => sky(c).status === 'over');
+  assert.equal(sky(c).result!.winner, null);
+  await a.req('room:delete', { roomId });
+  console.log('✔ Bay qua khe OK');
+
+  const mine = (x: Client) => viewOf(x, 'goldmine');
+  a.state = b.state = c.state = null;
+  const gold = await a.req('room:create', { name: 'Đào test', game: 'goldmine', options: { levels: 2, maxSeats: 1 } });
+  await c.req('room:join', { roomId: gold.roomId, mode: 'watch' });
+  await until(() => !!c.state && mine(c).seats.length === 1);
+  await a.act({ type: 'start' });
+  await until(() => mine(c).status === 'playing' && mine(c).seed);
+  const g0 = mine(c);
+  const game = new GoldmineGame({ seed: g0.seed, levels: 2 });
+  const shots: [number, 'shoot'][] = [];
+  while (game.tick < 100) {
+    if (game.command('shoot')) shots.push([game.tick, 'shoot']);
+    game.step();
+  }
+  await wait(Math.max(0, g0.startIn + 100 * g0.tickMs));
+  await a.act({ type: 'raceSync', tick: 100, inputs: shots });
+  await until(() => mine(c).players[0].tick === 100);
+  assert.deepEqual(mine(c).players[0].mine, game.snapshot(), 'server phát lại ra đúng mỏ');
+  await a.act({ type: 'giveup' });
+  await until(() => mine(c).status === 'over');
+  await a.req('room:delete', { roomId: gold.roomId });
+  console.log('✔ Đào vàng OK');
+}
+
 // ---------- Vẽ đoán ----------
 {
   const v = (x: Client) => viewOf(x, 'scribble');

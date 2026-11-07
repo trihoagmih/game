@@ -69,6 +69,18 @@
       "types": "./dist/contracts.d.ts",
       "import": "./dist/contracts.js"
     },
+    "./race": {
+      "types": "./dist/race.d.ts",
+      "import": "./dist/race.js"
+    },
+    "./skyhop": {
+      "types": "./dist/skyhop.d.ts",
+      "import": "./dist/skyhop.js"
+    },
+    "./goldmine": {
+      "types": "./dist/goldmine.d.ts",
+      "import": "./dist/goldmine.js"
+    },
     "./tetris": {
       "types": "./dist/tetris.d.ts",
       "import": "./dist/tetris.js"

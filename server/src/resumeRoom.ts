@@ -10,6 +10,7 @@ import { SamLocHandler } from './games/samloc.js';
 import { ScribbleHandler } from './games/scribble.js';
 import { SnakeHandler } from './games/snake.js';
 import { TetrisHandler } from './games/tetris.js';
+import { RaceHandler } from './games/race.js';
 import { TalaHandler } from './games/tala.js';
 import { TelephoneHandler } from './games/telephone.js';
 import { WordChainHandler } from './games/wordchain.js';
@@ -66,6 +67,8 @@ export function resumeRoom(room: Room) {
     }
   } else if (h instanceof TetrisHandler && h.isPlaying()) {
     h.schedule();
+  } else if (h instanceof RaceHandler && h.isPlaying()) {
+    h.arm(); // Bay qua khe, Đào vàng: hẹn lại từ startAt tuyệt đối, không đổi hạt giống
   } else if (h instanceof SnakeHandler && h.status === 'playing') {
     if (h.deadline) h.timer = arm(h.deadline, () => {
       for (const p of h.players) if (!p.done) h._out(p, 'timedOut');

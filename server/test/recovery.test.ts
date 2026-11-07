@@ -12,6 +12,8 @@ import { PokerHandler } from '../src/games/poker.js';
 import { SamLocHandler } from '../src/games/samloc.js';
 import { SnakeHandler } from '../src/games/snake.js';
 import { TetrisHandler } from '../src/games/tetris.js';
+import { RaceHandler } from '../src/games/race.js';
+import { SkyhopGame } from '@game/shared/skyhop';
 import { TalaHandler } from '../src/games/tala.js';
 import { WordChainHandler } from '../src/games/wordchain.js';
 import { WordGuessHandler } from '../src/games/wordguess.js';
@@ -90,10 +92,21 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
     assert.deepEqual(cards[1].game?.players, cards[0].game?.players);
     assert.equal(cards[1].fair.ref, cards[1].game?.initialDeck);
   }
+  const race = room.handler instanceof RaceHandler && restored.handler instanceof RaceHandler ? [room.handler, restored.handler] : null;
+  if (race) {
+    const [before, after] = race;
+    assert.equal(after.seed, before.seed);
+    assert.equal(after.startAt, before.startAt);
+    assert.deepEqual(after.raceView(users[0].id, () => ({})).players, before.raceView(users[0].id, () => ({})).players);
+    const [a, b] = [before.players[0].game, after.players[0].game];
+    assert.equal(b.constructor, a.constructor);
+    if (a instanceof SkyhopGame && b instanceof SkyhopGame) assert.equal(b.gapCenter(40), a.gapCenter(40), 'dãy khe tiếp tục giống hệt');
+  }
   const guess = pair(WordGuessHandler, room.handler, restored.handler);
   if (guess) assert.equal(guess[1].game?.secret, guess[0].game?.secret);
   resumeRoom(restored);
   if (tetris) assert.ok(tetris[1].timer);
+  if (race) assert.ok(race[1].timer && race[1].watchTimer, 'hẹn giờ của ván đua được đặt lại');
   t.after(() => restored.handler.dispose());
 });
 

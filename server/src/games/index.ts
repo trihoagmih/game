@@ -12,6 +12,8 @@ import { TelephoneHandler } from './telephone.js';
 import { OnetHandler } from './onet.js';
 import { SnakeHandler } from './snake.js';
 import { TetrisHandler } from './tetris.js';
+import { SkyhopHandler } from './skyhop.js';
+import { GoldmineHandler } from './goldmine.js';
 
 /**
  * Các trò chơi. Mỗi Handler điều khiển một bàn trong một phòng và cần có:
@@ -35,6 +37,8 @@ export const GAMES = {
   onet: { name: 'Nối thú', Handler: OnetHandler },
   snake: { name: 'Rắn săn mồi', Handler: SnakeHandler },
   tetris: { name: 'Tetris', Handler: TetrisHandler },
+  skyhop: { name: 'Bay qua khe', Handler: SkyhopHandler },
+  goldmine: { name: 'Đào vàng', Handler: GoldmineHandler },
 };
 
 export type GameId = keyof typeof GAMES;

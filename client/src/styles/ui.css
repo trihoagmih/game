@@ -105,6 +105,8 @@
   .g-onet { --gc-fg: #fdba74; }
   .g-snake { --gc-fg: #a3e635; }
   .g-tetris { --gc-fg: #67e8f9; }
+  .g-skyhop { --gc-fg: #fcd34d; }
+  .g-goldmine { --gc-fg: #fbbf24; }
 
   /* ---------- Màn hình cảm ứng: vùng chạm ≥40–44px ---------- */
   @media (pointer: coarse) {

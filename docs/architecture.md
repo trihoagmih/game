@@ -34,7 +34,7 @@ Local một process có thể nối trực tiếp client → Node; Vite dev prox
 | `client/src/components`, `games` | Shell/UI chung và màn hình/canvas từng game; phần prediction không thay server validation |
 | `voice*.ts` | WebRTC negotiation và lifecycle; server cấp ICE/relay signal, browser truyền media trực tiếp |
 
-Repo hiện có Cờ vua, Cờ tướng, Cờ caro, Poker, Tá lả, Sâm lốc, Nối từ, Đố vui, Đoán chữ, Vẽ đoán, Tam sao thất bản, Nối thú, Rắn săn mồi và Tetris.
+Repo hiện có Cờ vua, Cờ tướng, Cờ caro, Poker, Tá lả, Sâm lốc, Nối từ, Đố vui, Đoán chữ, Vẽ đoán, Tam sao thất bản, Nối thú, Rắn săn mồi, Tetris, Bay qua khe và Đào vàng.
 
 ## State và protocol
 
@@ -60,7 +60,7 @@ Wire events/payloads/acks nằm ở `shared/src/contracts.ts`; compiler kiểm t
 
 Room xây phần public envelope một lần cho mỗi thay đổi, nhưng gọi `handler.view(uid)` riêng cho từng người. Private cards/secret word không đi vào shared public envelope. `changed()` gộp trong microtask; lobby broadcast gộp 100 ms và chỉ gửi room list/presence khi summary hoặc membership liên quan đổi. Drawing stream dùng đường riêng để không phát lại toàn room cho mỗi nét.
 
-ReadyGate dùng chung bảo đảm người chơi sẵn sàng và chủ phòng bấm bắt đầu. Duel/CardTable chỉ gom lifecycle có cùng invariant; engine shared giữ luật. Nối thú/Rắn có xử lý cục bộ để tương tác mượt; với Rắn, server phát lại seed + inputs để tính state/điểm, không tin score client.
+ReadyGate dùng chung bảo đảm người chơi sẵn sàng và chủ phòng bấm bắt đầu. Duel/CardTable chỉ gom lifecycle có cùng invariant; engine shared giữ luật. Nối thú/Rắn có xử lý cục bộ để tương tác mượt; với Rắn, server phát lại seed + inputs để tính state/điểm, không tin score client. Bay qua khe và Đào vàng dùng chung mô hình này qua `RaceHandler` (`server/src/games/race.ts`) và `replayRace` (`shared/src/race.ts`): lệnh `[tick, lệnh]`, đồng hồ server chặn chạy trước, người im lặng quá 4 giây bị đẩy đi tiếp; engine chỉ dùng số nguyên (không `Math.sin/cos`) để phát lại khớp mọi trình duyệt.
 
 ## Cluster và routing
 

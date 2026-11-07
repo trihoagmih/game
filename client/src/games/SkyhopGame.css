@@ -1,0 +1,6 @@
+/* CSS của games/SkyhopGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* Màn hình dọc 288 × 512 */
+  .rc.sky { --rc-ratio: .5625; }
+  .rc.sky .rc-screen { background: #0b1730; }
+}

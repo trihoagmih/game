@@ -1,0 +1,13 @@
+/* CSS của games/GoldmineGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* Màn hình ngang 640 × 400 */
+  .rc.mine { --rc-ratio: 1.6; }
+  .rc.mine .rc-screen { background: #2a1a0e; }
+  .rc.mine .rc-tag svg { color: #fdba74; }
+  /* Vùng chơi dọc (điện thoại): màn hình ngang chỉ chiếm theo bề rộng — giữ nút sát ngay dưới màn
+     hình và dồn cả nhóm vào giữa thay vì để khoảng trống giữa thanh trạng thái và sân chơi. */
+  @container (max-aspect-ratio: 1/1) {
+    .rc.mine { justify-content: center; }
+    .rc.mine > .rc-stage { flex: none; min-height: 0; height: calc((100cqw - 16px) / 1.6); }
+  }
+}
