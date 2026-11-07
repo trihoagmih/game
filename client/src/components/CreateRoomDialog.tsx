@@ -5,6 +5,8 @@ import Modal from './Modal.js';
 import { GAME_META, GameIcon } from './Lobby.js';
 import { QUIZ_CATEGORIES } from '@game/shared/quiz';
 import { LINE_TARGET } from '@game/shared/tetris';
+import { DIFFICULTY, TARGET } from '@game/shared/skyhop';
+import { LEVEL_COUNT } from '@game/shared/goldmine';
 
 type OptionValue = string | number | boolean;
 type GameOptions = Record<string, OptionValue>;
@@ -23,6 +25,8 @@ const DEFAULTS: Record<string, GameOptions> = {
   scribble: { maxSeats: 8, rounds: 3, drawSeconds: 80, hints: true, customWords: '', onlyCustom: false },
   telephone: { mode: 'classic', maxSeats: 8, writeSeconds: 40, drawSeconds: 90, suggest: true },
   snake: { maxSeats: 4, level: 5, maze: 'none', minutes: 0 },
+  skyhop: { maxSeats: 4, level: 2, target: TARGET.default },
+  goldmine: { maxSeats: 4, levels: LEVEL_COUNT.default },
   onet: { mode: 'race', maxSeats: 4, rows: 9, cols: 16, minutes: 8, hints: 3, shuffles: 3, gravity: false },
 };
 
@@ -109,6 +113,15 @@ const FIELDS: Record<string, Field[]> = {
     ['maze', 'Mê cung', 'select', [['none', 'Không tường — đi xuyên mép'], ['box', 'Hộp kín — đụng viền là thua'], ['tunnel', 'Đường hầm — hai thanh ngang'], ['rooms', 'Bốn phòng — chữ thập có cửa'], ['rails', 'Đường ray — viền có cửa + hai thanh dọc']]],
     ['maxSeats', 'Số người chơi tối đa (1 = chơi một mình)', 1, 8],
     ['minutes', 'Giới hạn thời gian (phút, 0 = chơi tới khi đâm)', 0, 30],
+  ],
+  skyhop: [
+    ['level', 'Độ khó', 'select', DIFFICULTY.map((d, i): [string, string] => [String(i + 1), d.name])],
+    ['target', 'Số khe cần qua để về đích (0 = sinh tồn, ai trụ lâu nhất thắng)', TARGET.min, TARGET.max],
+    ['maxSeats', 'Số người chơi tối đa (1 = chơi một mình)', 1, 8],
+  ],
+  goldmine: [
+    ['levels', 'Số màn (mỗi màn 60 giây, mục tiêu tiền tăng dần)', LEVEL_COUNT.min, LEVEL_COUNT.max],
+    ['maxSeats', 'Số người chơi tối đa (1 = chơi một mình)', 1, 8],
   ],
   tala: [
     ['maxSeats', 'Số người chơi tối đa', 2, 4],

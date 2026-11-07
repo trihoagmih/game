@@ -22,6 +22,8 @@ import TelephoneGame from '../games/TelephoneGame.js';
 import OnetGame from '../games/OnetGame.js';
 import SnakeGame from '../games/SnakeGame.js';
 import TetrisGame from '../games/TetrisGame.js';
+import SkyhopGame from '../games/SkyhopGame.js';
+import GoldmineGame from '../games/GoldmineGame.js';
 import QuizGame from '../games/QuizGame.js';
 import WordGuessGame from '../games/WordGuessGame.js';
 import FairnessBadge from './FairnessBadge.js';
@@ -47,6 +49,8 @@ function GameScreen({ room }: { room: ClientRoom }) {
     case 'onet': return <OnetGame room={room} state={room.state} />;
     case 'tetris': return <TetrisGame room={room} state={room.state} />;
     case 'snake': return <SnakeGame room={room} state={room.state} />;
+    case 'skyhop': return <SkyhopGame room={room} state={room.state} />;
+    case 'goldmine': return <GoldmineGame room={room} state={room.state} />;
     case 'quiz': return <QuizGame room={room} state={room.state} />;
     case 'wordguess': return <WordGuessGame room={room} state={room.state} />;
     default: return null;
@@ -81,6 +85,8 @@ export const SHORTCUTS: Record<string, [string, string][]> = {
     ['Enter', 'Gửi câu đoán'], ['B / E / F', 'Bút / Tẩy / Đổ màu (khi đang vẽ)'], ['Z', 'Hoàn tác nét vừa vẽ'], ['1 – 5', 'Cỡ nét'],
   ],
   tetris: [['← / →', 'Di chuyển'], ['↓', 'Hạ một ô'], ['↑ / Z', 'Xoay phải / trái'], ['Space', 'Thả ngay']],
+  skyhop: [['Chạm / Space / ↑', 'Nảy lên']],
+  goldmine: [['Chạm / Space / ↓', 'Phóng móc'], ['B', 'Thuốc nổ: phá món đang kéo']],
   snake: [['← ↑ → ↓ / W A S D', 'Đổi hướng'], ['2 4 6 8', 'Đổi hướng kiểu bàn phím điện thoại'], ['P / Space', 'Tạm dừng (chỉ khi chơi một mình)'], ['Vuốt', 'Đổi hướng trên điện thoại']],
   onet: [['Click', 'Chọn ô, rồi chọn ô cùng hình để nối'], ['H', 'Gợi ý'], ['S', 'Đổi hình (xáo bàn)'], ['Esc', 'Bỏ chọn']],
   telephone: [

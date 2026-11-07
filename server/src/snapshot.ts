@@ -12,13 +12,15 @@ import { WordChainGame } from '@game/shared/wordchain';
 import { OnetBoard, rng } from '@game/shared/onet';
 import { SnakeGame } from '@game/shared/snake';
 import { TetrisBoard } from '@game/shared/tetris';
+import { SkyhopGame } from '@game/shared/skyhop';
+import { GoldmineGame } from '@game/shared/goldmine';
 import { dictionary, isKnownWord, isValidSyllable } from './games/wordchain.js';
 
 type SnapshotRef = { value: unknown } | { fn: string } | { rng: number } | { ref: number };
 interface SnapshotNode { type: string; entries: (SnapshotRef | [SnapshotRef, SnapshotRef] | [string, SnapshotRef])[] }
 interface SnapshotGraph { schema: number; root: SnapshotRef; nodes: SnapshotNode[] }
 const classes = new Map<string, {prototype: object}>([Room, ReadyGate, Scoreboard, DeckCommitments, PokerGame, TalaGame, SamLocGame,
-  WordChainGame, OnetBoard, SnakeGame, TetrisBoard, ...Object.values(GAMES).map((g) => g.Handler)].map((Class) => [Class.name, Class]));
+  WordChainGame, OnetBoard, SnakeGame, TetrisBoard, SkyhopGame, GoldmineGame, ...Object.values(GAMES).map((g) => g.Handler)].map((Class) => [Class.name, Class]));
 const functions = new Map<string, (...args: never[]) => unknown>([['isKnownWord', isKnownWord], ['isValidSyllable', isValidSyllable], ['countNext', dictionary.countNext], ['Math.random', Math.random]]);
 const timers = new Set(['timer', 'botTimer', 'turnTimer', 'nextHandTimer', 'graceTimer', 'watchTimer']);
 

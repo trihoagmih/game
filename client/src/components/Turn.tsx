@@ -61,6 +61,20 @@ export function turnInfo(room: RoomState, userId: string): TurnInfo | null {
       if (p && !p.done) return { mine: true, text: `Rắn dài ${p.length} · ${p.score} điểm` };
       return { mine: false, text: `Đang bò (${s.players.filter((x) => !x.done).length}/${s.players.length} còn sống)` };
     }
+    case 'skyhop': {
+      const s = room.state;
+      if (s.status !== 'playing') return null;
+      const p = s.players.find((x) => x.id === userId);
+      if (p && !p.done) return { mine: true, text: `Đang bay · ${p.score} khe` };
+      return { mine: false, text: `Đang bay (${s.players.filter((x) => !x.done).length}/${s.players.length} còn bay)` };
+    }
+    case 'goldmine': {
+      const s = room.state;
+      if (s.status !== 'playing') return null;
+      const p = s.players.find((x) => x.id === userId);
+      if (p && !p.done) return { mine: true, text: `Màn ${p.mine.level} · ${p.score.toLocaleString('vi-VN')}$` };
+      return { mine: false, text: `Đang đào (${s.players.filter((x) => !x.done).length}/${s.players.length} còn đào)` };
+    }
     case 'onet': {
       const s = room.state;
       if (s.status !== 'playing') return null;

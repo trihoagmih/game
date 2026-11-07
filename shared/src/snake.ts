@@ -9,7 +9,7 @@ export const W = 24;
 export const H = 14;
 /** Thời gian một bước (ms) theo cấp 1..9. */
 export const SPEEDS = [300, 250, 210, 175, 145, 120, 100, 85, 70];
-export const START_LEN = 5;
+export const START_LEN = 1;
 export const BONUS_EVERY = 5;
 export const BONUS_TICKS = 40;
 export const BONUS_KINDS = 4; // số hình con thưởng (client vẽ)

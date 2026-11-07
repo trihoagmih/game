@@ -13,6 +13,8 @@ import type { Cell, findMove, OnetBoard } from './onet.js';
 import type { WordChainResult } from './wordchain.js';
 import type { SnakeView } from './snake.js';
 import type { TetrisView } from './tetris.js';
+import type { SkyhopView } from './skyhop.js';
+import type { GoldmineView } from './goldmine.js';
 
 // ---------- Phần dùng chung ----------
 
@@ -356,6 +358,8 @@ export interface GameViews {
   onet: OnetView;
   snake: SnakeView;
   tetris: TetrisView;
+  skyhop: SkyhopView;
+  goldmine: GoldmineView;
 }
 export type GameKind = keyof GameViews;
 

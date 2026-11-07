@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Layers, Club, Spade, Castle, Crown, Grid3x3, WholeWord, Palette, MessagesSquare, PawPrint, Worm, Plus, Eye, Trash2, Search, Users, LogIn, ChevronDown, ChevronLeft, ChevronRight, Lightbulb, SpellCheck, Blocks } from 'lucide-react';
+import { Layers, Club, Spade, Castle, Crown, Grid3x3, WholeWord, Palette, MessagesSquare, PawPrint, Worm, Plus, Eye, Trash2, Search, Users, LogIn, ChevronDown, ChevronLeft, ChevronRight, Lightbulb, SpellCheck, Blocks, Bird, Pickaxe } from 'lucide-react';
 import { useApp } from '../store.js';
 import CreateRoomDialog from './CreateRoomDialog.js';
 import type { LucideIcon } from 'lucide-react';
@@ -20,6 +20,8 @@ export const GAME_META: Record<string, { name: string; Icon: LucideIcon; desc: s
   telephone: { name: 'Tam sao thất bản', Icon: MessagesSquare, desc: '3–12 người, viết → vẽ → đoán → vẽ… rồi xem câu chuyện thất bản' },
   onet: { name: 'Nối thú', Icon: PawPrint, desc: '1–8 người, nối cặp thú giống nhau, đua dọn sạch bàn' },
   tetris: { name: 'Tetris', Icon: Blocks, desc: 'Đấu 1v1, ai xóa đủ số hàng mục tiêu trước sẽ thắng' },
+  skyhop: { name: 'Bay qua khe', Icon: Bird, desc: '1–8 người, chạm để nảy qua khe cột, đua về đích hoặc sinh tồn' },
+  goldmine: { name: 'Đào vàng', Icon: Pickaxe, desc: '1–8 người cùng bản đồ, phóng móc gắp vàng, đạt mục tiêu từng màn' },
   snake: { name: 'Rắn săn mồi', Icon: Worm, desc: 'Rắn cổ điển màn hình LCD, 1–8 người đua điểm, 9 cấp tốc độ, mê cung' },
   quiz: { name: 'Đố vui', Icon: Lightbulb, desc: 'Kiểu Kahoot, 1–30 người, có bộ câu hỏi sẵn hoặc tự soạn' },
   wordguess: { name: 'Đoán chữ', Icon: SpellCheck, desc: 'Đoán từ 2 chữ trong 6 lượt, đua hoặc cùng đoán' },
@@ -32,7 +34,7 @@ export const GAME_GROUPS: [string, string, string[]?][] = [
   ['board', 'Cờ', ['chess', 'xiangqi', 'caro']],
   ['words', 'Chữ & đố', ['wordchain', 'quiz', 'wordguess']],
   ['party', 'Vẽ & nhóm', ['scribble', 'telephone']],
-  ['arcade', 'Giải trí', ['onet', 'snake', 'tetris']],
+  ['arcade', 'Giải trí', ['onet', 'snake', 'tetris', 'skyhop', 'goldmine']],
 ];
 const GROUP_KEY = 'gl_lobby_group';
 const fold = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
@@ -322,6 +324,8 @@ function describeOptions(r: RoomSummary) {
   if (r.game === 'samloc') return `Cược ${o.unit}/đơn vị · ${o.turnSeconds} giây/lượt`;
   if (r.game === 'tala') return `Cược ${o.unit}/đơn vị`;
   if (r.game === 'tetris') return `Đua xóa ${o.targetLines} hàng`;
+  if (r.game === 'skyhop') return `${['Dễ', 'Vừa', 'Khó'][Number(o.level) - 1] ?? ''} · ${o.target ? `đích ${o.target} khe` : 'sinh tồn'}`;
+  if (r.game === 'goldmine') return `${o.levels} màn · 60 giây/màn`;
   if (r.game === 'snake') return `Cấp ${o.level} · ${SNAKE_MAZE[String(o.maze)] || ''}${o.minutes ? ` · ${o.minutes} phút` : ''}`;
   if (r.game === 'onet') return o.mode === 'classic' ? `Cổ điển · ${o.rows}×${o.cols} ô · ${o.minutes} phút/màn` : `${o.rows}×${o.cols} ô · ${o.minutes} phút${o.gravity ? ' · trọng lực' : ''}`;
   return '';

@@ -1,0 +1,103 @@
+/* CSS của games/SkyhopGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* Hẹp (điện thoại dọc): đầu → sân chơi → bảng đua. Rộng: sân chơi bên trái, cột phải cho đầu + bảng. */
+  .sh { --sh-ratio: .5625; --sh-sky: #38bdf8; box-sizing: border-box; height: max(100cqh, 300px); padding: 8px; gap: 8px;
+    display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "head" "stage" "side"; }
+  .sh-head { grid-area: head; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .sh-stage { grid-area: stage; min-height: 220px; container-type: size; display: grid; place-items: center; }
+  .sh-side { grid-area: side; display: flex; flex-direction: column; gap: 8px; min-width: 0; max-height: 34cqh; overflow-y: auto; }
+
+  @container (min-aspect-ratio: 1/1) {
+    .sh { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas: "stage head" "stage side"; }
+    .sh-side { max-height: none; }
+    .sh-stage { min-height: 0; }
+  }
+
+  .sh-mode { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; white-space: nowrap; }
+  .sh-mode svg { color: var(--sh-sky); }
+  .sh-chip { padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #bae6fd; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.35); }
+  .sh-giveup { margin-left: auto; min-width: 36px; min-height: 36px; justify-content: center; }
+
+  /* Màn hình dọc: lớn nhất có thể trong sân, giữ tỉ lệ */
+  .sh-screen { position: relative; width: min(100cqw, calc(100cqh * var(--sh-ratio))); aspect-ratio: var(--sh-ratio);
+    border-radius: 16px; overflow: hidden; background: #0b1730; border: 1px solid rgba(56,189,248,.35);
+    box-shadow: 0 0 0 4px rgba(56,189,248,.08), 0 14px 34px rgba(0,0,0,.4); }
+  .sh-screen canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+  .sh-screen.live { cursor: pointer; }
+  .sh-screen:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 3px; }
+  .sh-overlay { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .sh-count { font-size: clamp(56px, 22cqmin, 110px); font-weight: 800; color: #fff; text-shadow: 0 4px 0 rgba(15,23,42,.8); font-variant-numeric: tabular-nums; }
+
+  /* Thẻ kết quả trong màn hình */
+  .sh-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(86%, 260px); padding: 14px;
+    display: grid; gap: 10px; border-radius: 14px; background: #fef3c7; color: #422006; border: 3px solid #a16207;
+    box-shadow: 0 8px 0 rgba(66,32,6,.45); pointer-events: none; animation: sh-pop .25s var(--ease-out); }
+  .sh-card-title { text-align: center; font-size: 22px; font-weight: 800; color: #b45309; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sh-card-body { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+  .sh-medal { width: 72px; display: grid; justify-items: center; gap: 2px; text-align: center; font-size: 10px; font-weight: 700; line-height: 1.2; }
+  .sh-medal svg { padding: 8px; box-sizing: content-box; border-radius: 50%; background: #e7e5e4; color: #78716c; }
+  .sh-medal.bronze svg { background: #fdba74; color: #7c2d12; }
+  .sh-medal.silver svg { background: #e2e8f0; color: #334155; }
+  .sh-medal.gold svg { background: #fde047; color: #854d0e; }
+  .sh-medal.platinum svg { background: #a5f3fc; color: #155e75; }
+  .sh-medal.none svg { opacity: .55; }
+  .sh-medal.none span { color: #a16207; }
+  .sh-card dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: baseline; }
+  .sh-card dt { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #b45309; }
+  .sh-card dd { margin: 0; font-size: 24px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+  .sh-new { margin-left: 4px; padding: 1px 5px; border-radius: 4px; font-size: 10px; vertical-align: middle; background: #dc2626; color: #fff; }
+
+  /* Sảnh chờ và bảng đua */
+  .sh-lobby, .sh-board { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+  .sh-lobby h3, .sh-board h3 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .sh-seats { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .sh-seats li { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border-radius: 9px; background: var(--panel-2); min-width: 0; }
+  .sh-seats li svg { flex: none; color: var(--sh-sky); }
+  .sh-seats li.me .sh-name { color: var(--gold); }
+  .sh-lobby-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .sh-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+
+  .sh-board ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .sh-row { box-sizing: border-box; width: 100%; min-height: 44px; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid transparent; color: var(--text); font: inherit; text-align: left;
+    transition: border-color .15s var(--ease-out), opacity .15s var(--ease-out); }
+  button.sh-row { cursor: pointer; }
+  button.sh-row:hover { border-color: var(--line-strong); }
+  .sh-row.shown { border-color: var(--sh-sky); }
+  .sh-row.me .sh-name { color: var(--gold); }
+  .sh-row.out { opacity: .6; }
+  .sh-rank { font-weight: 800; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+  .sh-who { display: grid; gap: 4px; min-width: 0; }
+  .sh-bar { height: 5px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .sh-bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8, #a3e635); transition: width .3s var(--ease-out); }
+  .sh-state { color: var(--sh-sky); }
+  .sh-row.out .sh-state { color: var(--muted); }
+  .sh-score { min-width: 2ch; text-align: right; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .sh-note { margin: 0; text-align: center; }
+
+  .sh-records ol { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+  .sh-records li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 6px; font-size: 13px; }
+  .sh-records li.me .sh-name { color: var(--gold); }
+  .sh-medal-ic.bronze { color: #fdba74; }
+  .sh-medal-ic.silver { color: #e2e8f0; }
+  .sh-medal-ic.gold { color: #fde047; }
+  .sh-medal-ic.platinum { color: #a5f3fc; }
+  .sh-rules ul { margin: 6px 0 0; padding-left: 18px; }
+  .sh-rules li + li { margin-top: 4px; }
+
+  @keyframes sh-pop { from { transform: translate(-50%, -40%); opacity: 0; } }
+
+  @media (max-width: 640px) {
+    .sh { padding: 4px; gap: 6px; }
+    .sh-stage { min-height: 180px; }
+  }
+  @media (pointer: coarse) {
+    .sh-giveup { min-width: 44px; min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sh-card { animation: none; }
+    .sh-row, .sh-bar > span { transition: none; }
+  }
+}

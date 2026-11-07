@@ -91,7 +91,8 @@ vào `GAMES` (từ đó sinh `GameId`/`isGame`).
   và dòng tóm tắt option trong hàm mô tả phòng nếu có option.
 - `components/CreateRoomDialog.tsx`: default option và field (dùng hằng min/max/default từ shared).
 - `components/Turn.tsx` nếu game có chỉ báo lượt.
-- Style trong `client/src/styles.css`, theo token/class sẵn có. Bắt buộc làm theo mục 5a và 5b.
+- Style đặt cạnh TSX: `client/src/games/<Ten>Game.css` bọc trong `@layer games` và được import ở chính file đó (xem mục CSS trong `docs/conventions.md`); dùng token trong `client/src/styles/tokens.css`. Bắt buộc làm theo mục 5a và 5b.
+- Trò kiểu "client chơi, server phát lại" (đua song song): dùng lại `RaceHandler` (`server/src/games/race.ts`), `replayRace` (`shared/src/race.ts`) và hook `useRaceLoop` như Bay qua khe/Đào vàng; giao diện thì tự thiết kế cho trò mới (tham khảo nhiều game khác, không sao chép khung của một game).
 
 ### 5a. Thiết kế UI bắt buộc qua skill UI
 
@@ -194,7 +195,7 @@ Báo rõ checks nào đã chạy, Redis/Compose/browser checks nào bị skip.
 - [ ] `snapshot.ts` (class engine) + nhánh timer trong `resumeRoom.ts`
 - [ ] UI thiết kế qua skill `impeccable`/`ui-ux-pro-max` + `design-system/sanh-tro-choi/MASTER.md`
 - [ ] Layout co theo `cqw`/`cqh`, không cuộn ngang, đã chụp kiểm tra 6 kích thước màn hình
-- [ ] `client/src/games/<Ten>Game.tsx` + `RoomView.tsx` + `Lobby.tsx` + `CreateRoomDialog.tsx` (+ `Turn.tsx`, `styles.css`)
+- [ ] `client/src/games/<Ten>Game.tsx` + `RoomView.tsx` + `Lobby.tsx` + `CreateRoomDialog.tsx` (+ `Turn.tsx`, `<Ten>Game.css`)
 - [ ] `server/test/<id>.test.ts`, `recovery.test.ts`, `e2e.ts`
 - [ ] `README.md`, `docs/architecture.md`
 - [ ] `npm run check`, `npm test`, `npm run build`, `npm run test:integration`, `git diff --check`
