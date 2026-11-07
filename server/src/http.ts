@@ -1,6 +1,6 @@
 // Phần HTTP: header bảo mật, /health, phục vụ client đã build.
 import express, { type RequestHandler } from 'express';
-import type { IncomingMessage } from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { APP_VERSION, CLIENT_DIST, CORS_ORIGINS, TRUST_PROXY } from './config.js';
@@ -13,12 +13,22 @@ export function createApp(voice: {micPolicy: string}, { ready = () => true }: {r
   app.get('/health', (_req, res) => res.json({ ok: true, version: APP_VERSION }));
   app.get('/ready', (_req, res) => { const ok = ready(); res.status(ok ? 200 : 503).json({ ok }); });
   if (fs.existsSync(CLIENT_DIST)) {
-    app.use(express.static(CLIENT_DIST, { index: false, maxAge: '1h' }));
+    app.use(express.static(CLIENT_DIST, { index: false, maxAge: '1h', setHeaders: setStaticCacheHeaders }));
     app.get('*', (_req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));
   } else {
     app.get('/', (_req, res) => res.send('Game server đang chạy. Client chạy riêng bằng Vite (npm run dev).'));
   }
   return app;
+}
+
+// Vite đặt file đã băm nội dung vào assets/: tên đổi khi nội dung đổi, nên cache vĩnh viễn được.
+// File khác (index.html, version.json…) giữ tên cố định, giữ maxAge ngắn để bản deploy mới tới người dùng.
+const HASHED_ASSET_DIR = path.join(CLIENT_DIST, 'assets') + path.sep;
+const IMMUTABLE_CACHE = 'public, max-age=31536000, immutable';
+
+function setStaticCacheHeaders(res: ServerResponse, filePath: string) {
+  if (!filePath.startsWith(HASHED_ASSET_DIR)) return;
+  res.setHeader('Cache-Control', IMMUTABLE_CACHE);
 }
 
 /** Header bảo mật cho mọi phản hồi HTTP (tương đương helmet, không cần thêm thư viện). */
