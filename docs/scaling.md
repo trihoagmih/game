@@ -21,7 +21,11 @@ This smoke load generator is not a production capacity certification.
 Set `REDIS_URL`, stable `NODE_ID` and identical `CLUSTER_NODES` on all shards to enable clustering.
 Without `REDIS_URL`, the application stays in its existing single-node mode.
 Each room is owned by one shard. The shared directory refreshes every two seconds.
-Creation picks an available shard with fewer rooms. Joining an existing room routes to its owner.
+Creation prefers the non-draining shard that already hosts the most rooms of the same logical server (sảnh), so players of one group rarely transfer identity between shards.
+It spills to another shard once the home shard has `LIMITS.affinitySlack` (50) more rooms than the least-loaded one; a server without rooms goes to the least-loaded shard.
+Joining an existing room routes to its owner.
+`roomsPerServer` counts a logical server's rooms on every shard via the directory, so concurrent creates on two shards may briefly overshoot by one tick; dead shards drop out with their directory TTL.
+Room creation also has a per-logical-server token bucket (`createPerServer`), charged only on the shard that creates the room; with affinity this approximates a per-group limit.
 The browser reconnects via `/nodes/<id>/socket.io` and resumes the create/join request.
 An identity transfer requires closing other tabs; concurrent membership on two shards is refused.
 New node IDs require matching proxy routes before they are added to `CLUSTER_NODES`.
@@ -30,7 +34,7 @@ Redis leases reject duplicate shard processes and fail closed on a lost lease or
 The proxy pins the full Socket.IO connection, including polling, to the explicitly selected shard.
 This does not require a broadcast adapter because room traffic stays local; the global directory is shared through Redis.
 Shard IDs stay stable across restarts. Removing a shard requires draining/migrating its rooms first.
-Per-IP connection/rate limits remain per shard; add a proxy-wide limit before exposing a larger public cluster.
+Per-IP connection/rate limits and the per-server create bucket remain per shard; add a proxy-wide limit before exposing a larger public cluster.
 
 Run `TEST_REDIS_URL=redis://localhost:6379 npx tsx --test server/test/cluster.test.ts` for real Redis lease/identity tests.
 

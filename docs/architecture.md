@@ -64,6 +64,7 @@ ReadyGate dùng chung bảo đảm người chơi sẵn sàng và chủ phòng b
 
 ## Cluster và routing
 
+- Phòng mới ưu tiên shard đang chứa nhiều phòng nhất của cùng sảnh, tràn sang shard khác khi lệch tải từ `affinitySlack` phòng; hạn mức `roomsPerServer` tính trên toàn cluster theo directory.
 - Mỗi room chỉ được mutate trên một owner shard. Không có Redis Socket.IO broadcast adapter; room traffic ở local owner.
 - Lease Redis sống 15 giây, renew bằng connection độc lập mỗi 2 giây. Mất lease/Redis thì fence node; request còn kiểm tra độ mới của lease. Không cho hai process cùng `NODE_ID` sở hữu shard.
 - Directory metadata refresh mỗi 2 giây; node directory TTL 10 giây. Placement chọn node không draining có ít room hơn; đây là heuristic, không phải đo tải CPU.

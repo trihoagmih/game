@@ -274,10 +274,18 @@ export class Lobby {
     return room;
   }
 
+  /**
+   * Hạn mức tạo phòng. Số phòng của sảnh tính trên toàn cluster theo directory (cập nhật mỗi tick),
+   * nên hai shard tạo phòng cùng lúc có thể vượt nhẹ trong một chu kỳ; directory tự lành khi shard chết.
+   */
+  assertCanCreateRoom(owner: User) {
+    const owned = [...this.rooms.values()].filter((r) => r.server === owner.server && r.ownerId === owner.id).length;
+    if (owned >= LIMITS.roomsPerUser) throw new Error(`Bạn chỉ được tạo tối đa ${LIMITS.roomsPerUser} phòng`);
+    if (this.roomList(owner.server).length >= LIMITS.roomsPerServer) throw new Error('Sảnh đã đủ phòng, hãy vào một phòng có sẵn');
+  }
+
   createRoom(owner: User, { name, game, options }: Omit<RoomOptions, 'owner'>) {
-    const mine = [...this.rooms.values()].filter((r) => r.server === owner.server);
-    if (mine.filter((r) => r.ownerId === owner.id).length >= LIMITS.roomsPerUser) throw new Error(`Bạn chỉ được tạo tối đa ${LIMITS.roomsPerUser} phòng`);
-    if (mine.length >= LIMITS.roomsPerServer) throw new Error('Sảnh đã đủ phòng, hãy vào một phòng có sẵn');
+    this.assertCanCreateRoom(owner);
     const room = new Room(this, { name, game, owner, options });
     this.rooms.set(room.id, room);
     room.system(`${owner.name} tạo phòng "${name}"`);
