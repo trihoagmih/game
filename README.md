@@ -295,7 +295,7 @@ Kỷ lục dùng chung giữa các phòng trong cùng workspace (ví dụ b4), t
 
 Compose đã có PostgreSQL 17 với volume postgres-data; thêm POSTGRES_PASSWORD riêng vào .env. Redeploy node ứng dụng hoặc restart database không xoá kỷ lục nếu volume còn. Không chạy docker compose down -v nếu muốn giữ dữ liệu. Cần backup database ra nơi khác và kiểm tra khôi phục; volume không thay thế backup. Với database được quản lý, bật backup/PITR theo gói dịch vụ.
 
-Render: đặt DATABASE_URL trong dashboard. VPS qua Actions: thêm secret DATABASE_URL. Không có URL thì server cảnh báo và dùng file local WORKSPACE_RECORDS_FILE (mặc định ./data/workspace-records.json), chỉ dành cho một process với disk có quyền ghi và bền vững; chế độ này không đồng bộ nhiều shard.
+Render: đặt DATABASE_URL trong dashboard. VPS qua Actions: thêm secret DATABASE_URL và repository variable WORKSPACE_RECORDS_NAMESPACE (ví dụ b4). Không có URL thì server cảnh báo và dùng file local WORKSPACE_RECORDS_FILE (mặc định ./data/workspace-records.json), chỉ dành cho một process với disk có quyền ghi và bền vững; chế độ này không đồng bộ nhiều shard.
 
 Xoá phòng, đổi thiết bị hoặc xoá dữ liệu trình duyệt không xoá kỷ lục database. Kỷ lục phòng và kỷ lục workspace là hai phạm vi riêng.
 
