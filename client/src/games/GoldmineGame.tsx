@@ -147,8 +147,8 @@ function Lobby({ s, ownerId }: { s: GoldmineView; ownerId: string }) {
       <div className="gm-lobby-actions">
         <StartBar players={s.seats} ready={s.ready} waitingFor={s.waitingFor} seated={!!s.myId} min={1} startLabel="Bắt đầu" />
         {s.myId
-          ? <button className="btn ghost" onClick={() => call('room:stand', {})}>Đứng dậy</button>
-          : canSit && <button className="btn primary" onClick={() => call('room:sit', {})}>Vào chơi</button>}
+          ? <button className="btn gm-seat-btn" onClick={() => call('room:stand', {})}>Đứng dậy</button>
+          : canSit && <button className="btn primary gm-seat-btn" onClick={() => call('room:sit', {})}>Vào chơi</button>}
       </div>
     </section>
   );

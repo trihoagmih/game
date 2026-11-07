@@ -1,22 +1,22 @@
 /* CSS của games/GoldmineGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
 @layer games {
-  /* Hẹp: đầu → mỏ (cao theo bề rộng, tỉ lệ 640 × 400) → nút → bảng tiền, cả nhóm căn giữa theo chiều dọc;
-     thiếu chỗ thì mỏ và bảng cùng co lại. Rộng: bảng tiền sang cột phải. */
+  /* Hẹp: đầu → mỏ (cao theo bề rộng, tỉ lệ 640 × 400) → nút → sảnh chờ/bảng tiền, cả nhóm căn giữa theo
+     chiều dọc; thiếu chỗ thì chỉ mỏ co lại, sảnh chờ/bảng giữ nguyên để không bị che. Rộng: bảng sang cột phải. */
   .gm { --gm-ratio: 1.6; --gm-gold: #fbbf24; box-sizing: border-box; height: max(100cqh, 300px); padding: 8px; gap: 8px;
     display: flex; flex-direction: column; justify-content: center; }
   .gm-head { flex: none; display: flex; align-items: center; gap: 8px; min-width: 0; }
   .gm-stage { flex: 0 1 auto; height: calc((100cqw - 16px) / var(--gm-ratio)); min-height: 150px; container-type: size; display: grid; place-items: center; }
   .gm.shopping .gm-stage { flex: 1 1 auto; height: auto; }
   .gm-pad { flex: none; display: flex; justify-content: center; gap: 8px; }
-  .gm-side { flex: 0 3 auto; min-height: 90px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .gm-side { flex: none; max-height: 45cqh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
 
-  @container (min-aspect-ratio: 7/4) {
+  @container (min-aspect-ratio: 7/5) {
     .gm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); grid-template-rows: auto minmax(0, 1fr) auto;
       grid-template-areas: "stage head" "stage side" "pad side"; }
     .gm-head { grid-area: head; }
     .gm-stage, .gm.shopping .gm-stage { grid-area: stage; height: auto; min-height: 0; }
     .gm-pad { grid-area: pad; }
-    .gm-side { grid-area: side; min-height: 0; }
+    .gm-side { grid-area: side; min-height: 0; max-height: none; }
   }
 
   .gm-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; white-space: nowrap; }
@@ -71,6 +71,7 @@
   .gm-seats li svg { flex: none; color: var(--gm-gold); }
   .gm-seats li.me .gm-name { color: var(--gold); }
   .gm-lobby-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .gm-lobby-actions > .gm-seat-btn { margin-left: auto; }
   .gm-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
   .gm-row { box-sizing: border-box; width: 100%; min-height: 44px; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 8px;
     padding: 6px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid transparent; color: var(--text); font: inherit; text-align: left;
