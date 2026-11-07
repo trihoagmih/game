@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { createClient } from 'redis';
+import { LIMITS } from './config.js';
 import type { Lobby, User } from './lobby.js';
 import type { OnlineUser, RoomSummary } from '@game/shared/contracts';
 
@@ -125,10 +126,20 @@ export class Cluster {
     return [...unique.values()].sort((a, b) => a.name.localeCompare(b.name, 'vi'));
   }
 
-  placement() {
+  /**
+   * Chọn shard cho phòng mới của một sảnh. Ưu tiên shard đã chứa nhiều phòng của sảnh đó để người
+   * chơi ít phải chuyển danh tính giữa các shard; chỉ tràn sang shard khác khi shard đó tải hơn shard
+   * nhẹ nhất từ `affinitySlack` phòng trở lên, tránh một sảnh đông làm quá tải một shard.
+   */
+  placement(server: string) {
     const nodes = this.directory.filter((node) => !node.draining).sort((a, b) => a.rooms.length - b.rooms.length || a.id.localeCompare(b.id));
     if (!nodes.length) throw new Error('Chưa có máy chủ sẵn sàng');
-    return nodes[0].id;
+    const leastLoaded = nodes[0];
+    const serverRooms = (node: DirectoryNode) => node.rooms.filter((room) => room.server === server).length;
+    const home = nodes
+      .filter((node) => serverRooms(node) > 0 && node.rooms.length - leastLoaded.rooms.length < LIMITS.affinitySlack)
+      .sort((a, b) => serverRooms(b) - serverRooms(a) || a.rooms.length - b.rooms.length || a.id.localeCompare(b.id))[0];
+    return (home || leastLoaded).id;
   }
 
   ownerOfRoom(id: string, server: string) {

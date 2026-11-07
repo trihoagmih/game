@@ -48,8 +48,12 @@ export const LIMITS = {
   newUsersPerIpPerHour: 30, // số danh tính mới mỗi IP mỗi giờ
   maxUsers: 5000, // tổng danh tính trong bộ nhớ
   userIdleMs: 24 * 3600_000, // xóa danh tính không hoạt động sau 24 giờ
-  roomsPerServer: 200, // tổng số phòng mỗi server (sảnh)
+  roomsPerServer: 200, // tổng số phòng mỗi server (sảnh), tính trên toàn cluster
   roomsPerUser: 5,
+  // Cluster: phòng mới ở lại shard của sảnh cho tới khi shard đó nhiều hơn shard nhẹ nhất từng này phòng
+  affinitySlack: 50,
+  // token bucket tạo phòng chung cho cả một sảnh trên mỗi shard: [sức chứa, số lượt hồi mỗi giây]
+  createPerServer: [30, 0.5],
   spectatorsPerRoom: Math.max(0, Math.min(500, Number.parseInt(env.MAX_SPECTATORS_PER_ROOM || '30', 10) || 0)),
   chatHistory: 100, // số tin nhắn giữ lại mỗi phòng
   // token bucket mỗi socket: [sức chứa, số lượt hồi mỗi giây]

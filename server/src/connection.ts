@@ -1,7 +1,7 @@
 // Xử lý sự kiện của từng kết nối socket.
 import { APP_VERSION, GATED, LIMITS, RECONNECT_GRACE_MS } from './config.js';
 import { issueSession } from './auth.js';
-import { tokenBucket, WindowCounter } from './rateLimit.js';
+import { keyedTokenBucket, tokenBucket, WindowCounter } from './rateLimit.js';
 import { cleanName } from './lobby.js';
 import { GAMES, isGame } from './games/index.js';
 import { cleanSignal } from './voice.js';
@@ -13,6 +13,7 @@ type RateKind = 'chat' | 'create' | 'signal' | 'draw';
 type HandlerResult<E extends RequestEvent> = Response<E> | RouteRedirect | void | Promise<Response<E> | RouteRedirect | void>;
 
 const newUsersByIp = new WindowCounter(3600_000);
+const createByServer = keyedTokenBucket(LIMITS.createPerServer);
 const isPlainObject = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 /**
@@ -149,11 +150,14 @@ export function handleConnection(socket: GameSocket, { lobby, voice, connections
   on('room:create', async ({ name, game, options }, me) => {
     if (!isGame(game)) throw new Error('Trò chơi không hợp lệ');
     if (lobby.draining) throw new Error('Máy chủ đang cập nhật, hãy thử lại sau');
+    if (lobby.cluster) await lobby.cluster.tick();
+    lobby.assertCanCreateRoom(me); // từ chối trước khi chuyển shard hoặc trừ lượt tạo phòng của sảnh
     if (lobby.cluster) {
-      await lobby.cluster.tick();
-      const nodeId = lobby.cluster.placement();
+      const nodeId = lobby.cluster.placement(me.server);
       if (nodeId !== lobby.cluster.nodeId) return lobby.cluster.transfer(me, nodeId);
     }
+    // Chỉ tính lượt ở shard thực sự tạo phòng; yêu cầu bị chuyển shard không trừ hai lần.
+    if (!createByServer(me.server)) throw new Error('Sảnh đang tạo quá nhiều phòng, hãy thử lại sau');
     const room = lobby.createRoom(me, {
       name: cleanName(name, 40) || `Bàn ${GAMES[game].name} của ${me.name}`,
       game,

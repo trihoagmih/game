@@ -15,6 +15,22 @@ export function tokenBucket([capacity, perSec]: readonly number[]) {
 }
 
 /**
+ * Một token bucket cho mỗi khóa. Chỉ dùng với tập khóa hữu hạn do server kiểm soát
+ * (vd. id sảnh từ cấu hình), vì bucket không bị dọn khỏi bộ nhớ.
+ */
+export function keyedTokenBucket(limits: readonly number[]) {
+  const buckets = new Map<string, () => boolean>();
+  return (key: string) => {
+    let take = buckets.get(key);
+    if (!take) {
+      take = tokenBucket(limits);
+      buckets.set(key, take);
+    }
+    return take();
+  };
+}
+
+/**
  * Đếm số lần theo khóa (thường là IP) trong cửa sổ cố định tính từ lần đếm đầu tiên.
  * Tự dọn khóa hết hạn mỗi phút để bộ nhớ không tăng mãi.
  */
