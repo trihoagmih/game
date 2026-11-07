@@ -4,7 +4,9 @@
      chiều dọc; thiếu chỗ thì chỉ mỏ co lại, sảnh chờ/bảng giữ nguyên để không bị che. Rộng: bảng sang cột phải. */
   .gm { --gm-ratio: 1.6; --gm-gold: #fbbf24; box-sizing: border-box; height: max(100cqh, 300px); padding: 8px; gap: 8px;
     display: flex; flex-direction: column; justify-content: center; }
-  .gm-head { flex: none; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  /* Cột bên chỉ 220–280px: tiêu đề xuống hàng, nhãn tự cắt — không được đẩy nút bỏ cuộc ra ngoài (dù 1px cũng làm
+     hiện thanh cuộn ngang trên Windows, rồi kéo theo thanh cuộn dọc). */
+  .gm-head { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0; }
   .gm-stage { flex: 0 1 auto; height: calc((100cqw - 16px) / var(--gm-ratio)); min-height: 150px; container-type: size; display: grid; place-items: center; }
   .gm.shopping .gm-stage { flex: 1 1 auto; height: auto; }
   .gm-pad { flex: none; display: flex; justify-content: center; gap: 8px; }
@@ -21,8 +23,8 @@
 
   .gm-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; white-space: nowrap; }
   .gm-title svg { color: var(--gm-gold); }
-  .gm-chip { padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #fde68a; background: rgba(217,119,6,.14); border: 1px solid rgba(217,119,6,.4); white-space: nowrap; }
-  .gm-giveup { margin-left: auto; min-width: 36px; min-height: 36px; justify-content: center; }
+  .gm-chip { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #fde68a; background: rgba(217,119,6,.14); border: 1px solid rgba(217,119,6,.4); white-space: nowrap; }
+  .gm-giveup { flex: none; margin-left: auto; min-width: 36px; min-height: 36px; justify-content: center; }
 
   .gm-screen { position: relative; width: min(100cqw, calc(100cqh * var(--gm-ratio))); aspect-ratio: var(--gm-ratio);
     border-radius: 14px; overflow: hidden; background: #2a1a0e; border: 2px solid #78350f; box-shadow: 0 0 0 4px rgba(217,119,6,.12), 0 14px 34px rgba(0,0,0,.4); }

@@ -4,7 +4,7 @@
   .sh { --sh-ratio: .5625; --sh-sky: #38bdf8; box-sizing: border-box; height: max(100cqh, 300px); padding: 8px; gap: 8px;
     display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas: "head" "stage" "side"; }
-  .sh-head { grid-area: head; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .sh-head { grid-area: head; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0; }
   .sh-stage { grid-area: stage; min-height: 220px; container-type: size; display: grid; place-items: center; }
   .sh-side { grid-area: side; display: flex; flex-direction: column; gap: 8px; min-width: 0; max-height: 45cqh; overflow-y: auto; }
 
@@ -17,8 +17,8 @@
 
   .sh-mode { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; white-space: nowrap; }
   .sh-mode svg { color: var(--sh-sky); }
-  .sh-chip { padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #bae6fd; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.35); }
-  .sh-giveup { margin-left: auto; min-width: 36px; min-height: 36px; justify-content: center; }
+  .sh-chip { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #bae6fd; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.35); }
+  .sh-giveup { flex: none; margin-left: auto; min-width: 36px; min-height: 36px; justify-content: center; }
 
   /* Màn hình dọc: lớn nhất có thể trong sân, giữ tỉ lệ */
   .sh-screen { position: relative; width: min(100cqw, calc(100cqh * var(--sh-ratio))); aspect-ratio: var(--sh-ratio);
