@@ -1,0 +1,94 @@
+/* CSS của games/WordChainGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .wc-time { font-variant-numeric: tabular-nums; }
+  /* ---------- Nối từ ---------- */
+  .wc { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .wc-main { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 12px; }
+  .wc-side { width: 300px; display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 1000px) {
+    .wc-side { width: 100%; }
+  }
+  .wc-players { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wc-player { flex: 1 1 120px; padding: 8px 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+  .wc-player.turn { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+  .wc-player.out { opacity: .45; }
+  .wc-player.out .wc-pname { text-decoration: line-through; }
+  .wc-player.me .wc-pname { color: var(--gold); }
+  .wc-pname { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wc-lives { color: #f87171; letter-spacing: 2px; }
+  .wc-stage { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 16px; text-align: center; }
+  .wc-stage.my-turn { border-color: var(--gold); }
+  .wc-big { font-size: 26px; font-weight: 700; }
+  .wc-word { font-size: clamp(30px, 7vw, 52px); font-weight: 800; line-height: 1.1; }
+  .wc-word.empty { font-size: 18px; font-weight: 400; }
+  .wc-syl.key { color: var(--gold); text-decoration: underline; text-underline-offset: 6px; }
+  .wc-turn { width: 100%; max-width: 520px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; }
+  .wc-turn .timebar { flex-basis: 100%; }
+  .wc-req { color: var(--gold); font-size: 18px; }
+  .wc-time { margin-left: 8px; font-family: ui-monospace, Consolas, monospace; display: inline-flex; align-items: center; gap: 3px; }
+  .wc-time.low { color: var(--danger); font-weight: 700; }
+  .wc-input { display: flex; gap: 8px; width: 100%; max-width: 420px; align-items: center; }
+  .wc-input input { flex: 1; font-size: 20px; padding: 10px 12px; }
+  .wc-prefix { font-size: 20px; font-weight: 700; color: var(--gold); padding: 8px 12px; border-radius: 8px; background: #3b2f0b; white-space: nowrap; }
+  .wc-result .wc-big { color: var(--gold); }
+  .wc-rules ul { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .wc-word .small { display: block; margin-top: 10px; font-size: 13px; font-weight: 400; line-height: 1.4; }
+  /* Nối từ: chừa chỗ cố định */
+  .wc-stage { min-height: 344px; justify-content: center; }
+  .wc-word.empty { min-height: calc(clamp(30px, 7vw, 52px) * 1.1 + 33px); display: grid; place-items: center; }
+  .wc-turn, .wc-result { min-height: 54px; }
+  .wc-turn { flex-wrap: nowrap; white-space: nowrap; }
+  .wc-input-slot { min-height: 50px; width: 100%; display: flex; justify-content: center; align-items: center; }
+  .wc-object-slot { min-height: 30px; display: flex; align-items: center; justify-content: center; }
+  /* Nối từ: khung chơi rộng vừa phải, cả cụm nằm giữa */
+  .wc { justify-content: center; }
+  .wc-main { max-width: 720px; }
+  .wc-chain .sb-head { margin-bottom: 8px; }
+  .wf-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+  .wf-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .wf-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pc); }
+  .wf { list-style: none; margin: 0; padding: 2px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px 2px;
+    height: 180px; overflow-y: auto; }
+  .wf-item { display: inline-flex; align-items: center; gap: 6px; }
+  .wf-arrow { color: var(--muted); flex: none; }
+  .wf-n { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 14px; text-align: right; }
+  .wf-word { padding: 3px 10px; border-radius: 99px; border: 1px solid var(--pc); background: color-mix(in srgb, var(--pc) 14%, transparent); white-space: nowrap; }
+  .wf-item.mine .wf-word { font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+  .wf-link { color: var(--gold); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  .wf-empty { height: 180px; display: grid; place-items: center; border: 1px dashed var(--line-strong); border-radius: 10px; }
+  .wf-history { height: 206px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .wf-history .wf-empty { height: 100%; }
+  .wf-game { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--panel-2); }
+  .wf-game summary { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; list-style-position: inside; }
+  .wf-meta { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 12px; }
+  .wf-game[open] summary { margin-bottom: 8px; }
+  .wf-game .wf { height: auto; max-height: 220px; }
+  .wf-flag { color: var(--warn); margin-left: 4px; vertical-align: -2px; }
+  .wf-flag-text { color: var(--warn); }
+  .wf-flag-text svg { vertical-align: -2px; }
+  .wc { position: relative; }
+  /* ---------- Nối từ ---------- */
+  .wc-stage { min-height: 0; padding: 18px 16px; }
+  .wc-main { gap: 10px; }
+  @media (max-width: 640px) {
+    .wc-stage { padding: 14px 10px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .wc-main { gap: 6px; }
+    .wc-players { flex-wrap: nowrap; overflow-x: auto; gap: 6px; }
+    .wc-player { padding: 4px 8px; gap: 2px; flex: 1 0 110px; }
+    .wc-stage { padding: 8px 12px; gap: 6px; }
+    .wc-word { font-size: 30px; }
+    .wc-word .small { margin-top: 4px; }
+    .wc-word.empty { min-height: 0; }
+    .wc-turn, .wc-result { min-height: 0; }
+    .wc-input-slot { min-height: 44px; }
+    .wc-object-slot { min-height: 0; }
+    .wc-input input { padding: 6px 10px; font-size: 18px; }
+  }
+  .wc-pname { display: flex; align-items: center; gap: 4px; }
+  .wc-bot-x { margin-left: auto; padding: 0 4px; }
+  /* Gợi ý lượt đầu / hết đường nối */
+  .wc-turn .wc-first-hint { flex-basis: 100%; white-space: normal; }
+  .wc-deadend { margin-top: 6px; color: var(--gold); font-weight: 600; }
+}

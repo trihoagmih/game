@@ -4,6 +4,7 @@ import { useApp } from '../store.js';
 import CreateRoomDialog from './CreateRoomDialog.js';
 import type { LucideIcon } from 'lucide-react';
 import type { OnlineUser, RoomSummary } from '@game/shared/contracts';
+import './Lobby.css';
 
 const SNAKE_MAZE: Record<string, string> = { none: 'Không tường', box: 'Hộp kín', tunnel: 'Đường hầm', rooms: 'Bốn phòng', rails: 'Đường ray' };
 

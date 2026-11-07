@@ -3,6 +3,7 @@ import { useRoomApp } from '../store.js';
 import type { ScoreboardView } from '@game/shared/views';
 import type { Identity } from '@game/shared/contracts';
 import { fmtTime } from '../format.js';
+import './Scoreboard.css';
 
 export const fmtPts = (n: number) => (Number.isInteger(n) ? String(n) : `${Math.floor(n) || ''}½`);
 

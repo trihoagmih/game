@@ -1,0 +1,74 @@
+/* CSS của games/SnakeGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* ---------- Rắn săn mồi (màn hình LCD điện thoại cổ) ---------- */
+  .snake { display: flex; justify-content: center; padding: 10px; min-height: max(100cqh, 420px); }
+  .snake-main { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .snake-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .snake-tag { font-size: 13px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid var(--line); }
+  .snake-tag b { color: var(--gold); }
+  .snake-time { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .snake-time.low { color: #f87171; }
+  .snake-sp { flex: 1; }
+  .snake-stage { display: flex; justify-content: center; }
+  .snake-phone { width: min(100%, 620px); padding: 14px 16px 16px; border-radius: 28px 28px 36px 36px;
+    background: linear-gradient(160deg, #3b4a5a, #1d2630 60%, #151b22); box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 10px 30px rgba(0,0,0,.45);
+    display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .snake-brand { font: 700 12px/1 'Courier New', monospace; letter-spacing: .25em; text-transform: uppercase; color: #b8c4cf; opacity: .8;
+    max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .snake-lcd { position: relative; width: 100%; padding: 8px; border-radius: 10px; background: #8fa882;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,.45); touch-action: none; user-select: none; -webkit-user-select: none; }
+  .snake-lcd canvas { display: block; width: 100%; height: auto; border-radius: 3px; image-rendering: pixelated; }
+  .snake-over { position: absolute; inset: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    color: #2b3a26; font: 700 22px/1.2 'Courier New', monospace; letter-spacing: .1em; text-align: center; background: rgba(183,215,168,.55); border-radius: 3px; pointer-events: none; }
+  .snake-over.big { font-size: 64px; background: transparent; }
+  .snake-over .small { font-size: 12px; letter-spacing: 0; }
+  .snake-wait { position: absolute; inset: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: #2b3a26; font: 600 13px/1.3 'Courier New', monospace; text-align: center; padding: 10px; }
+  .snake-big { font-size: 26px; font-weight: 800; letter-spacing: .12em; }
+  .snake-pad { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(3, 42px); gap: 8px;
+    grid-template-areas: ". up ." "left mid right" ". down ."; }
+  .snake-pad .k { position: relative; border: 0; border-radius: 12px; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent;
+    display: flex; align-items: center; justify-content: center; font: 700 18px/1 system-ui, sans-serif; color: #1d2630;
+    background: linear-gradient(#f4f7f9, #c3ccd4); transform: translateY(0);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -2px 0 rgba(0,0,0,.08), 0 4px 0 #6b7782, 0 6px 8px rgba(0,0,0,.35);
+    transition: transform .06s ease-out, box-shadow .06s ease-out, background .06s; }
+  .snake-pad .k:hover { background: linear-gradient(#ffffff, #cbd3da); }
+  /* Nhấn: lún xuống, bóng đổ co lại, mặt nút tối đi */
+  .snake-pad .k:active, .snake-pad .k.on { transform: translateY(3px); background: linear-gradient(#b4bec7, #d3dae0);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.35), 0 1px 0 #6b7782, 0 1px 2px rgba(0,0,0,.3); }
+  .snake-pad .up { grid-area: up; }
+  .snake-pad .down { grid-area: down; }
+  .snake-pad .left { grid-area: left; }
+  .snake-pad .right { grid-area: right; }
+  .snake-pad .mid { grid-area: mid; border-radius: 50%; width: 36px; height: 36px; justify-self: center; align-self: center; }
+  .snake-pad .mid.blank { visibility: hidden; }
+  @media (hover: hover) and (pointer: fine) {
+    .snake-pad { grid-template-rows: repeat(3, 36px); row-gap: 8px; }
+  }
+  /* Rắn: chọn kiểu hình */
+  .snake-theme { display: inline-flex; padding: 2px; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+  .snake-theme button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+  .snake-theme button.on { background: var(--panel-2); color: var(--text); }
+  /* Cổ điển: thân máy bạc, màn LCD vàng */
+  .snake-phone.classic { background: linear-gradient(160deg, #d9dde1, #a9afb6 45%, #8d949c); box-shadow: inset 0 2px 0 rgba(255,255,255,.6), 0 10px 30px rgba(0,0,0,.45); }
+  .snake-phone.classic .snake-brand { color: #4b535c; opacity: .9; }
+  .snake-phone.classic .snake-lcd { background: #c5c640; padding: 10px; border: 6px solid #6f767e; border-radius: 14px;
+    box-shadow: inset 0 0 22px rgba(70,70,10,.45), inset 0 2px 6px rgba(0,0,0,.35); }
+  .snake-phone.classic .snake-lcd canvas { image-rendering: pixelated; }
+  .snake-phone.classic .snake-over, .snake-phone.classic .snake-wait { color: #26270f; }
+  .snake-phone.classic .snake-over:not(.big) { background: rgba(197,198,64,.7); }
+  /* Hiện đại: thẻ tối viền neon */
+  .snake-phone.modern { width: min(100%, 720px); padding: 12px; border-radius: 22px; background: linear-gradient(160deg, #141c38, #0b1022);
+    box-shadow: 0 0 0 1px rgba(129,140,248,.25), 0 18px 40px rgba(0,0,0,.5), 0 0 40px rgba(52,245,197,.08); }
+  .snake-phone.modern .snake-brand { display: none; }
+  .snake-phone.modern .snake-lcd { padding: 0; background: transparent; box-shadow: none; border-radius: 14px; overflow: hidden; }
+  .snake-phone.modern .snake-lcd canvas { image-rendering: auto; border-radius: 14px; }
+  .snake-phone.modern .snake-over, .snake-phone.modern .snake-wait { inset: 0; color: #e2e8f0; font-family: system-ui, sans-serif; letter-spacing: .04em; }
+  .snake-phone.modern .snake-over:not(.big) { background: rgba(9,13,29,.62); backdrop-filter: blur(2px); }
+  .snake-phone.modern .snake-over.big { color: #34f5c5; text-shadow: 0 0 24px rgba(52,245,197,.7); }
+  .snake-phone.modern .snake-pad .k { background: linear-gradient(#2c3963, #1b2445); color: #c7d2fe;
+    box-shadow: inset 0 1px 0 rgba(199,210,254,.18), 0 0 0 1px rgba(129,140,248,.3), 0 4px 0 #070b18, 0 6px 10px rgba(0,0,0,.45); }
+  .snake-phone.modern .snake-pad .k:hover { background: linear-gradient(#34437a, #1f2a52); }
+  .snake-phone.modern .snake-pad .k:active, .snake-phone.modern .snake-pad .k.on { color: #34f5c5; background: linear-gradient(#151d3a, #222c55);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.55), 0 0 0 1px rgba(52,245,197,.55), 0 0 14px rgba(52,245,197,.35), 0 1px 0 #070b18; }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Hand, Hourglass } from 'lucide-react';
 import type { Identity, RoomState } from '@game/shared/contracts';
+import './Turn.css';
 
 export interface TurnInfo { mine: boolean; who?: string; text?: string }
 

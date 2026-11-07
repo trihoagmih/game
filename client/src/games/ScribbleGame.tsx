@@ -14,6 +14,7 @@ import ConfirmDialog from '../components/ConfirmDialog.js';
 import { useCountdown } from '../hooks.js';
 import ScribbleCanvas from './ScribbleCanvas.js';
 import DrawTools, { useDrawTools } from './DrawTools.js';
+import './ScribbleGame.css';
 
 export default function ScribbleGame({ room, state: s }: { room: ClientRoom; state: ScribbleView }) {
   const { act, call, user } = useRoomApp();

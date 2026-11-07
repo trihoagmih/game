@@ -18,6 +18,7 @@ import GameInfo from '../components/GameInfo.js';
 import ConfirmDialog from '../components/ConfirmDialog.js';
 import StartBar, { ReadyMark } from '../components/StartBar.js';
 import GameOverDialog, { GoRanking } from '../components/GameOverDialog.js';
+import './SnakeGame.css';
 
 // Rắn săn mồi — hai kiểu nhìn (mỗi người tự chọn, luật như nhau): "Cổ điển" màn hình LCD vàng của
 // điện thoại đen trắng, và "Hiện đại" bàn neon rắn trượt mượt. Cách vẽ nằm ở snakeRender.js.

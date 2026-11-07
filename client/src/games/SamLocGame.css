@@ -1,0 +1,50 @@
+/* CSS của games/SamLocGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  /* ---------- Sâm lốc ---------- */
+  .sl { display: flex; flex-direction: column; gap: 12px; }
+  .sl-tags { gap: 4px; min-height: 20px; }
+  .sl-pile { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .sl-pile-cards { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .sl-sam { background: rgba(0,0,0,.45); border: 1px solid #f97316; border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; align-items: center; max-width: 460px; text-align: center; }
+  .sl-sam-title { font-size: 20px; font-weight: 800; color: #fdba74; }
+  .sl-sel { font-size: 13px; padding: 2px 10px; border-radius: 99px; }
+  .sl-sel.ok { background: rgba(34,197,94,.25); color: #bbf7d0; }
+  .sl-sel.bad { background: rgba(225,29,72,.25); color: #fecdd3; }
+  .sl-left-cards { display: inline-flex; gap: 2px; vertical-align: middle; flex-wrap: wrap; max-width: 380px; }
+  .sl-lines { text-align: left; }
+  @media (max-width: 800px) {
+    .sl-left-cards { max-width: 200px; }
+  }
+  .sl-board { display: flex; flex-direction: column; gap: 12px; }
+  .sl-opp {
+    display: flex; flex-direction: column; gap: 6px; min-width: 150px; padding: 8px 10px; border-radius: 12px;
+    background: rgba(4, 22, 14, .78); border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,.35); transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+  }
+  .sl-opp.turn { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 20px rgba(0,0,0,.45); }
+  .sl-opp.last { background: rgba(4, 22, 14, .9); }
+  .sl-pile.empty { min-height: 60px; display: grid; place-items: center; }
+  .sl-sam-title { display: inline-flex; align-items: center; gap: 8px; }
+  .sl-sel { display: inline-flex; align-items: center; gap: 4px; justify-content: center; min-width: 190px; min-height: 28px; }
+  .sl-sel.off { color: var(--muted); border: 1px dashed var(--line-strong); background: transparent; }
+  @media (max-width: 640px) {
+    .sl-opp { min-width: 0; }
+    .sl-sel { min-width: 0; flex-basis: 100%; }
+  }
+  .score-line .sl-pts { font-size: 20px; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .score-line .sl-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sl { position: relative; }
+  .sl-board { gap: 8px; }
+  @media (max-width: 640px) {
+    .sl-opp { padding: 6px 8px; gap: 4px; }
+    .sl-sam { padding: 8px 10px; gap: 6px; }
+    .sl-sam > .felt-muted.small:nth-child(2) { display: none; }
+    .sl-board { gap: 6px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .sl-board { flex-direction: row; align-items: center; gap: 8px; }
+    .sl-opp { min-width: 0; padding: 4px 8px; gap: 3px; }
+    .sl-sam > .felt-muted.small:nth-child(2) { display: none; }
+    .sl-sam { padding: 6px 10px; gap: 4px; }
+  }
+}

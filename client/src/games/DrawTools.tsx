@@ -5,6 +5,7 @@ import { PALETTE, BRUSH_SIZES } from '@game/shared/scribble';
 import { useHotkeys } from '../hooks.js';
 import type { RefObject } from 'react';
 import type { CanvasHandle } from './ScribbleCanvas.js';
+import './DrawTools.css';
 
 const TOOLS: [string, string, typeof Pencil, string][] = [['pen', 'Bút', Pencil, 'b'], ['eraser', 'Tẩy', Eraser, 'e'], ['fill', 'Đổ màu', PaintBucket, 'f']];
 

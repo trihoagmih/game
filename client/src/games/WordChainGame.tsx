@@ -15,6 +15,7 @@ import GameOverDialog, { GoRanking } from '../components/GameOverDialog.js';
 import { useCountdown } from '../hooks.js';
 import { fmtTime } from '../format.js';
 import BotPicker, { canManageBots } from '../components/BotPicker.js';
+import './WordChainGame.css';
 
 const MAX_BOTS = 3;
 

@@ -8,6 +8,8 @@ import GameInfo from '../components/GameInfo.js';
 import { RequestOverlay, ResultOverlay, BoardActions } from '../components/BoardRequests.js';
 import type { CaroView } from '@game/shared/views';
 import type { ClientRoom } from '../store.js';
+import './CaroGame.css';
+import './BoardColumn.css';
 
 const CELL = 36;
 const PAD = 26;

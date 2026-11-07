@@ -1,4 +1,5 @@
 import { useToasts } from '../store.js';
+import './Toasts.css';
 
 export default function Toasts() {
   const toasts = useToasts();

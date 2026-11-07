@@ -26,6 +26,18 @@ Quy ước này ưu tiên code dễ đọc và khớp repo hiện tại, không 
 - Timer, listener, worker, socket và resource phải có cleanup; request bất đồng bộ cần xét stale result/disconnect/dispose. React hook ở top level, dependency phản ánh giá trị đọc; dùng ref có chủ đích cho callback/lifecycle dài.
 - Giữ public view tách private engine state; tối ưu bằng đo đạc, không bỏ validation/fencing/rate limits để benchmark đẹp hơn.
 
+## CSS
+
+Không dùng thư viện CSS; CSS thuần + [cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer), Vite gộp thành một bundle.
+
+- `client/src/styles/index.css` được import đầu tiên trong `main.tsx` và khai báo thứ tự `@layer tokens, base, ui, layout, components, games;`. Layer sau luôn thắng layer trước, bất kể specificity hay thứ tự import.
+- `styles/tokens.css` (biến `:root`), `base.css` (reset, thẻ HTML, tiện ích như `.muted`, `.row`, `.hide-sm`), `ui.css` (`.btn`, `.panel`, `.badge`, `.tabs`, `.search`…), `layout.css` (khung app). Chỉ thêm vào đây khi class thật sự dùng ở nhiều nơi.
+- CSS riêng đặt cạnh file TSX cùng tên và được import ở chính file đó: `components/Lobby.tsx` → `import './Lobby.css';` (layer `components`), `games/PokerGame.tsx` → `PokerGame.css` (layer `games`). Mỗi file bọc toàn bộ nội dung trong đúng một `@layer`, kể cả `@media`, `@container`, `@keyframes`. CSS dùng chung cho vài game (vd. `games/BoardColumn.css`) do mỗi game dùng nó tự import.
+- Mỗi game/khu vực giữ prefix class riêng (`pk-`, `xq-`, `tl-`, `sl-`, `wc-`, `qz-`…); state dùng modifier ngắn (`.on`, `.me`, `.active`). Màu, bo góc, bóng lấy từ `var(--…)` của tokens.
+- Trong cùng layer, đừng dựa vào thứ tự giữa hai file: nếu hai file cùng nhắm một phần tử, rule ghi đè phải có specificity cao hơn, hoặc đặt cả hai vào file sở hữu phần tử đó. Rule của component cha chỉnh nội dung một game (vd. `.game-fit > .pk > *`) đặt trong file của game.
+- `!important` chỉ dành cho tiện ích phải thắng mọi layer (`.hide-sm`, đảm bảo ô nhập ≥16px/44px trên màn cảm ứng); ghi lý do cạnh dòng đó. Inline `style` chỉ cho giá trị động, ưu tiên truyền qua biến CSS.
+- `npm run check:source` từ chối file CSS không nằm trong layer đã khai báo, sai layer theo thư mục, hoặc không được import.
+
 ## Checks
 
 `npm run check` = policy TS-only/nợ kiểu + ESLint + strict typecheck. ESLint dùng [flat config](https://eslint.org/docs/latest/use/configure/configuration-files) và [recommended TypeScript rules](https://typescript-eslint.io/getting-started/), thêm Rules of Hooks. Typecheck bắt cú pháp/kiểu, lint bắt lỗi cấu trúc/unused/dead assignment, tests xác nhận hành vi.

@@ -12,6 +12,7 @@ import { WaitingRoom, NextGameActions, WaitingSeats } from '../components/CardTa
 import { fmtSigned } from '../format.js';
 import { Timer, ArrowDownUp } from 'lucide-react';
 import { useCountdown, useHotkeys } from '../hooks.js';
+import './TalaGame.css';
 
 type Act = AppContextValue['act'];
 type SendTarget = { target: number; meldIdx: number };

@@ -4,6 +4,7 @@ import { Check, Play, Crown } from 'lucide-react';
 import { useRoomApp } from '../store.js';
 import type { ReactNode } from 'react';
 import type { Identity } from '@game/shared/contracts';
+import './StartBar.css';
 
 /**
  * players: [{ id, name }] người đang ngồi bàn

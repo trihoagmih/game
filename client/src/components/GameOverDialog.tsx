@@ -5,6 +5,7 @@ import StartBar from './StartBar.js';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { Identity } from '@game/shared/contracts';
+import './GameOverDialog.css';
 
 /**
  * Popup "Hết ván!" dùng chung: tự mở khi ván vừa kết thúc, gom các nút Chơi ván mới / Sẵn sàng,

@@ -13,6 +13,7 @@ import { WaitingRoom, NextGameActions, WaitingSeats } from '../components/CardTa
 import { fmtSigned } from '../format.js';
 import { Timer, Flame, Check } from 'lucide-react';
 import { useCountdown, useHotkeys } from '../hooks.js';
+import './SamLocGame.css';
 
 type Act = AppContextValue['act'];
 type SamPlayer = SamLocGameView['players'][number];

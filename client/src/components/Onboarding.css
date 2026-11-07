@@ -1,0 +1,28 @@
+/* CSS của components/Onboarding.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  /* ---------- Onboarding (kết nối → mật khẩu → tên) ---------- */
+  .onboard { min-height: calc(100dvh - var(--topbar-h) - 80px); display: grid; place-items: center; padding: 16px 0; }
+  .onboard-card {
+    width: 100%; max-width: 380px; min-height: 330px; padding: 28px 24px 24px; border-radius: 18px; text-align: center;
+    background: linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--panel); border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    transition: opacity .25s;
+  }
+  .onboard-card.hidden { opacity: 0; }
+  .onboard-logo { width: 56px; height: 56px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 16px; color: #fff; background: linear-gradient(135deg, #16a34a, #d97706); box-shadow: 0 10px 30px rgba(21,128,61,.35); }
+  .onboard-body { display: flex; flex-direction: column; gap: 10px; animation: fadein .2s ease-out; }
+  .onboard-body.form { gap: 8px; } /* form đăng nhập giữ khoảng cách của .form */
+  .onboard-body h2 { margin-bottom: 2px; }
+  .onboard-body p { margin: 0; }
+  .onboard-body input { min-height: 44px; font-size: 15px; text-align: center; margin-top: 6px; }
+  .onboard-msg { min-height: 20px; } /* chừa chỗ cho thông báo lỗi → không nhảy layout */
+  /* Ô mật khẩu có nút hiện/ẩn */
+  .pw-field { position: relative; margin-top: 6px; }
+  .pw-field input { margin-top: 0; padding-right: 48px; padding-left: 48px; }
+  .pw-toggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; display: grid; place-items: center; border: 0; background: none; color: var(--muted); border-radius: 8px; cursor: pointer; }
+  .pw-toggle:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .onboard { min-height: 0; }
+    .onboard-card { min-height: 0; padding: 16px; }
+    .onboard-logo { display: none; }
+  }
+}

@@ -1,0 +1,4 @@
+/* CSS của components/StartBar.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  .start-status { display: inline-flex; align-items: center; gap: 4px; }
+}

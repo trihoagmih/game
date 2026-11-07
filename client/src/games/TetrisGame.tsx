@@ -7,6 +7,7 @@ import { useRoomApp } from '../store.js';
 import type { ClientRoom } from '../store.js';
 import StartBar from '../components/StartBar.js';
 import { useCountdown, useHotkeys } from '../hooks.js';
+import './TetrisGame.css';
 
 const CONTROLS: [TetrisInput, string, LucideIcon, string][] = [
   ['left', 'ArrowLeft', ArrowLeft, 'Sang trái'],

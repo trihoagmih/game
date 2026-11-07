@@ -1,0 +1,44 @@
+/* CSS của components/Card.tsx. Toàn bộ nằm trong layer components; xem styles/index.css. */
+@layer components {
+  /* ---------- Cards ---------- */
+  .card {
+    position: relative; background: #fdfdfd; border-radius: 6px; border: 1px solid #bbb; color: #111; flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,.35); user-select: none; transition: transform .12s, box-shadow .12s;
+  }
+  .card.red { color: #d11a2a; }
+  .card .c-rank { position: absolute; top: 2px; left: 4px; font-weight: 700; line-height: 1; }
+  .card .c-suit { position: absolute; top: 2px; right: 4px; line-height: 1; }
+  .card .c-big { position: absolute; bottom: 2px; right: 4px; line-height: 1; opacity: .9; }
+  .card.xs { width: 16px; height: 24px; }
+  .card.sm { width: 34px; height: 48px; font-size: 13px; }
+  .card.sm .c-big { font-size: 18px; }
+  .card.md { width: 48px; height: 68px; font-size: 16px; }
+  .card.md .c-big { font-size: 26px; }
+  .card.lg { width: 62px; height: 88px; font-size: 19px; }
+  .card.lg .c-big { font-size: 34px; }
+  .card.back { background: repeating-linear-gradient(45deg, #2c4fa3 0 4px, #24438b 4px 8px); border: 2px solid #fff; }
+  .card.xs.back { border-width: 1px; }
+  .card.clickable { cursor: pointer; }
+  .card.clickable:hover { transform: translateY(-4px); }
+  .card.selected { transform: translateY(-16px); box-shadow: 0 0 0 3px var(--primary), 0 6px 12px rgba(0,0,0,.4); }
+  .card.selected:hover { transform: translateY(-18px); }
+  .card.focused { outline: 2px dashed var(--gold); outline-offset: 2px; }
+  .card.locked { box-shadow: 0 0 0 3px var(--gold); }
+  .card.locked.selected { box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px var(--primary); }
+  .card.highlight { box-shadow: 0 0 0 3px var(--gold), 0 0 14px var(--gold); }
+  .card.dim { opacity: .45; }
+  .card-slot { width: 48px; height: 68px; border-radius: 6px; border: 1px dashed rgba(255,255,255,.25); }
+  @media (max-width: 800px) {
+    .card.lg { width: 48px; height: 68px; font-size: 16px; }
+  }
+  @media (pointer: coarse) {
+    .card.clickable { touch-action: manipulation; }
+  }
+  /* Phản hồi khi bấm lá bài (transform, không đổi layout); có pointer cho mọi thứ bấm được */
+  .card.clickable { cursor: pointer; transition: transform .12s var(--ease-out), box-shadow .12s var(--ease-out); }
+  .card.clickable:active { transform: scale(.96); }
+  .card:not(.back) { box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 3px 8px rgba(0,0,0,.35); }
+  /* Lưng bài của đối thủ xếp chồng hình quạt cho gọn */
+  .card-fan { display: inline-flex; }
+  .card-fan .card + .card { margin-left: -9px; }
+}

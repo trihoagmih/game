@@ -1,0 +1,122 @@
+/* CSS của games/TalaGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .tl { display: flex; flex-direction: column; gap: 12px; }
+  .tl-player { background: rgba(0,0,0,.3); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; border: 2px solid transparent; min-width: 0; }
+  .tl-score { margin-left: auto; font-weight: 700; }
+  .tl-row { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; min-height: 26px; }
+  .tl-lbl { font-size: 11px; color: #b6e3c9; min-width: 64px; }
+  .meld { display: flex; gap: 1px; padding: 2px; border-radius: 6px; background: rgba(255,255,255,.08); margin-right: 6px; }
+  .meld.sendable { cursor: pointer; box-shadow: 0 0 0 2px var(--ok); animation: pulse 1s infinite; }
+  .mom { color: var(--danger); font-weight: 800; letter-spacing: .1em; }
+  .deck { position: relative; cursor: default; }
+  .deck.can { cursor: pointer; }
+  .deck.can .card { box-shadow: 0 0 0 3px var(--gold), 0 0 16px var(--gold); }
+  .deck-count { position: absolute; bottom: -8px; right: -10px; background: #000; border-radius: 99px; padding: 0 7px; font-size: 12px; border: 1px solid var(--line); }
+  /* Tá lả: vạch gợi ý phỏm gắn dưới từng lá */
+  .tl-card { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tl-card::after { content: ''; width: 80%; height: 4px; border-radius: 2px; background: transparent; }
+  .tl-card.hint::after { background: rgba(134,239,172,.75); }
+  .tl-board { display: flex; flex-direction: column; gap: 12px; }
+  .tl-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
+  .tl-laid { margin: 16px; padding: 16px; border-top: 1px solid rgba(220,252,231,.3); color: #dcfce7; }
+  .tl-laid h3 { margin: 0 0 12px; font-size: 14px; }
+  .tl-laid-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+  .tl-laid-player { min-width: 0; }
+  .tl-laid-name { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; overflow-wrap: anywhere; }
+  .tl-laid-melds { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+  .tl-laid .meld { margin: 0; border: 1px solid rgba(220,252,231,.25); color: inherit; font: inherit; flex-wrap: wrap; max-width: 100%; }
+  .tl-laid .meld:disabled { opacity: 1; cursor: default; }
+  .tl-laid .meld:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  @media (max-width: 640px) {
+    .tl-laid { grid-column: 1 / -1; order: 3; margin: 0; padding: 12px 2px 2px; }
+  }
+  /* Ô ghế: nền tối trong mờ trên nỉ, bóng có độ lệch (không dùng quầng sáng) */
+  .tl-player {
+    display: flex; flex-direction: column; gap: 6px; min-width: 150px; padding: 8px 10px; border-radius: 12px;
+    background: rgba(4, 22, 14, .78); border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,.35); transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+  }
+  .tl-player.turn { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 20px rgba(0,0,0,.45); }
+  .tl-lbl { color: rgba(220, 252, 231, .78); }
+  .deck { border: 0; background: none; padding: 0; font: inherit; color: inherit; }
+  .deck:disabled { cursor: default; }
+  @media (max-width: 640px) {
+    .tl-player { min-width: 0; }
+    /* Hàng bài đã đánh luôn cao bằng một lá → ghế không cao lên khi có lá đầu tiên */
+    .tl-player .tl-row { min-height: 50px; }
+  }
+  /* Hộp nổi trên bàn: yêu cầu cần đồng ý / kết quả ván */
+  .tl { position: relative; }
+  .tl-board { gap: 8px; }
+  @media (max-width: 640px) {
+    .tl-player { padding: 6px 8px; gap: 4px; }
+    .tl-player .tl-row { min-height: 0; }
+    .tl-row { min-height: 0; }
+    .ct-hand-panel .tl-card .card.lg { width: 42px; height: 60px; font-size: 14px; }
+    .ct-hand-panel .tl-card .card.lg .c-big { font-size: 22px; }
+    .tl-board { gap: 6px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .tl-board { flex-direction: row; align-items: center; gap: 8px; }
+    .ct-hand-panel .tl-card .card.lg { width: 40px; height: 57px; font-size: 14px; }
+    .ct-hand-panel .tl-card .card.lg .c-big { font-size: 20px; }
+    .tl-player { min-width: 0; padding: 4px 8px; gap: 3px; }
+  }
+  .ct-outside .tl-player { min-width: 0; }
+  .ct-outside .tl-laid { margin: 0; padding: 14px 0 0; }
+  .ct-outside .tl-laid-players { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+  /* Bài đã ăn đặt thành cột riêng bên phải thông tin người chơi. */
+  .tl-player.has-eaten { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: 8px; }
+  .tl-player.has-eaten > * { grid-column: 1; }
+  .tl-player.has-eaten > .tl-eaten-side { grid-column: 2; grid-row: 1 / span 4; align-self: stretch; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-left: 8px; border-left: 1px solid rgba(220,252,231,.22); }
+  .tl-eaten-side .tl-lbl { min-width: 0; white-space: nowrap; }
+  .tl-eaten-cards { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  /* Bố cục Phỏm co theo vùng chơi thực tế, kể cả khi mở ngăn chat. */
+  .tl { container-type: inline-size; }
+  .tl-board { min-width: 0; }
+  .tl .ct-hand-panel { min-width: 0; max-width: 100%; }
+  .tl .tl-actions { width: 100%; }
+  .tl .tl-actions .btn { min-height: 44px; white-space: normal; }
+  .tl .result-table { min-width: 0; width: 100%; }
+  .tl .result-table th, .tl .result-table td { overflow-wrap: anywhere; }
+  @container (max-width: 640px) {
+    .tl .ct-hand-panel .tl-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; min-height: 0; padding: 14px 0 0; width: 100%; }
+    .tl .ct-hand-panel .tl-card .card.lg { width: 44px; height: 62px; }
+    .tl .tl-actions > .your-turn, .tl .tl-actions > .muted { flex-basis: 100%; text-align: center; }
+    .tl .result-table th, .tl .result-table td { padding: 6px 4px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .tl-board { flex-direction: column; align-items: stretch; }
+    .tl-board > .ct.ct-outside, .tl-board > .ct-hand-panel { flex: none; width: 100%; }
+  }
+  /* Chibi toàn thân, giữ tỷ lệ và không chiếm chiều rộng của tên người chơi. */
+  .tl-avatar { width: 56px; height: 78px; flex: 0 0 56px; object-fit: contain; }
+  @container (max-width: 640px) {
+    .tl-avatar { width: 40px; height: 56px; flex-basis: 40px; }
+  }
+  @container (max-width: 900px) {
+    .ct-outside .tl-player { padding: 6px; gap: 5px; }
+    .ct-outside .tl-avatar { width: 40px; height: 56px; flex-basis: 40px; }
+    .ct-outside .tl-row { gap: 2px; }
+    .ct-outside .tl-lbl { min-width: 0; flex-basis: 100%; }
+    .ct-outside .tl-player.has-eaten { grid-template-columns: minmax(0, 1fr); }
+    .ct-outside .tl-player.has-eaten > .tl-eaten-side { grid-column: 1; grid-row: auto; border-left: 0; border-top: 1px solid rgba(220,252,231,.22); padding: 5px 0 0; align-items: flex-start; }
+    .ct-outside .tl-eaten-cards { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+    .ct-outside .tl-laid-players { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .ct-outside .tl-laid .meld { gap: 0; }
+    .ct-outside .tl-laid .card.sm + .card.sm { margin-left: -8px; }
+  }
+  @container (max-width: 440px) {
+    .ct-outside .tl-score { margin-left: 0; }
+    .ct-outside .tl-row .card + .card { margin-left: -10px; }
+    .ct-outside .tl-laid h3 { font-size: 12px; }
+    .ct-outside .tl-laid-name { font-size: 12px; flex-wrap: wrap; }
+    .ct-outside .tl-player { padding: 5px; }
+    .ct-outside .tl-laid .card.sm + .card.sm { margin-left: -12px; }
+  }
+  .tl-avatar-frame { display: inline-flex; flex: 0 0 56px; width: 56px; height: 78px; }
+  @container (max-width: 900px) {
+    .ct-outside .tl-avatar-frame { display: block; flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,.1); border: 1px solid rgba(220,252,231,.3); }
+    .ct-outside .tl-avatar-frame .tl-avatar { display: block; width: 40px; height: 56px; max-width: none; transform: translate(-4px, -2px); }
+  }
+}

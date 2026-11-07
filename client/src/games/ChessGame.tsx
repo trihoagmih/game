@@ -6,6 +6,7 @@ import type { ClientRoom } from '../store.js';
 import type { ChessColor, ChessMoveView, ChessView } from '@game/shared/views';
 import { useCountdown, useHotkeys, fmtClock } from '../hooks.js';
 import Scoreboard, { ScoreLine, pointsOf, fmtPts } from '../components/Scoreboard.js';
+import './ChessGame.css';
 
 const CELL = 60;
 const PAD = 22; // chỗ cho nhãn tọa độ a-h, 1-8
