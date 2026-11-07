@@ -13,7 +13,6 @@ import StartBar, { ReadyMark } from '../components/StartBar.js';
 import GameOverDialog, { GoRanking } from '../components/GameOverDialog.js';
 import { drawMine, MINE_SCALE } from './goldmineRender.js';
 import { prefersReducedMotion, useRaceLoop } from './useRaceLoop.js';
-import { usePersonalBest } from './usePersonalBest.js';
 import './GoldmineGame.css';
 
 // Đào vàng — giao diện riêng: mỏ vẽ trên canvas với thanh tiền/thời gian trên bầu trời như bản cổ điển,
@@ -39,7 +38,7 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
   const [watchId, setWatchId] = useState<string | null>(null);
   const [giveup, setGiveup] = useState(false);
   const shown = me ?? s.players.find((p) => p.id === watchId) ?? s.players[0] ?? null;
-  const best = usePersonalBest('gm', Math.max(0, ...s.players.map((p) => p.score)));
+  const best = s.workspaceRecord?.score ?? 0;
   const playing = s.status === 'playing';
   const live = playing && me && !me.done;
   const [local, setLocal] = useState<Local | null>(null);
@@ -50,7 +49,7 @@ export default function GoldmineGame({ room, state: s }: { room: ClientRoom; sta
   return (
     <div className={`gm${playing ? ' active' : ''}${shopping ? ' shopping' : ''}`}>
       <header className="gm-head">
-        <span className="gm-best" title="Kỷ lục trên thiết bị này">🏆 {best.toLocaleString('vi-VN')}</span>
+        <span className="gm-best" title={`Kỷ lục workspace · ${s.workspaceRecord?.name ?? 'Chưa có kỷ lục'}`}>🏆 {best.toLocaleString('vi-VN')} {s.workspaceRecord && <span>· {s.workspaceRecord.name}</span>}</span>
         <span className="gm-title"><Pickaxe size={18} aria-hidden /> Đào vàng</span>
         <span className="gm-chip">{s.options.levels} màn · 60 giây/màn</span>
         {live && (

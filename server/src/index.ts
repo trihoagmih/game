@@ -12,6 +12,7 @@ import { Voice } from './voice.js';
 import { createMetrics } from './metrics.js';
 import { clusterFromEnv } from './cluster.js';
 import { Recovery } from './recovery.js';
+import { FileRecordBackend, RedisRecordBackend, WorkspaceRecords } from './workspaceRecords.js';
 import { botPool } from './botPool.js';
 
 // Voice chat: tắt / bật lại (vd. hết hạn mức TURN miễn phí) → báo mọi người, đưa tất cả ra khỏi kênh thoại khi tắt
@@ -33,6 +34,15 @@ const io: GameServer = new Server(server, {
 const lobby = new Lobby(io);
 const cluster = clusterFromEnv();
 if (cluster) { lobby.cluster = cluster; await cluster.start(lobby); }
+const recordBackend = cluster
+  ? new RedisRecordBackend(cluster.client, cluster.prefix)
+  : new FileRecordBackend(process.env.WORKSPACE_RECORDS_FILE || './data/workspace-records.json');
+if (recordBackend instanceof FileRecordBackend) await recordBackend.load();
+lobby.records = new WorkspaceRecords(recordBackend, () => {
+  for (const room of lobby.rooms.values()) if (room.game === 'skyhop' || room.game === 'goldmine') room.changed();
+});
+const recordsTimer = setInterval(() => lobby.records.refresh(), 2500);
+recordsTimer.unref();
 const recovery = cluster ? new Recovery(cluster, lobby, process.env.SNAPSHOT_KEY) : null;
 if (recovery) { await recovery.restore(); recovery.start(); }
 const connections = new ConnectionCounter(); // số socket đồng thời theo IP

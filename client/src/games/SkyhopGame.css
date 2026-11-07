@@ -107,6 +107,6 @@
       background: var(--bg, #0f172a); display: flex; flex-direction: column; gap: 6px; }
     .sh.active .sh-side, .sh.active .sh-chip { display: none; }
     .sh.active .sh-stage { flex: 1; height: auto; min-height: 0; width: 100%; }
-    .sh-best { font-size: 13px; white-space: nowrap; }
+    .sh-best { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; white-space: nowrap; }
   }
 }

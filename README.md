@@ -286,3 +286,13 @@ Chi tiết build, exports và phạm vi kiểu dữ liệu: [docs/typescript.md]
 
 Mã nguồn phát hành theo [giấy phép MIT](LICENSE). Riêng dữ liệu bên thứ ba trong `server/src/data/` giữ giấy phép gốc
 (xem [README](server/src/data/README.md)): `vi-words.txt` theo GNU GPL phiên bản 2, không thuộc phạm vi giấy phép MIT.
+
+### Kỷ lục workspace cho Đào vàng và Bay qua khe
+
+Điểm cao nhất và tên người giữ kỷ lục dùng chung giữa các phòng trong cùng sảnh/workspace (ví dụ b4), tách riêng theo game. Điểm do server phát lại xác nhận, cập nhật khi người chơi kết thúc lượt; không lấy điểm do trình duyệt tự khai báo.
+
+- Cluster: lưu trong Redis, không TTL, cập nhật max nguyên tử giữa các shard. Compose đã bật AOF và volume redis-data.
+- Một process: lưu file JSON tại WORKSPACE_RECORDS_FILE, mặc định ./data/workspace-records.json. Thư mục phải cho tiến trình server ghi; khi dùng container hoặc host có filesystem tạm, cấu hình đường dẫn trên persistent volume/disk để giữ kỷ lục qua redeploy. Ví dụ WORKSPACE_RECORDS_FILE=/var/lib/game/workspace-records.json với volume có quyền ghi cho user node.
+- Xoá phòng, đổi thiết bị hoặc xoá dữ liệu trình duyệt không xoá kỷ lục workspace. Khởi động lại giữ điểm nếu Redis/file vẫn còn. Hosting miễn phí dùng disk tạm cần bổ sung lưu trữ bền vững để giữ điểm qua redeploy.
+
+Bay qua khe: từ cột thứ 11, khe dao động lên xuống theo chu kỳ 4,8 giây. Biên độ tăng mỗi 10 cột, tối đa 24px. Vị trí khe phụ thuộc chỉ số cột và tick của lượt bay; client, người xem và server tính cùng công thức.

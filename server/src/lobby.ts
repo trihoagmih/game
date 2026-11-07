@@ -1,5 +1,7 @@
 // Trạng thái trong bộ nhớ: người dùng, phòng, và các thao tác vào / ra / xóa phòng.
 import crypto from 'node:crypto';
+import { WorkspaceRecords } from './workspaceRecords.js';
+import type { WorkspaceRecord } from '@game/shared/race';
 import { LIMITS } from './config.js';
 import { GAMES, type GameId } from './games/index.js';
 import type { GameServer } from './socketTypes.js';
@@ -53,6 +55,16 @@ export class Room {
     this._pending = false;
     this._summaryKey = null;
     this._presenceKey = null;
+  }
+
+  workspaceRecord() {
+    return this.lobby.records.get(this.server, this.game);
+  }
+
+  recordScore(record: WorkspaceRecord) {
+    if (this.lobby.frozen || this.lobby.draining) return;
+    void this.lobby.records.submit(this.server, this.game, record)
+      .catch(() => console.error('[workspace-records] save failed'));
   }
 
   isOnline(id: string) { return this.lobby.isOnline(id); }
@@ -134,6 +146,7 @@ export class Room {
 }
 
 export class Lobby {
+  records = new WorkspaceRecords();
   declare io: GameServer;
   declare users: Map<string, User>;
   declare byToken: Map<string, User>;

@@ -17,7 +17,7 @@ export class SkyhopHandler extends RaceHandler<SkyhopGame, SkyCommand, SkyOption
   readonly tickMs = TICK_MS;
   protected readonly commands = SKY_COMMANDS;
 
-  constructor(room: Pick<Room, 'ownerId' | 'system' | 'changed'>, options: Record<string, unknown>) {
+  constructor(room: Pick<Room, 'ownerId' | 'system' | 'changed'> & Partial<Pick<Room, 'recordScore' | 'workspaceRecord'>>, options: Record<string, unknown>) {
     super(room, {
       maxSeats: clampInt(options.maxSeats, 1, 8, 4),
       level: clampInt(options.level, 1, DIFFICULTY.length, 2),

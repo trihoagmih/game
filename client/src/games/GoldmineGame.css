@@ -115,7 +115,7 @@
       background: var(--bg, #0f172a); display: flex; flex-direction: column; gap: 6px; }
     .gm.active .gm-side, .gm.active .gm-chip { display: none; }
     .gm.active .gm-stage { flex: 1; height: auto; min-height: 0; width: 100%; }
-    .gm-best { font-size: 13px; white-space: nowrap; }
+    .gm-best { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; white-space: nowrap; }
   }
 
   .gm-shop { background: repeating-linear-gradient(0deg, #382416 0 38px, #2a1a10 38px 41px); border: 5px solid #a16207; box-shadow: inset 0 0 40px #0008; }

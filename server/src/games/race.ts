@@ -25,7 +25,7 @@ export interface RacePlayer<G, C extends string> extends Identity {
   endedAt: number | null;
 }
 
-type RaceRoom = Pick<Room, 'ownerId' | 'system' | 'changed'>;
+type RaceRoom = Pick<Room, 'ownerId' | 'system' | 'changed'> & Partial<Pick<Room, 'recordScore' | 'workspaceRecord'>>;
 
 /** Lớp con thêm luật riêng và `implements GameHandler` với kiểu view của mình. */
 export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O extends { maxSeats: number }> {
@@ -166,6 +166,8 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
   }
 
   out(p: RacePlayer<G, C>, end: RaceEnd) {
+    if (p.done) return;
+    this.room.recordScore?.({ id: p.id, name: p.name, score: this.scoreOf(p.game), at: Date.now() });
     p.done = true;
     p.end = end;
     p.endedAt = Math.max(0, Date.now() - this.startAt);
@@ -240,6 +242,7 @@ export abstract class RaceHandler<G extends RaceEngine<C>, C extends string, O e
   raceView<E extends object>(viewerId: string, extra: (p: RacePlayer<G, C>) => E): RaceView<O, RacePlayerView & E> {
     const playing = this.isPlaying();
     return {
+      workspaceRecord: this.room.workspaceRecord?.() ?? null,
       options: this.options,
       seats: this.seats,
       ...this.ready.view(this.playerIds()),

@@ -17,7 +17,7 @@ export class GoldmineHandler extends RaceHandler<GoldmineGame, MineCommand, Mine
   readonly tickMs = TICK_MS;
   protected readonly commands = MINE_COMMANDS;
 
-  constructor(room: Pick<Room, 'ownerId' | 'system' | 'changed'>, options: Record<string, unknown>) {
+  constructor(room: Pick<Room, 'ownerId' | 'system' | 'changed'> & Partial<Pick<Room, 'recordScore' | 'workspaceRecord'>>, options: Record<string, unknown>) {
     super(room, {
       maxSeats: clampInt(options.maxSeats, 1, 8, 4),
       levels: clampInt(options.levels, LEVEL_COUNT.min, LEVEL_COUNT.max, LEVEL_COUNT.default),
