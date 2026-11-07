@@ -11,6 +11,7 @@ import { OnetHandler } from '../src/games/onet.js';
 import { PokerHandler } from '../src/games/poker.js';
 import { SamLocHandler } from '../src/games/samloc.js';
 import { SnakeHandler } from '../src/games/snake.js';
+import { TetrisHandler } from '../src/games/tetris.js';
 import { TalaHandler } from '../src/games/tala.js';
 import { WordChainHandler } from '../src/games/wordchain.js';
 import { WordGuessHandler } from '../src/games/wordguess.js';
@@ -39,6 +40,7 @@ function started(t: import('node:test').TestContext, game: GameId) {
     lobby.join(user, room, 'play');
     room.handler.action(user.id, { type: 'ready' });
   }
+  if (game === 'tetris') users.forEach((user) => user.sockets.add(user.id));
   room.handler.action(owner.id, { type: game === 'chess' ? 'ready' : 'start' });
   const h = room.handler;
   if (h instanceof PokerHandler) { clearTimeout(h.nextHandTimer ?? undefined); h.nextHandTimer = null; h.game.startHand(); h._afterChange(); }
@@ -76,6 +78,13 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
     assert.deepEqual(b.snake, a.snake);
     assert.ok(b.walls instanceof Set && b.walls.size === a.walls.size);
   }
+  const tetris = pair(TetrisHandler, room.handler, restored.handler);
+  if (tetris) {
+    const [original, copy] = tetris;
+    assert.deepEqual(copy.view(users[0].id), original.view(users[0].id));
+    assert.equal(copy.boards[0]?.pieces, copy.boards[1]?.pieces);
+    assert.equal(copy.nextFallAt, original.nextFallAt);
+  }
   const cards = pair(TalaHandler, room.handler, restored.handler) ?? pair(SamLocHandler, room.handler, restored.handler);
   if (cards) {
     assert.deepEqual(cards[1].game?.players, cards[0].game?.players);
@@ -84,6 +93,7 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
   const guess = pair(WordGuessHandler, room.handler, restored.handler);
   if (guess) assert.equal(guess[1].game?.secret, guess[0].game?.secret);
   resumeRoom(restored);
+  if (tetris) assert.ok(tetris[1].timer);
   t.after(() => restored.handler.dispose());
 });
 

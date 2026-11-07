@@ -1,4 +1,4 @@
-# 🎲 Sảnh Trò Chơi — Cờ vua · Tá lả · Sâm lốc · Poker · Cờ tướng · Cờ caro · Nối từ · Vẽ đoán · Tam sao thất bản · Nối thú · Rắn săn mồi · Đố vui · Đoán chữ
+# 🎲 Sảnh Trò Chơi — Cờ vua · Tá lả · Sâm lốc · Poker · Cờ tướng · Cờ caro · Nối từ · Vẽ đoán · Tam sao thất bản · Nối thú · Rắn săn mồi · Tetris · Đố vui · Đoán chữ
 
 Ứng dụng sảnh game nhiều người chơi thời gian thực.
 
@@ -85,6 +85,12 @@
 - Mê cung: Không tường (đi xuyên mép) · Hộp kín · Đường hầm · Bốn phòng · Đường ray. Tùy chọn giới hạn thời gian
 - Mọi người cùng hạt giống, ai nhiều điểm nhất thắng. Client tự chạy rắn và gửi lượt rẽ `[bước, hướng]`; server **phát lại** để tự tính điểm (`shared/src/snake.ts`), không tin điểm client gửi. Nhiều người thì không được dừng — ai im lặng quá 4 giây, server cho rắn bò tiếp
 - **Phím:** mũi tên / `W A S D` / `2 4 6 8` · `P`/`Space` tạm dừng (chơi một mình) · điện thoại: vuốt hoặc bàn phím ảo
+
+**Tetris** (2 người, đua xóa hàng)
+
+- Chủ phòng chọn mục tiêu từ 1 đến 100 hàng. Hai bàn dùng cùng thứ tự khối.
+- Ai đạt mục tiêu trước thắng. Đầy bàn hoặc rời trận tính thua.
+- Dùng phím mũi tên để di chuyển hoặc xoay, Z để xoay trái, Space để thả ngay. Điện thoại có nút điều khiển.
 
 **Bảng điểm (Cờ vua, Cờ tướng và Cờ caro)**
 - Thắng **+1**, hòa **+½**, thua **0**. Điểm tính theo người chơi nên chơi lại đổi màu vẫn cộng đúng người
@@ -256,10 +262,15 @@ server/src/       Express + Socket.IO
 server/src/games/ Lớp điều phối từng game (ghế, hẹn giờ, quyền thao tác)
   duel.ts         Khung chung cờ 2 người có đồng hồ (Cờ tướng, Cờ caro)
   cardTable.ts    Khung chung bài đánh theo lượt (Tá lả, Sâm lốc)
-server/src/data/  Từ điển tiếng Việt cho Nối từ (MIT, xem README trong thư mục)
+server/src/data/  Từ điển và bộ câu hỏi (giấy phép riêng, xem README trong thư mục)
 client/src/       React UI: sảnh, phòng, bàn cờ, bàn bài, phím tắt
 ```
 
 > Dữ liệu (người dùng, phòng, điểm) chỉ lưu trong bộ nhớ server, khởi động lại server là mất. Muốn lưu lâu dài thì cần thêm cơ sở dữ liệu (Redis / Postgres).
 
 Chi tiết build, exports và phạm vi kiểu dữ liệu: [docs/typescript.md](docs/typescript.md).
+
+## Giấy phép
+
+Mã nguồn phát hành theo [giấy phép MIT](LICENSE). Riêng dữ liệu bên thứ ba trong `server/src/data/` giữ giấy phép gốc
+(xem [README](server/src/data/README.md)): `vi-words.txt` theo GNU GPL phiên bản 2, không thuộc phạm vi giấy phép MIT.

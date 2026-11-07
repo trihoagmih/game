@@ -14,6 +14,7 @@ export type VoiceSignal = { description: { type: 'offer' | 'answer' | 'rollback'
   | { candidate: { candidate?: string; sdpMid?: string | null; sdpMLineIndex?: number | null; usernameFragment?: string | null } | null; description?: never };
 export interface IncomingSignal { from: string; data: VoiceSignal }
 export type GameAction =
+  | { type: 'tetrisInput'; input: import('./tetris.js').TetrisInput; round: string }
   | { type: 'sync'; tick: number; inputs: import('./snake.js').SnakeInput[] }
   | { type: 'ready' | 'start' | 'rematch' | 'resign' | 'offerDraw' | 'requestUndo' | 'cancelRequest' | 'resetScore' | 'draw' | 'eat' | 'autoLay' | 'u' | 'next' | 'stop' | 'object' | 'giveup' | 'pause' | 'rabbit' | 'show' | 'rebuy' | 'sitout' | 'hint' | 'shuffle' | 'pass' }
   | { type: 'move'; from: number; to: number; promotion?: string }

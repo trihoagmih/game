@@ -4,11 +4,13 @@ import { useApp } from '../store.js';
 import Modal from './Modal.js';
 import { GAME_META, GameIcon } from './Lobby.js';
 import { QUIZ_CATEGORIES } from '@game/shared/quiz';
+import { LINE_TARGET } from '@game/shared/tetris';
 
 type OptionValue = string | number | boolean;
 type GameOptions = Record<string, OptionValue>;
 
 const DEFAULTS: Record<string, GameOptions> = {
+  tetris: { targetLines: LINE_TARGET.default },
   chess: { minutes: 10 },
   xiangqi: { minutes: 8 },
   caro: { size: 15, minutes: 10, blockTwoEnds: true, bot: '' },
@@ -33,6 +35,7 @@ type Field =
   | [key: string, label: string, kind: 'bool' | 'text']
   | [key: string, label: string, kind: 'select', choices: [string, string][]];
 const FIELDS: Record<string, Field[]> = {
+  tetris: [['targetLines', 'Số hàng cần xóa để thắng', LINE_TARGET.min, LINE_TARGET.max]],
   chess: [['minutes', 'Thời gian mỗi bên (phút)', 1, 60]],
 
   quiz: [
@@ -146,8 +149,8 @@ function OptionField({ field, value, onChange }: { field: Field; value: OptionVa
   }
   return (
     <div>
-      <label>{label}</label>
-      <input type="number" min={field[2]} max={field[3]} value={typeof value === 'boolean' ? String(value) : value ?? ''}
+      <label htmlFor={`opt-${key}`}>{label}</label>
+      <input id={`opt-${key}`} type="number" required={key === 'targetLines'} min={field[2]} max={field[3]} value={typeof value === 'boolean' ? String(value) : value ?? ''}
         onChange={(e) => onChange(e.target.value)} />
     </div>
   );

@@ -2,6 +2,7 @@
   "name": "@game/shared",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "exports": {
     "./cards": {
@@ -67,6 +68,10 @@
     "./contracts": {
       "types": "./dist/contracts.d.ts",
       "import": "./dist/contracts.js"
+    },
+    "./tetris": {
+      "types": "./dist/tetris.d.ts",
+      "import": "./dist/tetris.js"
     },
     "./snake": {
       "types": "./dist/snake.d.ts",
