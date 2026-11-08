@@ -81,21 +81,3 @@ RDB chứa cả dữ liệu snapshot đã mã hóa và metadata chưa mã hóa.
 
 Rollback code chỉ an toàn nếu version cũ đọc được schema snapshot hiện tại. Nếu không, cần phục hồi code + Redis backup + secret tương ứng; các thao tác sau backup sẽ mất.
 Khi phục hồi RDB vào volume mới, dừng các game node trước, dùng Redis với RDB đó và bật lại AOF theo hướng dẫn Redis. Không chép RDB đè lên một Redis đang chạy hoặc để AOF cũ ghi đè dữ liệu restore.
-
-## Chuyển kỷ lục từ PostgreSQL khác (Neon, Supabase…)
-
-Compose dùng PostgreSQL trong container; kỷ lục trên database cũ không tự chuyển sang. Chạy trên máy Compose, sau khi app đã khởi động một lần để tạo bảng:
-
-```sh
-mkdir -p backups && chmod 700 backups
-read -rs SOURCE_DATABASE_URL && export SOURCE_DATABASE_URL   # dán URL cũ, không hiện ra màn hình hay history
-docker run --rm -e SOURCE_DATABASE_URL postgres:17-alpine sh -c 'pg_dump "$SOURCE_DATABASE_URL" --data-only --inserts --on-conflict-do-nothing --table=workspace_game_records' > backups/records-source.sql
-docker compose exec -T postgres psql -U game -d game -v ON_ERROR_STOP=1 < backups/records-source.sql
-unset SOURCE_DATABASE_URL
-```
-
-- Neon: dùng connection string **direct** (host không có `-pooler`); pg_dump qua pooler có thể lỗi.
-- `pg_dump` báo lệch phiên bản server thì đổi image sang đúng major version của database cũ (ví dụ `postgres:18-alpine`).
-- Dòng trùng khóa đã có ở database mới được giữ nguyên (`--on-conflict-do-nothing`); chuyển trước khi người chơi đặt kỷ lục mới.
-- Kỷ lục được lọc theo `namespace`. Xem namespace đã chuyển bằng `docker compose exec postgres psql -U game -d game -c 'SELECT DISTINCT namespace FROM workspace_game_records'`, đặt `WORKSPACE_RECORDS_NAMESPACE` trong `.env` cho khớp rồi `docker compose up -d`.
-- Giữ database cũ ở chế độ chỉ đọc vài ngày làm bản dự phòng rồi mới xóa. File `backups/records-source.sql` chứa tên người chơi: giữ quyền hạn chế.
