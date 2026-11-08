@@ -1,5 +1,8 @@
 name: game-lobby
 x-game: &game
+  # Mặc định build tại chỗ. Máy yếu: đặt GAME_IMAGE=ghcr.io/<owner>/<repo>:latest trong .env
+  # rồi `docker compose pull && docker compose up -d --no-build` để dùng image CI đã build.
+  image: ${GAME_IMAGE:-game-lobby:local}
   build: .
   restart: unless-stopped
   init: true
@@ -16,7 +19,11 @@ x-game: &game
   environment: &environment
     PORT: 3001
     TRUST_PROXY: 1
+    # Origin khác được phép kết nối (vd client trên GitHub Pages). Trống = chỉ cùng domain.
+    CORS_ORIGIN: ${CORS_ORIGIN:-}
     APP_PASSWORD: ${APP_PASSWORD:?Set APP_PASSWORD in .env}
+    # Nhiều workspace, mỗi workspace một mật khẩu (JSON). Có giá trị thì APP_PASSWORD bị bỏ qua.
+    APP_SERVERS: ${APP_SERVERS:-}
     REDIS_URL: redis://:${REDIS_PASSWORD:?Set a URL-safe REDIS_PASSWORD in .env}@redis:6379
     REDIS_NAMESPACE: game:v1
     WORKSPACE_RECORDS_NAMESPACE: ${WORKSPACE_RECORDS_NAMESPACE:-game:v1}
@@ -24,6 +31,17 @@ x-game: &game
     CLUSTER_NODES: a,b
     MAX_SPECTATORS_PER_ROOM: ${MAX_SPECTATORS_PER_ROOM:-30}
     SNAPSHOT_KEY: ${SNAPSHOT_KEY:?Set a 64-character hex SNAPSHOT_KEY in .env}
+    VOICE_ENABLED: ${VOICE_ENABLED:-1}
+    # Chuỗi rỗng sẽ tắt voice ở mọi workspace, nên luôn giữ giá trị mặc định của app.
+    VOICE_SERVERS: ${VOICE_SERVERS:-B4}
+    VOICE_MAX_PER_ROOM: ${VOICE_MAX_PER_ROOM:-6}
+    VOICE_TURN_ENABLED: ${VOICE_TURN_ENABLED:-1}
+    CF_TURN_KEY_ID: ${CF_TURN_KEY_ID:-}
+    CF_TURN_KEY_API_TOKEN: ${CF_TURN_KEY_API_TOKEN:-}
+    CF_ACCOUNT_ID: ${CF_ACCOUNT_ID:-}
+    CF_ANALYTICS_TOKEN: ${CF_ANALYTICS_TOKEN:-}
+    VOICE_TURN_QUOTA_GB: ${VOICE_TURN_QUOTA_GB:-900}
+    VOICE_QUOTA_ACTION: ${VOICE_QUOTA_ACTION:-disable}
 
 services:
   postgres:

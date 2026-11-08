@@ -18,7 +18,7 @@
 ## Cấu hình TURN Cloudflare & tự tắt khi hết hạn mức miễn phí
 > TURN **bật** khi có `CF_TURN_KEY_ID` + `CF_TURN_KEY_API_TOKEN` (không có TURN, người dùng 4G / NAT chặt sẽ kẹt ở "đang kết nối…"). Muốn tạm tắt: `VOICE_TURN_ENABLED=0`.
 
-1. Cloudflare dashboard → **Realtime → TURN Server → Create** → lấy **Turn Token ID** và **API Token** → đặt `CF_TURN_KEY_ID`, `CF_TURN_KEY_API_TOKEN` trên Render.
+1. Cloudflare dashboard → **Realtime → TURN Server → Create** → lấy **Turn Token ID** và **API Token** → đặt `CF_TURN_KEY_ID`, `CF_TURN_KEY_API_TOKEN` trong `.env` của máy chạy Compose (Compose truyền vào cả hai node).
 2. (Để tự tắt khi gần hết miễn phí) Tạo API token quyền **Account → Account Analytics → Read** → `CF_ANALYTICS_TOKEN`; Account ID ở trang tổng quan → `CF_ACCOUNT_ID`.
 3. Server đọc dung lượng TURN (egress) từ đầu tháng mỗi 10 phút qua GraphQL Analytics (`callsTurnUsageAdaptiveGroups`). Chạm `VOICE_TURN_QUOTA_GB` (mặc định 900 GB, chừa 100 GB vì số liệu lấy mẫu và trễ vài phút):
    - `VOICE_QUOTA_ACTION=disable` (mặc định): tắt voice chat, đưa mọi người ra khỏi kênh, **thu hồi mọi credential TURN đã cấp** (ngừng phát sinh dung lượng ngay), nút thoại ẩn đi; đầu tháng sau tự bật lại.

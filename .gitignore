@@ -10,3 +10,7 @@ captures/
 
 /data/workspace-records.json
 /data/workspace-records.json.tmp
+
+# Local Compose overrides and backups (contain secrets/player data)
+/compose.override.yaml
+/backups/

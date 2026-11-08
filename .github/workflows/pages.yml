@@ -1,6 +1,6 @@
 name: Client → GitHub Pages (tùy chọn)
 
-# Dùng khi muốn host giao diện trên GitHub Pages và server ở nơi khác (Render/VPS...).
+# Dùng khi muốn host giao diện trên GitHub Pages và server ở nơi khác (mini PC/VPS...).
 # Cần: Settings → Pages → Source = GitHub Actions
 #      Settings → Secrets and variables → Actions → Variables: VITE_SERVER_URL = https://server-cua-ban.example.com
 # Và đặt biến môi trường CORS_ORIGIN = https://<user>.github.io trên server.

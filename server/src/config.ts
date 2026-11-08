@@ -18,7 +18,7 @@ export const CLIENT_DIST = env.CLIENT_DIST || path.resolve(__dirname, '../../cli
 // Không đặt = chỉ cho phép trang cùng domain với server. '*' = cho tất cả (không khuyến nghị).
 export const CORS_ORIGINS = (env.CORS_ORIGIN || '').split(',').map((s) => s.trim().replace(/\/+$/, '')).filter(Boolean);
 
-// Chạy sau reverse proxy (Render, Nginx…): TRUST_PROXY = số proxy phía trước server (1 = một proxy).
+// Chạy sau reverse proxy (Nginx, Cloudflare Tunnel…): TRUST_PROXY = số proxy phía trước server (1 = một proxy).
 // Proxy NỐI IP nó thấy vào CUỐI X-Forwarded-For, còn phần đầu do client tự điền (giả được),
 // nên IP thật là phần tử thứ TRUST_PROXY tính từ cuối. true/yes được hiểu là 1.
 export const TRUST_PROXY = (() => {
