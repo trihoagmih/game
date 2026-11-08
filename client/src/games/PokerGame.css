@@ -2,7 +2,6 @@
 @layer games {
   /* ---------- Poker ---------- */
   .pk { display: flex; flex-direction: column; gap: 12px; }
-  .pk-table { padding: 50px 60px 70px; }
   .pk-felt {
     position: relative; aspect-ratio: 2 / 1; border-radius: 50% / 50%; width: 100%;
     background: radial-gradient(ellipse at center, var(--felt) 0%, var(--felt2) 75%); border: 12px solid #5b3a1e;
@@ -36,13 +35,16 @@
   .pk-sizing .num { width: 110px; }
   .pk-mybar { justify-content: center; }
   .pk-log summary { cursor: pointer; color: var(--muted); }
+  .pk-turn-end { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; font-weight: 400; color: var(--text); }
+  .pk-best-inline b { color: var(--gold); }
+  /* Chưa chia bài hoặc đang xem: một hàng gọn thay cho thanh hành động */
+  .pk-dock { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+  .pk-dock .pk-rules-btn { margin-left: 4px; }
   .pk-show { display: inline-flex; align-items: center; gap: 4px; }
   .pk-showed { color: #93c5fd; text-transform: uppercase; }
-  .pk-extras { display: flex; flex-direction: column; gap: 10px; }
-  .pk-extras-bar { justify-content: flex-start; }
-  .pk-extras-bar .btn { display: inline-flex; align-items: center; gap: 6px; }
+  .pk-rules-btn { display: inline-flex; align-items: center; gap: 6px; }
   @media (max-width: 700px) {
-    .pk-table { padding: 40px 10px 60px; }
+    .pk > .pk-table { padding: 40px 10px 60px; }
     .pk-seat { min-width: 80px; }
     .pk-info { min-width: 80px; }
   }
@@ -62,8 +64,7 @@
   /* ---------- Điện thoại (≤640px) ---------- */
   @media (max-width: 640px) {
     /* Poker: bàn dọc để ghế không đè lên bài chung */
-    .pk-table { padding: 46px 6px 56px; }
-    .pk-felt { aspect-ratio: 4 / 5; border-radius: 46% / 40%; }
+    .pk-felt { border-radius: 46% / 40%; }
     .pk.seated .pk-seat.empty { display: none; }
     .pk-seat.empty { min-width: 0; padding: 6px 8px; }
     .pk-info { min-width: 76px; padding: 3px 6px; }
@@ -75,36 +76,38 @@
   }
   /* Chiều sâu nhẹ cho bàn chơi & lá bài (skill: tránh 3D/bóng phức tạp → chỉ 1–2 lớp bóng) */
   .pk-felt { box-shadow: inset 0 2px 30px rgba(0,0,0,.45), 0 18px 40px rgba(0,0,0,.35); }
-  /* ---------- Căn giữa vùng chơi ở mọi trò ---------- */
-  /* Poker: bàn co theo chiều cao màn hình để thanh hành động luôn thấy được, cả cột nằm giữa */
-  .pk { align-items: center; }
-  .pk > * { width: 100%; max-width: max(640px, calc((100dvh - 480px) * 2 + 120px)); }
-  @media (max-width: 640px) {
-    .pk > * { max-width: none; }
+  /* ---------- Bàn lấp phần cao còn lại, không cuộn ----------
+     .pk cao đúng vùng chơi; thanh hành động giữ chiều cao tự nhiên, bàn (.pk-table) nhận phần còn lại.
+     .pk-table là size container nên mặt bàn co theo cả rộng lẫn cao, không cần đoán trước chiều cao các khối khác. */
+  .game-fit > .pk { height: 100cqh; padding-bottom: 10px; }
+  .pk { align-items: center; gap: 8px; }
+  .pk > * { flex: none; width: 100%; max-width: 980px; }
+  .pk > .pk-table {
+    flex: 1 1 0; min-height: 260px; max-width: none; container-type: size;
+    display: grid; place-items: center; padding: 44px 60px 64px;
   }
-  /* ---------- Poker: bàn + thanh hành động vừa vùng chơi ---------- */
-  .game-fit > .pk > * { max-width: min(100%, max(520px, calc((100cqh - 274px) * 2 + 144px))); }
-  .pk { gap: 8px; }
+  .pk-felt { width: min(100cqw, 200cqh); }
   .pk-actions { padding: 10px; gap: 8px; }
   .pk-center .btn { margin-top: 4px; }
   .pk-center { top: 44%; gap: 4px; }
   @media (max-width: 640px) {
-    /* Poker: bàn thấp lại theo vùng chơi, thanh hành động gọn */
-    .pk-table { padding: 40px 4px 48px; }
-    .pk-felt { aspect-ratio: auto; height: clamp(200px, calc(100cqh - 356px), 520px); }
+    /* Bàn dọc lấp hết phần còn lại, thanh hành động gọn */
+    .pk > .pk-table { padding: 40px 4px 48px; min-height: 300px; }
+    .pk-felt { aspect-ratio: auto; width: 100cqw; height: 100cqh; }
     .pk-actions { padding: 8px; gap: 6px; }
-    .pk-actions .pk-turn { display: none; }
+    .pk-actions .pk-turn { min-height: 0; font-size: 13px; }
+    .pk-best-inline { display: none; }
     .pk-actions .btn { padding: 0 10px; font-size: 13px; }
   }
   @media (max-height: 500px) and (orientation: landscape) {
     /* Xoay ngang: Poker và bàn bài đặt thanh hành động / bài trên tay sang bên phải */
     .game-fit > .pk { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; }
     .game-fit > .pk > * { max-width: none; }
-    .game-fit > .pk > .pk-table { flex: 1 1 0; min-width: 0; width: auto; padding: 28px 8px 34px; }
-    .game-fit > .pk > .pk-actions { flex: 0 0 300px; width: 300px; }
-    .game-fit > .pk > .pk-watch { flex-basis: 100%; }
-    .pk-felt { aspect-ratio: auto; height: calc(100cqh - 92px); }
-    .pk-actions .pk-turn { display: none; }
+    .game-fit > .pk > .pk-table { flex: 1 1 0; align-self: stretch; min-width: 0; min-height: 0; width: auto; padding: 24px 8px 46px; }
+    .game-fit > .pk > .pk-actions, .game-fit > .pk > .pk-dock { flex: 0 0 300px; width: 300px; }
+    .pk-felt { aspect-ratio: auto; width: 100cqw; height: 100cqh; }
+    .pk-actions .pk-turn { min-height: 0; font-size: 13px; }
+    .pk-best-inline { display: none; }
     .pk-actions .btn { padding: 0 8px; font-size: 12.5px; }
     .pk-sizing input[type=range] { flex-basis: 100%; min-width: 0; }
     .pk-sizing .num { flex: 1; width: auto; }
