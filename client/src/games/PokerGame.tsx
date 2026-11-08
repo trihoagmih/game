@@ -3,7 +3,7 @@ import { Pencil, BookOpen, Eye, Pause } from 'lucide-react';
 import { useRoomApp } from '../store.js';
 import type { AppContextValue, ClientRoom } from '../store.js';
 import type { PokerView } from '@game/shared/views';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import Card from '../components/Card.js';
 import { useCountdown, useHotkeys } from '../hooks.js';
 import PokerHandLog from './PokerHandLog.js';
@@ -34,7 +34,8 @@ export default function PokerGame({ room, state: s }: { room: ClientRoom; state:
   const [showRules, setShowRules] = useState(false);
   const toggleRules = () => setShowRules((v) => !v);
   const hole = myHole(s);
-  const myCat = useMemo(() => (hole ? describeHand(hole, h?.board || []).cat : -1), [hole?.join(), h?.board?.join()]);
+  const myBest = useMemo(() => (hole ? describeHand(hole, h?.board || []) : null), [hole?.join(), h?.board?.join()]);
+  const myCat = myBest ? myBest.cat : -1;
   useHotkeys({
     t: () => s.canRabbit && act({ type: 'rabbit' }),
     s: () => s.canShow && act({ type: 'show' }),
@@ -53,6 +54,12 @@ export default function PokerGame({ room, state: s }: { room: ClientRoom; state:
     for (const w of winners) h?.result?.shown?.[w]?.best?.forEach((x) => c.add(x));
     return c;
   }, [winners, h?.result]);
+
+  const rulesButton = (
+    <button className="btn sm ghost pk-rules-btn" aria-haspopup="dialog" onClick={toggleRules}>
+      <BookOpen size={14} aria-hidden /> <kbd>L</kbd> Luật chơi
+    </button>
+  );
 
   return (
     <div className={`pk ${mySeat >= 0 ? 'seated' : ''}`}>
@@ -138,30 +145,25 @@ export default function PokerGame({ room, state: s }: { room: ClientRoom; state:
         </div>
       </div>
 
-      {!s.started && (
-        <div className="board-actions pk-start">
-          <StartBar players={s.seats.filter((x) => x != null).filter((x) => !x.left)} ready={s.ready} waitingFor={s.waitingFor} seated={mySeat >= 0}
-            startLabel="Bắt đầu chia bài" />
+      {s.started && mySeat >= 0 ? (
+        <ActionBar s={s} o={o} act={act} myTurn={!!o} timeLeft={timeLeft} best={myBest?.name} extra={rulesButton} />
+      ) : (
+        <div className="pk-dock">
+          {!s.started && (
+            <StartBar players={s.seats.filter((x) => x != null).filter((x) => !x.left)} ready={s.ready} waitingFor={s.waitingFor} seated={mySeat >= 0}
+              startLabel="Bắt đầu chia bài" />
+          )}
+          {mySeat < 0 && <span className="muted small pk-watch">Bạn đang xem. Chọn "Ngồi đây" ở ghế trống để chơi.</span>}
+          {rulesButton}
         </div>
       )}
-      {mySeat >= 0 && (
-        <ActionBar s={s} o={o} act={act} myTurn={!!o} timeLeft={timeLeft} />
+      {showRules && (
+        <Modal title="Luật Texas Hold'em" onClose={() => setShowRules(false)} wide>
+          <PokerRules s={s} current={myCat} bare />
+        </Modal>
       )}
-      {mySeat < 0 && <div className="muted center small pk-watch">Bạn đang xem. Chọn "Ngồi đây" ở ghế trống để chơi.</div>}
-      <div className="pk-extras">
-        <BestHandPanel s={s} />
-        <div className="row pk-extras-bar">
-          <button className="btn sm ghost" aria-haspopup="dialog" onClick={toggleRules}>
-            <BookOpen size={14} aria-hidden /> <kbd>L</kbd> Xem luật chơi
-          </button>
-        </div>
-        {showRules && (
-          <Modal title="Luật Texas Hold'em" onClose={() => setShowRules(false)} wide>
-            <PokerRules s={s} current={myCat} bare />
-          </Modal>
-        )}
-      </div>
       <GameInfo>
+        <BestHandPanel s={s} />
         {mySeat >= 0 && (
           <div className="panel row wrap pk-mybar">
             <button className="btn sm" onClick={() => act({ type: 'sitout' })}>{mine?.sitOut ? 'Quay lại chơi' : 'Nghỉ ván sau'}</button>
@@ -181,7 +183,9 @@ export default function PokerGame({ room, state: s }: { room: ClientRoom; state:
   );
 }
 
-function ActionBar({ s, o, act, myTurn, timeLeft }: { s: PokerView; o: BetOptions; act: Act; myTurn: boolean; timeLeft: number }) {
+function ActionBar({ s, o, act, myTurn, timeLeft, best, extra }: {
+  s: PokerView; o: BetOptions; act: Act; myTurn: boolean; timeLeft: number; best?: string; extra: ReactNode;
+}) {
   const bb = s.bigBlind;
   const [amount, setAmount] = useState(o ? o.minTo : 0);
   // Chuỗi đang gõ trong ô số tiền (null = hiển thị amount). Tách riêng để xóa hết được số cũ, kể cả số 0.
@@ -236,6 +240,10 @@ function ActionBar({ s, o, act, myTurn, timeLeft }: { s: PokerView; o: BetOption
             <Eye size={14} aria-hidden /> <kbd>S</kbd> Show bài
           </button>
         )}
+        <span className="pk-turn-end">
+          {best && <span className="pk-best-inline small">Bài của bạn: <b>{best}</b></span>}
+          {extra}
+        </span>
       </div>
       <div className="row wrap">
         <button className="btn danger" disabled={!o} onClick={doFold}><kbd>F</kbd> Bỏ bài</button>
