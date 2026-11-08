@@ -1,9 +1,8 @@
 name: Deploy
 
 # Mỗi lần push lên main: test → build Docker image → đẩy lên GHCR → (tùy chọn) deploy.
-# Bật kênh deploy bằng cách thêm secret tương ứng trong Settings → Secrets and variables → Actions:
-#   - Render:  RENDER_DEPLOY_HOOK_URL
-#   - VPS:     VPS_HOST, VPS_USER, VPS_SSH_KEY (tùy chọn VPS_PORT, APP_PORT)
+# Máy chạy Docker Compose (mini PC, VPS) tự kéo image mới: `docker compose pull && docker compose up -d --no-build`.
+# Kênh deploy SSH một container (tùy chọn) bật bằng secret VPS_HOST, VPS_USER, VPS_SSH_KEY (tùy chọn VPS_PORT, APP_PORT).
 on:
   push:
     branches: [main]
@@ -62,13 +61,8 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     env:
-      RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
     steps:
-      - name: Deploy lên Render
-        if: env.RENDER_HOOK != ''
-        run: curl -fsS -X POST "$RENDER_HOOK"
-
       - name: Deploy lên VPS qua SSH
         if: env.VPS_HOST != ''
         uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17 # v1.2.0
@@ -96,6 +90,6 @@ jobs:
       - name: Tóm tắt
         run: |
           echo "### Image: \`${{ needs.docker.outputs.image }}:latest\`" >> "$GITHUB_STEP_SUMMARY"
-          if [ -z "$RENDER_HOOK" ] && [ -z "$VPS_HOST" ]; then
-            echo "Chưa cấu hình kênh deploy (RENDER_DEPLOY_HOOK_URL hoặc VPS_HOST). Image đã sẵn sàng trên GHCR." >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$VPS_HOST" ]; then
+            echo "Không có kênh deploy SSH (VPS_HOST). Image đã sẵn sàng trên GHCR cho máy chạy Docker Compose." >> "$GITHUB_STEP_SUMMARY"
           fi

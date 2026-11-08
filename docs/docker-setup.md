@@ -1,16 +1,22 @@
-# Chạy cụm game trên VPS bằng Docker Compose
+# Chạy cụm game bằng Docker Compose
+
+Production hiện chạy trên một mini PC tại nhà, người chơi vào qua Cloudflare Tunnel (xem [ten-mien.md](ten-mien.md)). Cách làm giống hệt trên VPS; chỉ khác phần đưa app ra Internet.
 
 ## Những việc bạn cần làm
 
-1. Chuẩn bị VPS Linux có Docker Engine và Docker Compose plugin. Khởi điểm để thử nghiệm: 2 vCPU, 2 GB RAM; đây không phải cam kết sức chứa. Hai game node và Redis trên một VPS vẫn có chung điểm lỗi là VPS đó.
-2. Trỏ domain về IP VPS, cài Caddy trên host để cấp HTTPS. Chỉ mở cổng 80/443 và SSH cần thiết; không mở 3001/6379 ra Internet.
+1. Chuẩn bị máy Linux có Docker Engine và Docker Compose plugin. Khởi điểm để thử nghiệm: 2 nhân, 4 GB RAM nếu build tại chỗ (ít hơn nếu dùng image GHCR); đây không phải cam kết sức chứa. Hai game node, Redis và PostgreSQL trên một máy vẫn có chung điểm lỗi là máy đó.
+2. Chọn cách đưa app ra Internet, không mở 3001/5432/6379 ra ngoài:
+   - Máy ở nhà hoặc sau CGNAT: Cloudflare Tunnel, trỏ hostname tới `http://localhost:3001`; không mở port trên router.
+   - VPS có IP công khai: trỏ domain về IP, cài Caddy trên host để cấp HTTPS, chỉ mở 80/443 và SSH.
 3. Clone repo, checkout branch/release đã review và kiểm thử. Copy `.env.example` thành `.env`.
-4. Tạo ba secret độc lập bằng `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Điền `APP_PASSWORD`, `REDIS_PASSWORD`, `SNAPSHOT_KEY`; giữ Redis password ở dạng hex để URL không cần escape. Đặt quyền `.env` là `chmod 600 .env`. Không commit file này.
-5. Chạy `docker compose config --quiet`, rồi `docker compose up -d --build`. Kiểm tra `docker compose ps` và `docker compose logs --tail=100 node-a node-b redis`.
-6. Mở `https://game.example.com`, tạo vài phòng và vào cùng phòng từ hai trình duyệt. Kiểm tra reconnect và restart node trên môi trường thử nghiệm trước khi đổi DNS production.
-7. Thiết lập backup Redis và cất `SNAPSHOT_KEY` riêng. Thiếu key cũ thì không đọc được các ván đã lưu.
+4. Tạo bốn secret độc lập bằng `openssl rand -hex 32`. Điền `APP_PASSWORD`, `REDIS_PASSWORD`, `POSTGRES_PASSWORD`, `SNAPSHOT_KEY`; giữ password Redis/PostgreSQL ở dạng hex để URL không cần escape. Đặt quyền `.env` là `chmod 600 .env`. Không commit file này.
+5. Nhiều workspace: thêm `APP_SERVERS='{"Tên A":"mật khẩu A","Tên B":"mật khẩu B"}'` (giữ nháy đơn). Khi có `APP_SERVERS`, `APP_PASSWORD` bị bỏ qua nhưng Compose vẫn yêu cầu có giá trị. Voice chat: thêm `VOICE_SERVERS` và khóa TURN Cloudflare (`CF_TURN_KEY_ID`, `CF_TURN_KEY_API_TOKEN`, tùy chọn `CF_ACCOUNT_ID`, `CF_ANALYTICS_TOKEN`); thiếu khóa thì chỉ dùng STUN.
+6. Chạy `docker compose config --quiet`, rồi `docker compose up -d --build`. Máy yếu: đặt `GAME_IMAGE=ghcr.io/<owner>/<repo>:latest` trong `.env` và chạy `docker compose pull && docker compose up -d --no-build` để dùng image CI đã build (package GHCR private thì `docker login ghcr.io` bằng token `read:packages`).
+7. Kiểm tra `docker compose ps`, `docker compose logs --tail=100 node-a node-b redis postgres`, và dòng `Auth gate` / `Voice chat` trong log node khớp cấu hình.
+8. Mở domain, tạo vài phòng và vào cùng phòng từ hai trình duyệt. Kiểm tra reconnect và restart node trên môi trường thử nghiệm trước khi chuyển người chơi.
+9. Thiết lập backup Redis và PostgreSQL, cất `SNAPSHOT_KEY` (hoặc cả `.env`) ở nơi riêng. Thiếu key cũ thì không đọc được các ván đã lưu.
 
-Ví dụ `/etc/caddy/Caddyfile`:
+Ví dụ `/etc/caddy/Caddyfile` khi dùng VPS:
 
 ```caddy
 game.example.com {
@@ -18,8 +24,8 @@ game.example.com {
 }
 ```
 
-Proxy Compose chỉ bind localhost. Nếu Caddy nằm trong container, nối vào cùng network và trỏ đến `proxy:80` thay vì localhost.
-Nginx nhận IP từ Caddy bằng cấu hình trusted proxy bên dưới; đừng đổi sang tin mọi địa chỉ gửi header.
+Proxy Compose chỉ bind localhost. Chạy `cloudflared` hoặc Caddy trên host; nếu đặt trong container, nối vào cùng network và trỏ đến `proxy:80` thay vì localhost.
+Nginx nhận IP từ proxy trên host qua gateway `172.30.0.1` bằng cấu hình trusted proxy; đừng đổi sang tin mọi địa chỉ gửi header.
 
 ## Dữ liệu và giới hạn phục hồi
 
@@ -49,8 +55,9 @@ Kiểm thử Redis riêng (chỉ trên máy test, không mở Redis production r
 TEST_REDIS_URL=redis://127.0.0.1:6379 npx tsx --test server/test/cluster.test.ts
 ```
 
-Để cập nhật lần lượt: build image trước, sau đó `docker compose up -d --no-deps node-b`, kiểm tra log/readiness và reconnect rồi làm tương tự với `node-a`.
-Vẫn có thời gian ngắt ở shard đang restart. Không dùng `docker compose down -v` vì nó xóa dữ liệu Redis.
+Cập nhật bằng image GHCR: `git pull && docker compose pull && docker compose up -d --no-build`.
+Để cập nhật lần lượt: build hoặc pull image trước, sau đó `docker compose up -d --no-deps node-b`, kiểm tra log/readiness và reconnect rồi làm tương tự với `node-a`.
+Vẫn có thời gian ngắt ở shard đang restart. Không dùng `docker compose down -v` vì nó xóa dữ liệu Redis và PostgreSQL.
 
 ## Backup và rollback
 
@@ -63,15 +70,32 @@ docker compose exec -T redis sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli --
 docker compose cp redis:/data/backup.rdb ./backups/game.rdb
 ```
 
+Backup kỷ lục PostgreSQL:
+
+```sh
+docker compose exec -T postgres pg_dump -U game game > backups/records-$(date +%F).sql
+```
+
 Copy bản backup ra máy khác, mã hóa nơi lưu và giữ các secret ở nơi riêng. Thử restore trên một volume test trước.
 RDB chứa cả dữ liệu snapshot đã mã hóa và metadata chưa mã hóa.
 
 Rollback code chỉ an toàn nếu version cũ đọc được schema snapshot hiện tại. Nếu không, cần phục hồi code + Redis backup + secret tương ứng; các thao tác sau backup sẽ mất.
 Khi phục hồi RDB vào volume mới, dừng các game node trước, dùng Redis với RDB đó và bật lại AOF theo hướng dẫn Redis. Không chép RDB đè lên một Redis đang chạy hoặc để AOF cũ ghi đè dữ liệu restore.
 
-## Nếu tiếp tục dùng Render
+## Chuyển kỷ lục từ PostgreSQL khác (Neon, Supabase…)
 
-`render.yaml` hiện tại không thay đổi: một instance, không Redis, không tự tạo dịch vụ trả phí.
-Để chạy cluster trên Render cần các service có route ổn định tương đương `/nodes/a`, `/nodes/b`, Redis-compatible Key Value lưu bền, cùng `APP_PASSWORD`, `SNAPSHOT_KEY`, `CLUSTER_NODES` và namespace trên mọi node.
-Không chỉ tăng `numInstances` cho service hiện tại: mỗi shard cần ID và route riêng. File Compose dành cho VPS/local, không phải cấu hình deploy trực tiếp trên Render.
-Giá host/Redis phụ thuộc gói nhà cung cấp; repo không tạo đăng ký hay đổi gói của bạn.
+Compose dùng PostgreSQL trong container; kỷ lục trên database cũ không tự chuyển sang. Chạy trên máy Compose, sau khi app đã khởi động một lần để tạo bảng:
+
+```sh
+mkdir -p backups && chmod 700 backups
+read -rs SOURCE_DATABASE_URL && export SOURCE_DATABASE_URL   # dán URL cũ, không hiện ra màn hình hay history
+docker run --rm -e SOURCE_DATABASE_URL postgres:17-alpine sh -c 'pg_dump "$SOURCE_DATABASE_URL" --data-only --inserts --on-conflict-do-nothing --table=workspace_game_records' > backups/records-source.sql
+docker compose exec -T postgres psql -U game -d game -v ON_ERROR_STOP=1 < backups/records-source.sql
+unset SOURCE_DATABASE_URL
+```
+
+- Neon: dùng connection string **direct** (host không có `-pooler`); pg_dump qua pooler có thể lỗi.
+- `pg_dump` báo lệch phiên bản server thì đổi image sang đúng major version của database cũ (ví dụ `postgres:18-alpine`).
+- Dòng trùng khóa đã có ở database mới được giữ nguyên (`--on-conflict-do-nothing`); chuyển trước khi người chơi đặt kỷ lục mới.
+- Kỷ lục được lọc theo `namespace`. Xem namespace đã chuyển bằng `docker compose exec postgres psql -U game -d game -c 'SELECT DISTINCT namespace FROM workspace_game_records'`, đặt `WORKSPACE_RECORDS_NAMESPACE` trong `.env` cho khớp rồi `docker compose up -d`.
+- Giữ database cũ ở chế độ chỉ đọc vài ngày làm bản dự phòng rồi mới xóa. File `backups/records-source.sql` chứa tên người chơi: giữ quyền hạn chế.

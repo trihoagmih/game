@@ -163,13 +163,15 @@ Mỗi lần push lên `main`, workflow [deploy.yml](.github/workflows/deploy.yml
 
 Chọn **một** trong các cách sau:
 
-### A. Render (miễn phí, dễ nhất)
-1. Render → **New → Blueprint** → chọn repo (dùng sẵn [render.yaml](render.yaml)).
-2. Trong service: **Settings → Deploy Hook** → copy URL.
-3. GitHub repo → **Settings → Secrets and variables → Actions** → thêm secret `RENDER_DEPLOY_HOOK_URL`.
+### A. Máy chủ riêng chạy Docker Compose (đang dùng)
+App production chạy trên một mini PC bằng [compose.yaml](compose.yaml): hai game node, Redis, PostgreSQL và Nginx; người chơi vào qua Cloudflare Tunnel, không mở port trên router.
+1. Làm theo [docs/docker-setup.md](docs/docker-setup.md) để tạo `.env` và chạy Compose.
+2. Máy yếu thì đặt `GAME_IMAGE=ghcr.io/<owner>/<repo>:latest` trong `.env` để dùng image CI đã build thay vì build tại chỗ.
+3. Cập nhật sau mỗi lần merge vào `main`: `git pull && docker compose pull && docker compose up -d --no-build`.
+4. Gắn tên miền và HTTPS: [docs/ten-mien.md](docs/ten-mien.md).
 
-### B. VPS của bạn (đã cài Docker)
-Thêm các secret: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (private key), tùy chọn `VPS_PORT` (mặc định 22), `APP_PORT` (mặc định 80).
+### B. VPS chạy một container qua SSH
+Cách cũ, không có Redis/PostgreSQL đi kèm. Thêm các secret: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (private key), tùy chọn `VPS_PORT` (mặc định 22), `APP_PORT` (mặc định 80).
 Workflow sẽ SSH vào máy, `docker pull` image mới rồi chạy lại container `game-lobby`.
 > Nếu package GHCR để private, máy VPS cần đăng nhập được GHCR; cách đơn giản nhất là đổi package sang public.
 
@@ -184,7 +186,7 @@ Workflow sẽ SSH vào máy, `docker pull` image mới rồi chạy lại contai
 > rồi đặt variable `TRUST_PROXY=1`. Trang web cũng chỉ kiểm chứng được xáo bài (cần Web Crypto) khi chạy qua HTTPS.
 
 ### C. Client trên GitHub Pages, server ở nơi khác
-1. Deploy server bằng cách A hoặc B, đặt biến môi trường `CORS_ORIGIN=https://<user>.github.io` cho server.
+1. Chạy server bằng cách A hoặc B, đặt biến môi trường `CORS_ORIGIN=https://<user>.github.io` cho server.
 2. **Settings → Pages → Source: GitHub Actions**.
 3. **Settings → Secrets and variables → Actions → Variables**: thêm `VITE_SERVER_URL=https://server-cua-ban`.
 4. Workflow [pages.yml](.github/workflows/pages.yml) sẽ tự build và đăng client.
@@ -225,10 +227,10 @@ Chống đoán mật khẩu:
 - Toàn server quá 60 lần sai trong 1 phút thì tạm ngừng nhận đăng nhập bằng mật khẩu trong phút đó (chặn đoán từ nhiều IP). Người đã có phiên vẫn vào bình thường.
 - Nên dùng mật khẩu dài, ngẫu nhiên (≥ 16 ký tự).
 
-Kiểm tra `TRUST_PROXY` trên Render/VPS: bật `DEBUG_IP=1`, mở app, xem log — IP in ra phải là IP của bạn; gửi thử một request kèm header `X-Forwarded-For: 1.2.3.4` thì IP in ra vẫn phải là IP thật, không phải `1.2.3.4`. Xong thì tắt `DEBUG_IP`.
+Kiểm tra `TRUST_PROXY` khi chạy sau proxy: bật `DEBUG_IP=1`, mở app, xem log — IP in ra phải là IP của bạn; gửi thử một request kèm header `X-Forwarded-For: 1.2.3.4` thì IP in ra vẫn phải là IP thật, không phải `1.2.3.4`. Xong thì tắt `DEBUG_IP`.
 - **Chạy local:** `APP_PASSWORD=bimat npm run dev`
 - **Docker:** `docker run -p 3001:3001 -e APP_PASSWORD=bimat game-lobby`
-- **Render:** nhập `APP_PASSWORD` trong tab Environment của service
+- **Docker Compose:** đặt `APP_PASSWORD` (hoặc `APP_SERVERS`) trong `.env`, rồi `docker compose up -d`
 - **VPS (GitHub Actions):** thêm secret `APP_PASSWORD` (và tùy chọn variable `TRUST_PROXY=1` nếu có Nginx phía trước)
 
 Đổi mật khẩu thì khởi động lại server; mọi phiên đăng nhập cũ hết hiệu lực, người đang dùng sẽ phải nhập mật khẩu mới khi kết nối lại.
@@ -295,7 +297,7 @@ Kỷ lục dùng chung giữa các phòng trong cùng workspace (ví dụ b4), t
 
 Compose đã có PostgreSQL 17 với volume postgres-data; thêm POSTGRES_PASSWORD riêng vào .env. Redeploy node ứng dụng hoặc restart database không xoá kỷ lục nếu volume còn. Không chạy docker compose down -v nếu muốn giữ dữ liệu. Cần backup database ra nơi khác và kiểm tra khôi phục; volume không thay thế backup. Với database được quản lý, bật backup/PITR theo gói dịch vụ.
 
-Render: đặt DATABASE_URL trong dashboard. VPS qua Actions: thêm secret DATABASE_URL và repository variable WORKSPACE_RECORDS_NAMESPACE (ví dụ b4). Không có URL thì server cảnh báo và dùng file local WORKSPACE_RECORDS_FILE (mặc định ./data/workspace-records.json), chỉ dành cho một process với disk có quyền ghi và bền vững; chế độ này không đồng bộ nhiều shard.
+Docker Compose: DATABASE_URL đã trỏ sẵn tới container postgres, không cần đặt. VPS qua Actions: thêm secret DATABASE_URL và repository variable WORKSPACE_RECORDS_NAMESPACE (ví dụ b4). Không có URL thì server cảnh báo và dùng file local WORKSPACE_RECORDS_FILE (mặc định ./data/workspace-records.json), chỉ dành cho một process với disk có quyền ghi và bền vững; chế độ này không đồng bộ nhiều shard.
 
 Xoá phòng, đổi thiết bị hoặc xoá dữ liệu trình duyệt không xoá kỷ lục database. Kỷ lục phòng và kỷ lục workspace là hai phạm vi riêng.
 
