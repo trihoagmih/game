@@ -13,6 +13,7 @@ import { TetrisHandler } from './games/tetris.js';
 import { RaceHandler } from './games/race.js';
 import { TalaHandler } from './games/tala.js';
 import { TelephoneHandler } from './games/telephone.js';
+import { TwisterHandler } from './games/twister.js';
 import { WordChainHandler } from './games/wordchain.js';
 import { WordGuessHandler } from './games/wordguess.js';
 import { XiangqiHandler } from './games/xiangqi.js';
@@ -56,6 +57,9 @@ export function resumeRoom(room: Room) {
     if (h.status === 'playing' && h.game) h.timer = arm(h.game.deadline, () => h._finish('timeout'));
   } else if (h instanceof TelephoneHandler) {
     if (h.status === 'playing') h.timer = arm(h.deadline + 1500, () => h._endStep());
+  } else if (h instanceof TwisterHandler) {
+    // Pha đọc/chấm/kết quả tiếp tục từ hạn chót đã lưu; không đổi câu, không xóa phiếu đã chấm
+    if (h.isPlaying() && h.current) h.timer = arm(h.deadline, () => h._onTimeout());
   } else if (h instanceof ScribbleHandler) {
     if (h.status === 'playing') {
       h.timer = arm(h.deadline, () => {

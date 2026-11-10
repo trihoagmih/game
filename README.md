@@ -1,4 +1,4 @@
-# 🎲 Sảnh Trò Chơi — Cờ vua · Tá lả · Sâm lốc · Poker · Cờ tướng · Cờ caro · Nối từ · Vẽ đoán · Tam sao thất bản · Nối thú · Rắn săn mồi · Tetris · Bay qua khe · Đào vàng · Đố vui · Đoán chữ
+# 🎲 Sảnh Trò Chơi — Cờ vua · Tá lả · Sâm lốc · Poker · Cờ tướng · Cờ caro · Nối từ · Vẽ đoán · Tam sao thất bản · Líu lưỡi · Nối thú · Rắn săn mồi · Tetris · Bay qua khe · Đào vàng · Đố vui · Đoán chữ
 
 Ứng dụng sảnh game nhiều người chơi thời gian thực.
 
@@ -85,6 +85,13 @@
 - Mê cung: Không tường (đi xuyên mép) · Hộp kín · Đường hầm · Bốn phòng · Đường ray. Tùy chọn giới hạn thời gian
 - Mọi người cùng hạt giống, ai nhiều điểm nhất thắng. Client tự chạy rắn và gửi lượt rẽ `[bước, hướng]`; server **phát lại** để tự tính điểm (`shared/src/snake.ts`), không tin điểm client gửi. Nhiều người thì không được dừng — ai im lặng quá 4 giây, server cho rắn bò tiếp
 - **Phím:** mũi tên / `W A S D` / `2 4 6 8` · `P`/`Space` tạm dừng (chơi một mình) · điện thoại: vuốt hoặc bàn phím ảo
+
+**Líu lưỡi** (2–12 người, chia 2 đội)
+
+- Ngồi vào bàn sẽ tự vào đội ít người hơn (**Đội Lúa Nếp** / **Đội Bưởi Chua**); trước ván có thể bấm đổi đội. Mỗi đội cần ít nhất 1 người.
+- Hai đội thay phiên, mỗi lượt một người **đọc to** câu líu lưỡi hiện trên màn hình (bật mic hoặc ngồi cạnh nhau), trong 10–45 giây; câu có nhãn ×2/×3 phải đọc liền chừng ấy lần. Đọc xong bấm **Đọc xong** (Enter), không đọc nổi thì **Bỏ qua**.
+- Mọi người còn lại (cả hai đội) chấm **Chuẩn** (1) hoặc **Vấp** (2), chấm được ngay khi đang nghe. Chuẩn ≥ Vấp là đọc chuẩn, đội được điểm theo độ khó (Khởi động 1 · Khó 2 · Siêu khó 3). Server giữ phiếu và tự chấm; phiếu người khác chỉ lộ số đếm khi có kết quả.
+- Bộ ~130 câu soạn sẵn (có 13 câu tiếng Anh, gắn nhãn "Tiếng Anh") ở `server/src/data/twisters-vi.json` (l/n, s/x, tr/ch, r/d/gi, ươu, n/ng…), chọn độ khó Tăng dần / Nhẹ nhàng / Hiểm hóc. Hết lượt, đội nhiều điểm hơn thắng; một đội rời hết thì đội kia thắng.
 
 **Tetris** (2 người, đua xóa hàng)
 

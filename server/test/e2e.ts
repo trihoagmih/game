@@ -667,6 +667,37 @@ if (OTHER_PASSWORD) {
   console.log('✔ Tetris OK');
 }
 
+// ---------- Líu lưỡi ----------
+{
+  const v = (x: Client) => viewOf(x, 'twister');
+  a.state = b.state = c.state = null;
+  const { roomId } = await a.req('room:create', { name: 'Líu lưỡi test', game: 'twister', options: { rounds: 1, readSeconds: 10, difficulty: 'hard' } });
+  await b.req('room:join', { roomId, mode: 'play' });
+  await c.req('room:join', { roomId, mode: 'watch' });
+  await until(() => v(c).seats.length === 2);
+  assert.deepEqual(v(c).seats.map((x) => x.team), [0, 1], 'tự chia đều hai đội');
+  await b.act({ type: 'ready' });
+  await a.act({ type: 'start' });
+  await until(() => v(c).status === 'playing' && v(c).current);
+  const first = v(c).current!;
+  assert.equal(first.readerId, a.user.id);
+  assert.ok(first.text && first.level >= 2);
+  assert.equal(first.canVote, false, 'người xem không chấm');
+  await assert.rejects(c.act({ type: 'twisterVote', verdict: 'clean', turn: v(c).turnNo }), /không chơi/);
+  await assert.rejects(b.act({ type: 'next' }), /lượt bạn/);
+  await a.act({ type: 'next' });
+  await until(() => v(b).current?.phase === 'judge');
+  await b.act({ type: 'twisterVote', verdict: 'clean', turn: v(b).turnNo });
+  await until(() => v(c).current?.phase === 'result');
+  assert.equal(v(c).scores[0], first.level);
+  await b.req('room:leave', {});
+  await until(() => v(c).status === 'over');
+  assert.equal(v(c).result?.winner, 0);
+  assert.equal(v(c).result?.reason, 'forfeit');
+  await a.req('room:delete', { roomId });
+  console.log('✔ Líu lưỡi OK');
+}
+
 // ---------- Rắn săn mồi ----------
 {
   const v = (x: Client) => viewOf(x, 'snake');

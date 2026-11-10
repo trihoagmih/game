@@ -38,7 +38,9 @@ export type GameAction =
   | { type: 'setSeconds'; seconds: number }
   | { type: 'answer'; choice: number }
   | { type: 'match'; a: [number, number]; b: [number, number] }
-  | { type: 'sam'; yes: boolean };
+  | { type: 'sam'; yes: boolean }
+  | { type: 'twisterTeam'; team: import('./twister.js').TeamIndex }
+  | { type: 'twisterVote'; verdict: import('./twister.js').Verdict; turn: number };
 export type GameQuery = { type: 'canvas' } | { type: 'drawing'; id: string } | { type: 'handLog' };
 export interface RoomSummary {
   id: string; name: string; game: string; gameName: string; ownerId: string; ownerName: string;

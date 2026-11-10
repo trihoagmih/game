@@ -7,6 +7,7 @@ import { QUIZ_CATEGORIES } from '@game/shared/quiz';
 import { LINE_TARGET } from '@game/shared/tetris';
 import { DIFFICULTY, TARGET } from '@game/shared/skyhop';
 import { LEVEL_COUNT } from '@game/shared/goldmine';
+import { DIFFICULTIES, MAX_SEATS, READ_SECONDS, ROUNDS } from '@game/shared/twister';
 
 type OptionValue = string | number | boolean;
 type GameOptions = Record<string, OptionValue>;
@@ -23,6 +24,7 @@ const DEFAULTS: Record<string, GameOptions> = {
   wordguess: { mode: 'race', minutes: 5, maxSeats: 6, daily: false, strict: true },
   samloc: { maxSeats: 4, unit: 10, turnSeconds: 25 },
   scribble: { maxSeats: 8, rounds: 3, drawSeconds: 80, hints: true, customWords: '', onlyCustom: false },
+  twister: { difficulty: 'mix', maxSeats: MAX_SEATS.default, rounds: ROUNDS.default, readSeconds: READ_SECONDS.default },
   telephone: { mode: 'classic', maxSeats: 8, writeSeconds: 40, drawSeconds: 90, suggest: true },
   snake: { maxSeats: 4, level: 5, maze: 'none', minutes: 0 },
   skyhop: { maxSeats: 4, level: 2, target: TARGET.default },
@@ -97,6 +99,12 @@ const FIELDS: Record<string, Field[]> = {
     ['writeSeconds', 'Thời gian viết / đoán mỗi bước (giây)', 15, 120],
     ['drawSeconds', 'Thời gian vẽ mỗi bước (giây)', 30, 240],
     ['suggest', 'Cho lấy gợi ý ở bước viết câu đầu tiên', 'bool'],
+  ],
+  twister: [
+    ['difficulty', 'Độ khó của câu', 'select', DIFFICULTIES],
+    ['rounds', 'Số câu mỗi người đọc', ROUNDS.min, ROUNDS.max],
+    ['readSeconds', 'Thời gian đọc mỗi câu (giây)', READ_SECONDS.min, READ_SECONDS.max],
+    ['maxSeats', 'Số người chơi tối đa (chia 2 đội)', MAX_SEATS.min, MAX_SEATS.max],
   ],
   onet: [
     ['mode', 'Chế độ', 'select', [['race', 'Đua dọn bàn (1 bàn, ai sạch trước thắng)'], ['classic', 'Cổ điển (9 màn, hình dồn theo hướng)']]],

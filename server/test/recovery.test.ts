@@ -12,6 +12,7 @@ import { PokerHandler } from '../src/games/poker.js';
 import { SamLocHandler } from '../src/games/samloc.js';
 import { SnakeHandler } from '../src/games/snake.js';
 import { TetrisHandler } from '../src/games/tetris.js';
+import { TwisterHandler } from '../src/games/twister.js';
 import { RaceHandler } from '../src/games/race.js';
 import { SkyhopGame } from '@game/shared/skyhop';
 import { TalaHandler } from '../src/games/tala.js';
@@ -87,6 +88,19 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
     assert.equal(copy.boards[0]?.pieces, copy.boards[1]?.pieces);
     assert.equal(copy.nextFallAt, original.nextFallAt);
   }
+  const twister = pair(TwisterHandler, room.handler, restored.handler);
+  if (twister) {
+    const [before, after] = twister;
+    before.action(users[1].id, { type: 'twisterVote', verdict: 'slip', turn: before.turnNo });
+    const again = unpack<typeof room>(pack(room)).handler;
+    assert.ok(again instanceof TwisterHandler);
+    assert.equal(after.current?.line, before.current?.line, 'câu đang đọc giữ nguyên');
+    assert.equal(after.deadline, before.deadline);
+    assert.ok(again.current?.votes instanceof Map);
+    assert.equal(again.current?.votes.get(users[1].id), 'slip', 'phiếu đã chấm được giữ');
+    assert.ok(again.used.has(before.current!.line));
+    again.dispose();
+  }
   const cards = pair(TalaHandler, room.handler, restored.handler) ?? pair(SamLocHandler, room.handler, restored.handler);
   if (cards) {
     assert.deepEqual(cards[1].game?.players, cards[0].game?.players);
@@ -106,6 +120,7 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
   if (guess) assert.equal(guess[1].game?.secret, guess[0].game?.secret);
   resumeRoom(restored);
   if (tetris) assert.ok(tetris[1].timer);
+  if (twister) assert.ok(twister[1].timer, 'hẹn giờ pha đọc được khôi phục');
   if (race) {
     assert.ok(race[1].watchTimer, 'nhịp server được khôi phục');
     if (game === 'skyhop') assert.equal(race[1].timer, null, 'sinh tồn không có hạn chót');
