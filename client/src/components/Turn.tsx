@@ -54,6 +54,16 @@ export function turnInfo(room: RoomState, userId: string): TurnInfo | null {
       if (s.task && !s.task.done) return { mine: true, text: s.kind === 'draw' ? 'Vẽ đi!' : s.step === 0 ? 'Viết một câu!' : 'Đoán tranh!' };
       return { mine: false, text: `Chờ mọi người (${s.players.filter((p) => p.done).length}/${s.players.filter((p) => !p.gone).length})` };
     }
+    case 'twister': {
+      const s = room.state;
+      const cur = s.current;
+      if (s.status !== 'playing' || !cur) return null;
+      const who = s.players.find((p) => p.id === cur.readerId)?.name;
+      if (cur.readerId === userId) return cur.phase === 'read' ? { mine: true, text: 'Đọc to câu líu lưỡi!' } : { mine: false, text: 'Chờ mọi người chấm' };
+      if (cur.phase === 'read') return { mine: false, text: `${who ?? '?'} đang đọc — nghe và chấm` };
+      if (cur.phase === 'judge' && cur.canVote && !cur.myVote) return { mine: true, text: 'Chấm ngay: Chuẩn hay Vấp?' };
+      return null;
+    }
     case 'snake': {
       const s = room.state;
       if (s.status !== 'playing') return null;

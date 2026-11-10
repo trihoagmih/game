@@ -83,3 +83,11 @@ Mọi từ đều phải có trong từ điển ở trên (từ nào thiếu th�
 `scribble-words.txt`: ~400 từ / cụm từ tiếng Việt dễ vẽ (con vật, đồ vật, món ăn, phương tiện, nghề nghiệp, hành động…),
 soạn tay cho trò chơi này. Mỗi dòng một từ, chữ thường. Thêm từ mới vào tệp này khi cần.
 Danh sách chỉ được đọc trên server; người đoán không bao giờ nhận được từ đang vẽ.
+
+## `twisters-vi.json` — câu líu lưỡi cho trò Líu lưỡi
+
+Soạn tay cho trò chơi này, gồm vài câu líu lưỡi/ca dao dân gian quen thuộc (vd: "Nồi đồng nấu ốc, nồi đất nấu ếch",
+"Lúa nếp là lúa nếp làng…", "Hôm qua qua nói qua qua…") và các câu tự viết theo cặp âm dễ nói ngọng:
+l/n, s/x, tr/ch, r/d/gi, vần ươu, âm cuối n/ng, c/t.
+Mỗi mục: `{ "l": độ khó 1–3, "t": câu, "x": số lần đọc liền (không bắt buộc, 1–5) }`. Server kiểm tra định dạng lúc khởi động
+(`parseBank` trong `shared/src/twister.ts`). Thấy câu sai chính tả thì sửa thẳng trong tệp.
