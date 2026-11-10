@@ -23,8 +23,10 @@ export const DIFFICULTIES: [TwisterDifficulty, string][] = [
   ['hard', 'Hiểm hóc — chỉ câu khó và siêu khó'],
 ];
 
-/** Một câu líu lưỡi; `x` là số lần phải đọc liền một hơi (mặc định 1). */
-export interface TwisterLine { t: string; l: TwisterLevel; x?: number }
+/** Ngôn ngữ của câu: mặc định tiếng Việt, có thêm vài câu tiếng Anh. */
+export type TwisterLang = 'vi' | 'en';
+/** Một câu líu lưỡi; `x` là số lần phải đọc liền một hơi (mặc định 1), `lang` mặc định 'vi'. */
+export interface TwisterLine { t: string; l: TwisterLevel; x?: number; lang?: 'en' }
 export type Verdict = 'clean' | 'slip';
 export type TwisterPhase = 'read' | 'judge' | 'result';
 /** Kết quả một lượt: `skip` là người đọc bỏ qua hoặc rời bàn. */
@@ -39,11 +41,15 @@ export function parseBank(raw: unknown): TwisterLine[] {
   if (!Array.isArray(raw) || !raw.length) throw new Error('Bộ câu líu lưỡi rỗng');
   return raw.map((item: unknown, i) => {
     if (typeof item !== 'object' || item === null) throw new Error(`Câu ${i + 1} không hợp lệ`);
-    const { t, l, x } = item as Record<string, unknown>;
+    const { t, l, x, lang } = item as Record<string, unknown>;
     if (typeof t !== 'string' || !t.trim()) throw new Error(`Câu ${i + 1} thiếu nội dung`);
     if (l !== 1 && l !== 2 && l !== 3) throw new Error(`Câu ${i + 1} có độ khó lạ`);
     if (x !== undefined && (!Number.isInteger(x) || Number(x) < 1 || Number(x) > 5)) throw new Error(`Câu ${i + 1} có số lần đọc lạ`);
-    return x === undefined ? { t: t.trim(), l } : { t: t.trim(), l, x: Number(x) };
+    if (lang !== undefined && lang !== 'en') throw new Error(`Câu ${i + 1} có ngôn ngữ lạ`);
+    const line: TwisterLine = { t: t.trim(), l };
+    if (x !== undefined) line.x = Number(x);
+    if (lang === 'en') line.lang = 'en';
+    return line;
   });
 }
 
@@ -105,6 +111,7 @@ export interface TwisterTurnView {
   text: string;
   level: TwisterLevel;
   repeat: number;
+  lang: TwisterLang;
   outcome: TurnOutcome;
   clean: number;
   slip: number;
@@ -117,6 +124,7 @@ export interface TwisterCurrentView {
   text: string;
   level: TwisterLevel;
   repeat: number;
+  lang: TwisterLang;
   /** Ai đã chấm (không lộ chấm gì cho tới khi có kết quả). */
   voted: string[];
   voters: number;

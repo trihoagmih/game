@@ -22,6 +22,7 @@ const cur = (g: TwisterHandler) => {
 test('bộ câu có sẵn đủ cả ba độ khó và không trùng', () => {
   for (const level of [1, 2, 3]) assert.ok(BANK.filter((x) => x.l === level).length >= 20, `độ khó ${level}`);
   assert.equal(new Set(BANK.map((x) => x.t)).size, BANK.length);
+  assert.ok(BANK.some((x) => x.lang === 'en'), 'có câu tiếng Anh');
 });
 
 test('tùy chọn phòng được chuẩn hóa, chia đội đều và đổi đội trước khi chơi', (t) => {
@@ -52,6 +53,7 @@ test('chỉ người đọc báo xong; người nghe chấm, đa số quyết đ
   const first = cur(g);
   assert.equal(first.readerId, 'a', 'đội mở màn ván đầu là Đội Lúa Nếp, người ngồi trước đọc trước');
   assert.equal(first.phase, 'read');
+  assert.equal(g.view('b').current?.lang, BANK[first.line].lang ?? 'vi');
   assert.throws(() => g.action('b', { type: 'next' }), /lượt bạn/);
   assert.throws(() => g.action('a', { type: 'twisterVote', verdict: 'clean', turn: g.turnNo }), /tự chấm/);
   assert.throws(() => g.action('z', { type: 'twisterVote', verdict: 'clean', turn: g.turnNo }), /không chơi/);

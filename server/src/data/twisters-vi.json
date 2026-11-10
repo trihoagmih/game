@@ -47,6 +47,8 @@
   { "l": 1, "t": "Lặt rau rồi luộc.", "x": 3 },
   { "l": 1, "t": "Một cái nút thắt, hai cái thắt nút.", "x": 2 },
   { "l": 1, "t": "Một dồn lập, hai lập dồn.", "x": 2 },
+  { "l": 1, "t": "I scream, you scream, we all scream for ice cream.", "x": 2, "lang": "en" },
+  { "l": 1, "t": "A big black bear sat on a big black rug.", "x": 2, "lang": "en" },
   { "l": 2, "t": "Lúa nếp là lúa nếp làng, lúa lên lớp lớp lòng nàng lâng lâng." },
   { "l": 2, "t": "Lan leo lên lầu Lan lấy lưỡi lam, Lan lấy lộn lưỡi liềm, Lan leo lên lầu lấy lại." },
   { "l": 2, "t": "Bà Ba béo bán bánh bèo bên bờ biển, bị bò báng bể bánh bèo bà Ba." },
@@ -87,6 +89,12 @@
   { "l": 2, "t": "Vịt lội ruộng rồi lặn, vịt rặn một hột vịt." },
   { "l": 2, "t": "Một thằng lùn nhảy vô lùm lượm cái chum lủng." },
   { "l": 2, "t": "Một dồn lỗ, hai lỗ dồn, ba dồn lỗ, bốn lỗ dồn." },
+  { "l": 2, "t": "She sells sea shells by the sea shore.", "lang": "en" },
+  { "l": 2, "t": "Peter Piper picked a peck of pickled peppers.", "lang": "en" },
+  { "l": 2, "t": "Six slippery snails slid slowly seaward.", "lang": "en" },
+  { "l": 2, "t": "Unique New York, unique New York, you know you need unique New York.", "lang": "en" },
+  { "l": 2, "t": "How can a clam cram in a clean cream can?", "lang": "en" },
+  { "l": 2, "t": "I wish to wash my Irish wristwatch.", "x": 3, "lang": "en" },
   { "l": 3, "t": "Hôm qua qua nói qua qua mà qua không qua. Hôm nay qua nói qua không qua mà qua lại qua." },
   { "l": 3, "t": "Lúa nếp là lúa nếp làng, lúa lên lớp lớp lòng nàng lâng lâng; lúa non nằm nép nương nương, nàng nâng niu lúa lòng nàng nôn nao." },
   { "l": 3, "t": "Buổi trưa ăn bưởi chua, bưởi chua buổi trưa, trưa ăn bưởi chua chưa? Chưa, chưa ăn bưởi chua buổi trưa." },
@@ -115,5 +123,10 @@
   { "l": 3, "t": "Chồng chị Chanh chặt chuối chín, chuối chín chồng chất, chị Chanh chẳng chịu chia, chồng chị chạy chậm chịu chê." },
   { "l": 3, "t": "Luộc hột vịt lộn, luộc lộn hột vịt lạc, ăn lộn hột vịt lạc, luộc lại hột vịt lộn lại lộn hột vịt lạc." },
   { "l": 3, "t": "Làng nành lợn nái năm nay lọt lòng, lúa non nắng lửa nản lòng, lão nông nức nở lấy nong nia về." },
-  { "l": 3, "t": "Một con chồn vào lùm chồn chụp, hai con chồn vào lùm chụp chồn, ba con chồn vào lùm chồn chụp, bốn con chồn vào lùm chụp chồn, năm con chồn vào lùm chồn chụp." }
+  { "l": 3, "t": "Một con chồn vào lùm chồn chụp, hai con chồn vào lùm chụp chồn, ba con chồn vào lùm chồn chụp, bốn con chồn vào lùm chụp chồn, năm con chồn vào lùm chồn chụp." },
+  { "l": 3, "t": "How much wood would a woodchuck chuck if a woodchuck could chuck wood?", "lang": "en" },
+  { "l": 3, "t": "Betty Botter bought some butter but the butter was bitter, so Betty bought some better butter to make the bitter butter better.", "lang": "en" },
+  { "l": 3, "t": "Fuzzy Wuzzy was a bear, Fuzzy Wuzzy had no hair. Fuzzy Wuzzy wasn't very fuzzy, was he?", "lang": "en" },
+  { "l": 3, "t": "I slit the sheet, the sheet I slit, and on the slitted sheet I sit.", "lang": "en" },
+  { "l": 3, "t": "Can you can a can as a canner can can a can?", "lang": "en" }
 ]

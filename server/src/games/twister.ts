@@ -283,7 +283,7 @@ export class TwisterHandler {
     }
     cur.outcome = {
       no: this.turn + 1, readerId: cur.readerId, readerName: reader?.name ?? '?', team: cur.team,
-      text: line.t, level: cur.level, repeat: line.x ?? 1, outcome, clean: counted.clean, slip: counted.slip, points,
+      text: line.t, level: cur.level, repeat: line.x ?? 1, lang: line.lang ?? 'vi', outcome, clean: counted.clean, slip: counted.slip, points,
     };
     this.log.push(cur.outcome);
     this._phase('result', RESULT_SECONDS * 1000);
@@ -315,6 +315,7 @@ export class TwisterHandler {
       text: line.t,
       level: cur.level,
       repeat: line.x ?? 1,
+      lang: line.lang ?? 'vi',
       voted: voters.filter((p) => cur.votes.has(p.id)).map((p) => p.id),
       voters: voters.length,
       // Phiếu của người khác chỉ lộ (dưới dạng số đếm) khi có kết quả

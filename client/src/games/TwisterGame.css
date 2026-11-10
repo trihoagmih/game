@@ -38,11 +38,12 @@
   .tw-turn, .tw-intro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
   .tw-turn-head { width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; font-size: 13px; }
   .tw-progress { color: var(--muted); font-variant-numeric: tabular-nums; }
-  .tw-level, .tw-repeat { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-weight: 600;
+  .tw-level, .tw-repeat, .tw-lang { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-weight: 600;
     background: var(--panel-2); border: 1px solid var(--line-strong); }
   .tw-level.l2 { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
   .tw-level.l3 { color: #f87171; border-color: rgba(248,113,113,.5); }
   .tw-repeat { color: #67e8f9; }
+  .tw-lang { color: #c4b5fd; }
   .tw-time { display: inline-flex; align-items: center; gap: 3px; font-family: ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
   .tw-time.low { color: var(--danger); font-weight: 700; }
   .tw-turn .timebar { width: 100%; max-width: 560px; }

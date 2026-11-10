@@ -143,6 +143,7 @@ function Turn({ s, cur, left, me, onVote, onDone, onSkip }: {
       <div className="tw-turn-head">
         <span className="tw-progress">Lượt {Math.min(s.turn + 1, s.totalTurns)}/{s.totalTurns}</span>
         <span className={`tw-level l${cur.level}`}>{LEVEL_NAMES[cur.level]} · {cur.level}đ</span>
+        {cur.lang === 'en' && <span className="tw-lang">Tiếng Anh</span>}
         {cur.repeat > 1 && <span className="tw-repeat"><Repeat size={13} aria-hidden /> đọc ×{cur.repeat}</span>}
         <span className={`tw-time ${left < 5000 && cur.phase !== 'result' ? 'low' : ''}`}><Timer size={14} aria-hidden /> {sec}s</span>
       </div>
@@ -151,7 +152,7 @@ function Turn({ s, cur, left, me, onVote, onDone, onSkip }: {
         <Mic size={15} aria-hidden />
         {mine ? <b>Đến lượt bạn đọc to!</b> : <span><b>{reader?.name ?? '?'}</b> ({TEAM_NAMES[cur.team]}) {cur.phase === 'read' ? 'đang đọc' : 'đã đọc'}</span>}
       </div>
-      <p className="tw-line" lang="vi">{cur.text}</p>
+      <p className="tw-line" lang={cur.lang}>{cur.text}</p>
       <div className="tw-actions">
         {cur.phase === 'result' && cur.outcome ? <Outcome o={cur.outcome} />
           : mine && cur.phase === 'read' ? (
@@ -205,7 +206,7 @@ function Log({ log }: { log: TwisterTurnView[] }) {
                   {o.outcome === 'clean' ? <><Check size={13} aria-hidden /> +{o.points}</> : o.outcome === 'slip' ? <><X size={13} aria-hidden /> Vấp</> : 'Bỏ qua'}
                 </span>
               </div>
-              <div className="tw-log-text">{o.text}</div>
+              <div className="tw-log-text" lang={o.lang}>{o.text}</div>
             </li>
           ))}
         </ol>

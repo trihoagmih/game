@@ -40,7 +40,8 @@ test('chọn câu đúng độ khó, không lặp cho tới khi dùng hết', ()
 
 test('bộ câu sai định dạng bị từ chối', () => {
   assert.deepEqual(parseBank([{ t: ' Nồi đồng nấu ốc ', l: 1, x: 2 }]), [{ t: 'Nồi đồng nấu ốc', l: 1, x: 2 }]);
-  for (const bad of [[], {}, [{ t: '', l: 1 }], [{ t: 'a', l: 4 }], [{ t: 'a', l: 1, x: 0 }], [null]]) {
+  assert.deepEqual(parseBank([{ t: 'She sells sea shells', l: 2, lang: 'en' }]), [{ t: 'She sells sea shells', l: 2, lang: 'en' }]);
+  for (const bad of [[], {}, [{ t: '', l: 1 }], [{ t: 'a', l: 4 }], [{ t: 'a', l: 1, x: 0 }], [{ t: 'a', l: 1, lang: 'fr' }], [null]]) {
     assert.throws(() => parseBank(bad));
   }
 });
