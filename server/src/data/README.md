@@ -86,7 +86,9 @@ Danh sách chỉ được đọc trên server; người đoán không bao giờ 
 
 ## `twisters-vi.json` — câu líu lưỡi cho trò Líu lưỡi
 
-Soạn tay cho trò chơi này, gồm vài câu líu lưỡi/ca dao dân gian quen thuộc (vd: "Nồi đồng nấu ốc, nồi đất nấu ếch",
+Soạn tay cho trò chơi này (103 câu), gồm các câu líu lưỡi dân gian quen thuộc — một phần tham khảo bài tổng hợp
+[Những câu nói líu lưỡi khó đọc](https://vanvn.net/nhung-cau-noi-liu-luoi/) của Văn VN, chỉ lấy câu tiếng Việt, bỏ các câu
+nói lái ra nghĩa tục (vd: "Nồi đồng nấu ốc, nồi đất nấu ếch",
 "Lúa nếp là lúa nếp làng…", "Hôm qua qua nói qua qua…") và các câu tự viết theo cặp âm dễ nói ngọng:
 l/n, s/x, tr/ch, r/d/gi, vần ươu, âm cuối n/ng, c/t.
 Mỗi mục: `{ "l": độ khó 1–3, "t": câu, "x": số lần đọc liền (không bắt buộc, 1–5) }`. Server kiểm tra định dạng lúc khởi động

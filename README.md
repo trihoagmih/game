@@ -91,7 +91,7 @@
 - Ngồi vào bàn sẽ tự vào đội ít người hơn (**Đội Lúa Nếp** / **Đội Bưởi Chua**); trước ván có thể bấm đổi đội. Mỗi đội cần ít nhất 1 người.
 - Hai đội thay phiên, mỗi lượt một người **đọc to** câu líu lưỡi hiện trên màn hình (bật mic hoặc ngồi cạnh nhau), trong 10–45 giây; câu có nhãn ×2/×3 phải đọc liền chừng ấy lần. Đọc xong bấm **Đọc xong** (Enter), không đọc nổi thì **Bỏ qua**.
 - Mọi người còn lại (cả hai đội) chấm **Chuẩn** (1) hoặc **Vấp** (2), chấm được ngay khi đang nghe. Chuẩn ≥ Vấp là đọc chuẩn, đội được điểm theo độ khó (Khởi động 1 · Khó 2 · Siêu khó 3). Server giữ phiếu và tự chấm; phiếu người khác chỉ lộ số đếm khi có kết quả.
-- Bộ ~84 câu soạn sẵn ở `server/src/data/twisters-vi.json` (l/n, s/x, tr/ch, r/d/gi, ươu, n/ng…), chọn độ khó Tăng dần / Nhẹ nhàng / Hiểm hóc. Hết lượt, đội nhiều điểm hơn thắng; một đội rời hết thì đội kia thắng.
+- Bộ ~100 câu soạn sẵn ở `server/src/data/twisters-vi.json` (l/n, s/x, tr/ch, r/d/gi, ươu, n/ng…), chọn độ khó Tăng dần / Nhẹ nhàng / Hiểm hóc. Hết lượt, đội nhiều điểm hơn thắng; một đội rời hết thì đội kia thắng.
 
 **Tetris** (2 người, đua xóa hàng)
 

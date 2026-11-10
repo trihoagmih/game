@@ -29,7 +29,16 @@
   { "l": 1, "t": "Lá lốt lót lò.", "x": 3 },
   { "l": 1, "t": "Sóng sánh sáu sân, sân sau sáng sủa.", "x": 2 },
   { "l": 1, "t": "Giỏ giẻ giữ giấy, giấy giữ giỏ giẻ.", "x": 2 },
-
+  { "l": 1, "t": "Buổi tối ăn bưởi thối.", "x": 3 },
+  { "l": 1, "t": "Chị nhặt rau rồi luộc, em nhặt rau luộc rồi.", "x": 2 },
+  { "l": 1, "t": "Nàng Lê lên núi lấy nước nấu lòng.", "x": 3 },
+  { "l": 1, "t": "Lên lớp lú lẫn lại hay nói lầm.", "x": 3 },
+  { "l": 1, "t": "Tay phải bắt con cọp, tay trái bóp con cọp.", "x": 2 },
+  { "l": 1, "t": "Con lươn nó luồn qua lườn.", "x": 3 },
+  { "l": 1, "t": "Lão nông nức nở lấy nong nia về.", "x": 3 },
+  { "l": 1, "t": "Anh Thanh ăn sắn, anh Hạnh ăn hành.", "x": 3 },
+  { "l": 1, "t": "Trèo lên núi hái lá non về làm nón.", "x": 3 },
+  { "l": 1, "t": "Ông Bụt chùa Bùi cầm bùa đập ruồi.", "x": 3 },
   { "l": 2, "t": "Lúa nếp là lúa nếp làng, lúa lên lớp lớp lòng nàng lâng lâng." },
   { "l": 2, "t": "Lan leo lên lầu Lan lấy lưỡi lam, Lan lấy lộn lưỡi liềm, Lan leo lên lầu lấy lại." },
   { "l": 2, "t": "Bà Ba béo bán bánh bèo bên bờ biển, bị bò báng bể bánh bèo bà Ba." },
@@ -58,7 +67,13 @@
   { "l": 2, "t": "Ngựa non ngúng nguẩy ngoài ngõ, ngó nghiêng ngơ ngác ngó ngàng ngoài ngõ." },
   { "l": 2, "t": "Chuột chù chui chuồng chó, chó chồm chụp chuột, chuột chạy chúi chúi chui chuồng chồn." },
   { "l": 2, "t": "Lão Lực lên non lấy lá lốt, lá lốt non lót lồng lão Lực." },
-
+  { "l": 2, "t": "Đầu làng Bông băm măng, bát mắm; cuối làng Bông bát mắm, băm măng." },
+  { "l": 2, "t": "Lùi đậu, lột đậu, luộc đậu, đậu luộc, đậu lột, đậu lùi." },
+  { "l": 2, "t": "Con cá rô rục rịch trong rổ réo róc rách, con cá rô trong rổ nhảy rồ rồ." },
+  { "l": 2, "t": "Nói năng nên luyện luôn luôn, lời nói lưu loát luyện luôn lúc này." },
+  { "l": 2, "t": "Tôi nói lộn cái lời, cho tôi nói lại cái lời tôi đã lộn." },
+  { "l": 2, "t": "Lúc nào lên núi lấy nứa về làm lán nên lưu ý nước lũ." },
+  { "l": 2, "t": "Lính lệ leo lên lầu lấy lưỡi lê, lấy lộn lại leo lên lấy lại." },
   { "l": 3, "t": "Hôm qua qua nói qua qua mà qua không qua. Hôm nay qua nói qua không qua mà qua lại qua." },
   { "l": 3, "t": "Lúa nếp là lúa nếp làng, lúa lên lớp lớp lòng nàng lâng lâng; lúa non nằm nép nương nương, nàng nâng niu lúa lòng nàng nôn nao." },
   { "l": 3, "t": "Buổi trưa ăn bưởi chua, bưởi chua buổi trưa, trưa ăn bưởi chua chưa? Chưa, chưa ăn bưởi chua buổi trưa." },
@@ -84,5 +99,7 @@
   { "l": 3, "t": "Tôi tên là Tơ, tôi tơ tưởng tới tô tôm tươi, tôm tươi tôi tách, tôi tách tôm tươi tặng Tư." },
   { "l": 3, "t": "Phú phải phơi phên, phên phơi phố phủ, Phú phơi phên phía phố phường phẳng phiu." },
   { "l": 3, "t": "Lan leo lên lầu, Lan lấy lưỡi lam, Lan lấy lộn lưỡi liềm, Lan leo lên lầu lần lữa lấy lại lưỡi lam." },
-  { "l": 3, "t": "Chồng chị Chanh chặt chuối chín, chuối chín chồng chất, chị Chanh chẳng chịu chia, chồng chị chạy chậm chịu chê." }
+  { "l": 3, "t": "Chồng chị Chanh chặt chuối chín, chuối chín chồng chất, chị Chanh chẳng chịu chia, chồng chị chạy chậm chịu chê." },
+  { "l": 3, "t": "Luộc hột vịt lộn, luộc lộn hột vịt lạc, ăn lộn hột vịt lạc, luộc lại hột vịt lộn lại lộn hột vịt lạc." },
+  { "l": 3, "t": "Làng nành lợn nái năm nay lọt lòng, lúa non nắng lửa nản lòng, lão nông nức nở lấy nong nia về." }
 ]
