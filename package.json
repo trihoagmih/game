@@ -30,7 +30,7 @@
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "concurrently": "^10.0.6",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.28.2",
     "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
