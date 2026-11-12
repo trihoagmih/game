@@ -15,6 +15,7 @@ import { TetrisHandler } from './tetris.js';
 import { SkyhopHandler } from './skyhop.js';
 import { ChickenHandler } from './chicken.js';
 import { GoldmineHandler } from './goldmine.js';
+import { TwisterHandler } from './twister.js';
 
 /**
  * Các trò chơi. Mỗi Handler điều khiển một bàn trong một phòng và cần có:
@@ -41,6 +42,7 @@ export const GAMES = {
   skyhop: { name: 'Bay qua khe', Handler: SkyhopHandler },
   chicken: { name: 'Bắn gà', Handler: ChickenHandler },
   goldmine: { name: 'Đào vàng', Handler: GoldmineHandler },
+  twister: { name: 'Líu lưỡi', Handler: TwisterHandler },
 };
 
 export type GameId = keyof typeof GAMES;

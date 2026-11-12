@@ -1,0 +1,113 @@
+/* CSS của games/TwisterGame.tsx. Toàn bộ nằm trong layer games; xem styles/index.css. */
+@layer games {
+  .tw {
+    --tw-t0: #4ade80; /* Đội Lúa Nếp */
+    --tw-t1: #fbbf24; /* Đội Bưởi Chua */
+    display: flex; gap: 16px; justify-content: center; align-items: flex-start;
+  }
+  .tw-main { flex: 1; min-width: 0; max-width: 760px; display: flex; flex-direction: column; gap: 10px; }
+  .tw .t0 { --tc: var(--tw-t0); }
+  .tw .t1 { --tc: var(--tw-t1); }
+
+  /* ---------- Hai đội ---------- */
+  .tw-teams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tw-team {
+    min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px;
+    background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--tc); border-radius: var(--radius);
+    transition: box-shadow .2s var(--ease-out), border-color .2s var(--ease-out);
+  }
+  .tw-team.turn { border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc); }
+  .tw-team-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+  .tw-team-name { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-weight: 700; color: var(--tc);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tw-team-name svg { flex: none; }
+  .tw-score { font-size: 26px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .tw-members { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; font-size: 13px; }
+  .tw-members li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; padding: 2px 8px;
+    border-radius: 99px; background: var(--panel-2); border: 1px solid transparent; }
+  .tw-members li.reading { border-color: var(--tc); color: var(--tc); font-weight: 600; }
+  .tw-members li.me .tw-member-name { text-decoration: underline; text-underline-offset: 3px; }
+  .tw-members li.gone { opacity: .45; text-decoration: line-through; }
+  .tw-member-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tw-member-stat { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .tw-join { align-self: flex-start; cursor: pointer; }
+
+  /* ---------- Sân khấu: câu líu lưỡi là phần lớn nhất ---------- */
+  .tw-stage { display: flex; flex-direction: column; padding: 16px; min-height: min(360px, calc(100cqh - 230px)); }
+  .tw-stage.my-turn { border-color: var(--gold); }
+  .tw-turn, .tw-intro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+  .tw-turn-head { width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; font-size: 13px; }
+  .tw-progress { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tw-level, .tw-repeat, .tw-lang { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-weight: 600;
+    background: var(--panel-2); border: 1px solid var(--line-strong); }
+  .tw-level.l2 { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
+  .tw-level.l3 { color: #f87171; border-color: rgba(248,113,113,.5); }
+  .tw-repeat { color: #67e8f9; }
+  .tw-lang { color: #c4b5fd; }
+  .tw-time { display: inline-flex; align-items: center; gap: 3px; font-family: ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .tw-time.low { color: var(--danger); font-weight: 700; }
+  .tw-turn .timebar { width: 100%; max-width: 560px; }
+  .tw-turn .timebar > div { background: var(--tc); }
+  .tw-reader { display: inline-flex; align-items: center; gap: 6px; color: var(--tc); min-width: 0; max-width: 100%; }
+  .tw-reader span, .tw-reader b { overflow: hidden; text-overflow: ellipsis; }
+  .tw-reader span { color: var(--text); }
+  .tw-line {
+    margin: 4px 0; max-width: 30ch; font-weight: 800; line-height: 1.3; text-wrap: balance; overflow-wrap: anywhere;
+    font-size: clamp(20px, min(5.4cqw, 5.6cqh), 42px);
+  }
+  .tw-line.sample { font-size: clamp(18px, min(4.2cqw, 4.4cqh), 30px); color: var(--muted); font-style: italic; font-weight: 600; }
+  .tw-intro-icon { color: var(--primary-hi); }
+  .tw-intro-title { font-size: 26px; font-weight: 700; }
+
+  .tw-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; min-height: 48px; width: 100%; }
+  .tw-big { min-height: 48px; min-width: 132px; font-size: 16px; justify-content: center; cursor: pointer; touch-action: manipulation; }
+  .tw-vote { border-width: 2px; transition: background-color .15s var(--ease-out), border-color .15s var(--ease-out); }
+  .tw-vote.clean { border-color: color-mix(in srgb, var(--ok) 60%, transparent); }
+  .tw-vote.slip { border-color: rgba(248,113,113,.6); }
+  .tw-vote.clean.on { background: var(--ok); border-color: var(--ok); color: #052e16; }
+  .tw-vote.slip.on { background: #f87171; border-color: #f87171; color: #450a0a; }
+  .tw-votes { font-variant-numeric: tabular-nums; }
+  .tw-outcome { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; font-size: 18px; font-weight: 700; }
+  .tw-outcome.clean { color: var(--ok); }
+  .tw-outcome.slip { color: #f87171; }
+  .tw-outcome.skip { color: var(--muted); }
+
+  /* ---------- Bảng phụ ---------- */
+  .tw-log ol { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .tw-log li { padding: 6px 8px; border-radius: 8px; background: var(--panel-2); border-left: 3px solid var(--tc); }
+  .tw-log-head { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; min-width: 0; }
+  .tw-log-who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .tw-log-res { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .tw-log li.clean .tw-log-res { color: var(--ok); }
+  .tw-log li.slip .tw-log-res { color: #f87171; }
+  .tw-log li.skip .tw-log-res { color: var(--muted); }
+  .tw-log-text { margin-top: 2px; font-size: 12px; color: var(--muted); }
+  .tw-win { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; }
+
+  @media (max-width: 640px) {
+    .tw-main { gap: 8px; }
+    .tw-teams { gap: 6px; }
+    .tw-team { padding: 8px; }
+    .tw-score { font-size: 22px; }
+    .tw-stage { padding: 12px 10px; }
+    .tw-big { min-width: 0; flex: 1 1 120px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .tw-main { gap: 6px; }
+    .tw-team { padding: 4px 8px; gap: 4px; }
+    .tw-score { font-size: 20px; }
+    .tw-members { flex-wrap: nowrap; overflow-x: auto; }
+    .tw-stage { padding: 8px 12px; min-height: 0; }
+    .tw-turn, .tw-intro { gap: 4px; }
+    .tw-line { font-size: clamp(16px, min(3.6cqw, 6cqh), 28px); margin: 0; max-width: 48ch; }
+    .tw-big { min-height: 44px; }
+    .tw-intro-icon { display: none; }
+    .tw-intro-title { font-size: 20px; }
+  }
+  @media (pointer: coarse) {
+    .tw-join { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tw-team, .tw-vote { transition: none; }
+  }
+}

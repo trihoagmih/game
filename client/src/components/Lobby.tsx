@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Layers, Club, Spade, Castle, Crown, Grid3x3, WholeWord, Palette, MessagesSquare, PawPrint, Worm, Plus, Eye, Trash2, Search, Users, LogIn, ChevronDown, ChevronLeft, ChevronRight, Lightbulb, SpellCheck, Blocks, Bird, Pickaxe } from 'lucide-react';
+import { Layers, Club, Spade, Castle, Crown, Grid3x3, WholeWord, Palette, MessagesSquare, PawPrint, Worm, Plus, Eye, Trash2, Search, Users, LogIn, ChevronDown, ChevronLeft, ChevronRight, Lightbulb, SpellCheck, Blocks, Bird, Pickaxe, Mic } from 'lucide-react';
 import { useApp } from '../store.js';
 import CreateRoomDialog from './CreateRoomDialog.js';
 import type { LucideIcon } from 'lucide-react';
 import type { OnlineUser, RoomSummary } from '@game/shared/contracts';
 import './Lobby.css';
 
+const DIFFICULTY_NAMES: Record<string, string> = { mix: 'Tăng dần', easy: 'Nhẹ nhàng', hard: 'Hiểm hóc' };
 const SNAKE_MAZE: Record<string, string> = { none: 'Không tường', box: 'Hộp kín', tunnel: 'Đường hầm', rooms: 'Bốn phòng', rails: 'Đường ray' };
 
 export const GAME_META: Record<string, { name: string; Icon: LucideIcon; desc: string }> = {
@@ -17,6 +18,7 @@ export const GAME_META: Record<string, { name: string; Icon: LucideIcon; desc: s
   caro: { name: 'Cờ caro', Icon: Grid3x3, desc: '2 người, 5 quân liên tiếp là thắng' },
   wordchain: { name: 'Nối từ', Icon: WholeWord, desc: '2–8 người, nối từ tiếng Việt theo lượt' },
   scribble: { name: 'Vẽ đoán', Icon: Palette, desc: '2–12 người, một người vẽ, cả bàn đoán chữ' },
+  twister: { name: 'Líu lưỡi', Icon: Mic, desc: '2–12 người chia 2 đội, lần lượt đọc to câu líu lưỡi, cả bàn chấm chuẩn hay vấp' },
   telephone: { name: 'Tam sao thất bản', Icon: MessagesSquare, desc: '3–12 người, viết → vẽ → đoán → vẽ… rồi xem câu chuyện thất bản' },
   onet: { name: 'Nối thú', Icon: PawPrint, desc: '1–8 người, nối cặp thú giống nhau, đua dọn sạch bàn' },
   tetris: { name: 'Tetris', Icon: Blocks, desc: 'Đấu 1v1, ai xóa đủ số hàng mục tiêu trước sẽ thắng' },
@@ -34,7 +36,7 @@ export const GAME_GROUPS: [string, string, string[]?][] = [
   ['cards', 'Bài lá', ['tala', 'samloc', 'poker']],
   ['board', 'Cờ', ['chess', 'xiangqi', 'caro']],
   ['words', 'Chữ & đố', ['wordchain', 'quiz', 'wordguess']],
-  ['party', 'Vẽ & nhóm', ['scribble', 'telephone']],
+  ['party', 'Vẽ & nhóm', ['scribble', 'telephone', 'twister']],
   ['arcade', 'Giải trí', ['onet', 'snake', 'tetris', 'skyhop', 'goldmine', 'chicken']],
 ];
 const GROUP_KEY = 'gl_lobby_group';
@@ -324,6 +326,7 @@ function describeOptions(r: RoomSummary) {
   if (r.game === 'poker') return `Blind ${o.smallBlind}/${o.bigBlind} · Buy-in ${o.buyIn}`;
   if (r.game === 'samloc') return `Cược ${o.unit}/đơn vị · ${o.turnSeconds} giây/lượt`;
   if (r.game === 'tala') return `Cược ${o.unit}/đơn vị`;
+  if (r.game === 'twister') return `${DIFFICULTY_NAMES[String(o.difficulty)] ?? ''} · ${o.rounds} câu/người · ${o.readSeconds} giây`;
   if (r.game === 'tetris') return `Đua xóa ${o.targetLines} hàng`;
   if (r.game === 'chicken') return `${['Dễ', 'Vừa', 'Khó'][Number(o.level) - 1] ?? 'Dễ'} · 3 mạng · 5 phút`;
   if (r.game === 'skyhop') return `${['Dễ', 'Vừa', 'Khó'][Number(o.level) - 1] ?? ''} · ${o.target ? `đích ${o.target} khe` : 'sinh tồn'}`;

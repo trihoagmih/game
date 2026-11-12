@@ -34,7 +34,7 @@ Local một process có thể nối trực tiếp client → Node; Vite dev prox
 | `client/src/components`, `games` | Shell/UI chung và màn hình/canvas từng game; phần prediction không thay server validation |
 | `voice*.ts` | WebRTC negotiation và lifecycle; server cấp ICE/relay signal, browser truyền media trực tiếp |
 
-Repo hiện có Cờ vua, Cờ tướng, Cờ caro, Poker, Tá lả, Sâm lốc, Nối từ, Đố vui, Đoán chữ, Vẽ đoán, Tam sao thất bản, Nối thú, Rắn săn mồi, Tetris, Bay qua khe, Đào vàng và Bắn gà.
+Repo hiện có Cờ vua, Cờ tướng, Cờ caro, Poker, Tá lả, Sâm lốc, Nối từ, Đố vui, Đoán chữ, Vẽ đoán, Tam sao thất bản, Nối thú, Rắn săn mồi, Tetris, Bay qua khe, Đào vàng, Bắn gà và Líu lưỡi (đọc to theo đội, người nghe bỏ phiếu chấm; server giữ phiếu và cộng điểm).
 
 ## State và protocol
 

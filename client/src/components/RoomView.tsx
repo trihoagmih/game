@@ -23,6 +23,7 @@ import OnetGame from '../games/OnetGame.js';
 import SnakeGame from '../games/SnakeGame.js';
 import TetrisGame from '../games/TetrisGame.js';
 import ChickenGame from '../games/ChickenGame.js';
+import TwisterGame from '../games/TwisterGame.js';
 import SkyhopGame from '../games/SkyhopGame.js';
 import GoldmineGame from '../games/GoldmineGame.js';
 import QuizGame from '../games/QuizGame.js';
@@ -49,6 +50,7 @@ function GameScreen({ room }: { room: ClientRoom }) {
     case 'telephone': return <TelephoneGame room={room} state={room.state} />;
     case 'onet': return <OnetGame room={room} state={room.state} />;
     case 'tetris': return <TetrisGame room={room} state={room.state} />;
+    case 'twister': return <TwisterGame room={room} state={room.state} />;
     case 'snake': return <SnakeGame room={room} state={room.state} />;
     case 'chicken': return <ChickenGame room={room} state={room.state} />;
     case 'skyhop': return <SkyhopGame room={room} state={room.state} />;
@@ -98,6 +100,7 @@ export const SHORTCUTS: Record<string, [string, string][]> = {
   ],
   quiz: [['1 / 2 / 3 / 4', 'Chọn đáp án ▲ ◆ ● ■'], ['Enter / →', 'Câu tiếp (khi đang xem đáp án)']],
   wordguess: [['Enter', 'Gửi từ đoán']],
+  twister: [['Enter', 'Đọc xong (khi tới lượt bạn)'], ['1', 'Chấm Chuẩn'], ['2', 'Chấm Vấp']],
   caro: [['Click', 'Đánh vào ô'], ['← ↑ → ↓', 'Di chuyển con trỏ trên bàn'], ['Enter / Space', 'Đánh vào ô có con trỏ'], ['Esc', 'Ẩn con trỏ']],
 };
 
