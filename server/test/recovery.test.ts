@@ -14,6 +14,7 @@ import { SnakeHandler } from '../src/games/snake.js';
 import { TetrisHandler } from '../src/games/tetris.js';
 import { TwisterHandler } from '../src/games/twister.js';
 import { RaceHandler } from '../src/games/race.js';
+import { ChickenGame } from '@game/shared/chicken';
 import { SkyhopGame } from '@game/shared/skyhop';
 import { TalaHandler } from '../src/games/tala.js';
 import { WordChainHandler } from '../src/games/wordchain.js';
@@ -114,6 +115,11 @@ for (const game of Object.keys(GAMES).filter(isGame)) test(`${game}: snapshot re
     assert.deepEqual(after.raceView(users[0].id, () => ({})).players, before.raceView(users[0].id, () => ({})).players);
     const [a, b] = [before.players[0].game, after.players[0].game];
     assert.equal(b.constructor, a.constructor);
+    if (a instanceof ChickenGame && b instanceof ChickenGame) {
+      for (let i = 0; i < 300; i++) { a.step(); b.step(); }
+      assert.deepEqual(b.view(), a.view(), 'trứng và gà tiếp tục giống hệt sau recovery');
+      assert.equal(b.rand(), a.rand());
+    }
     if (a instanceof SkyhopGame && b instanceof SkyhopGame) assert.equal(b.gapCenter(40), a.gapCenter(40), 'dãy khe tiếp tục giống hệt');
   }
   const guess = pair(WordGuessHandler, room.handler, restored.handler);

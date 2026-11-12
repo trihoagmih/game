@@ -819,6 +819,34 @@ if (OTHER_PASSWORD) {
   console.log('✔ Đào vàng OK');
 }
 
+// ---------- Bắn gà ----------
+{
+  const { ChickenGame } = await import('@game/shared/chicken');
+  const chicken = (x: Client) => viewOf(x, 'chicken');
+  a.state = b.state = c.state = null;
+  const { roomId } = await a.req('room:create', { name: 'Bắn gà test', game: 'chicken', options: { maxSeats: 2 } });
+  await b.req('room:join', { roomId, mode: 'play' });
+  await c.req('room:join', { roomId, mode: 'watch' });
+  await b.act({ type: 'ready' });
+  await a.act({ type: 'start' });
+  await until(() => chicken(c).status === 'playing');
+  const initial = chicken(c);
+  await assert.rejects(c.act({ type: 'raceSync', tick: 1, inputs: [] }), /xem/);
+  const local = new ChickenGame({ seed: initial.seed, level: 1 });
+  local.command('left');
+  while (local.tick < 60) local.step();
+  await wait(Math.max(0, initial.startIn + 60 * initial.tickMs));
+  await b.act({ type: 'raceSync', gameNo: initial.gameNo, offset: 0, tick: 60, inputs: [[0, 'left']] });
+  await until(() => chicken(c).players[1].tick === 60);
+  assert.deepEqual(chicken(c).players[1].field, local.view());
+  await b.act({ type: 'giveup' });
+  await a.act({ type: 'giveup' });
+  await until(() => chicken(c).status === 'over');
+  await b.req('room:leave', {});
+  await a.req('room:delete', { roomId });
+  console.log('✔ Bắn gà OK');
+}
+
 // ---------- Vẽ đoán ----------
 {
   const v = (x: Client) => viewOf(x, 'scribble');

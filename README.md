@@ -1,4 +1,4 @@
-# 🎲 Sảnh Trò Chơi — Cờ vua · Tá lả · Sâm lốc · Poker · Cờ tướng · Cờ caro · Nối từ · Vẽ đoán · Tam sao thất bản · Líu lưỡi · Nối thú · Rắn săn mồi · Tetris · Bay qua khe · Đào vàng · Đố vui · Đoán chữ
+# 🎲 Sảnh Trò Chơi — Cờ vua · Tá lả · Sâm lốc · Poker · Cờ tướng · Cờ caro · Nối từ · Vẽ đoán · Tam sao thất bản · Líu lưỡi · Nối thú · Rắn săn mồi · Tetris · Bay qua khe · Đào vàng · Bắn gà · Đố vui · Đoán chữ
 
 Ứng dụng sảnh game nhiều người chơi thời gian thực.
 
@@ -309,3 +309,7 @@ Docker Compose: DATABASE_URL đã trỏ sẵn tới container postgres, không c
 Xoá phòng, đổi thiết bị hoặc xoá dữ liệu trình duyệt không xoá kỷ lục database. Kỷ lục phòng và kỷ lục workspace là hai phạm vi riêng.
 
 Bay qua khe: từ cột thứ 11, khe dao động lên xuống theo chu kỳ 4,8 giây. Biên độ tăng mỗi 10 cột, tối đa 24px. Vị trí khe phụ thuộc chỉ số cột và tick của lượt bay; client, người xem và server tính cùng công thức.
+
+### Bắn gà
+
+Arcade 1–8 người: lái phi thuyền bằng ←/→ hoặc A/D (nút cảm ứng trên điện thoại), tự động bắn gà và né trứng. Mỗi gà được 10 × số đợt điểm, gà vàng cần hai phát. Có 3 mạng, miễn nhiễm 2 giây sau khi trúng trứng; gà xuống tới phi thuyền hoặc hết mạng thì dừng. Ván tối đa 5 phút. Mọi người cùng hạt giống; nhiều điểm hơn thắng, bằng điểm ưu tiên không bỏ cuộc rồi thời gian sống lâu hơn. Server phát lại thao tác để xác minh điểm; có khán giả và chơi lại.

@@ -34,7 +34,7 @@ Local một process có thể nối trực tiếp client → Node; Vite dev prox
 | `client/src/components`, `games` | Shell/UI chung và màn hình/canvas từng game; phần prediction không thay server validation |
 | `voice*.ts` | WebRTC negotiation và lifecycle; server cấp ICE/relay signal, browser truyền media trực tiếp |
 
-Repo hiện có Cờ vua, Cờ tướng, Cờ caro, Poker, Tá lả, Sâm lốc, Nối từ, Đố vui, Đoán chữ, Vẽ đoán, Tam sao thất bản, Nối thú, Rắn săn mồi, Tetris, Bay qua khe, Đào vàng và Líu lưỡi (đọc to theo đội, người nghe bỏ phiếu chấm; server giữ phiếu và cộng điểm).
+Repo hiện có Cờ vua, Cờ tướng, Cờ caro, Poker, Tá lả, Sâm lốc, Nối từ, Đố vui, Đoán chữ, Vẽ đoán, Tam sao thất bản, Nối thú, Rắn săn mồi, Tetris, Bay qua khe, Đào vàng, Bắn gà và Líu lưỡi (đọc to theo đội, người nghe bỏ phiếu chấm; server giữ phiếu và cộng điểm).
 
 ## State và protocol
 
@@ -118,3 +118,5 @@ cho từng người nhận; cách này chỉ áp dụng cho hai game đua có vi
 Client chia chạy bù và replay thành các phần tối đa 250 bước / ngân sách 4 ms mỗi frame.
 Đào vàng giữ snapshot ngay trước bước cuối để nội suy khi một frame chạy nhiều tick;
 người xem dùng bộ đệm snapshot trễ 250 ms và vẽ bằng `requestAnimationFrame`.
+
+Bắn gà dùng `RaceHandler` và `useRaceLoop`: engine số nguyên 50 tick/giây, client gửi thay đổi hướng qua `raceSync` có offset/gameNo. Server tính điểm và va chạm; snapshot giữ RNG, đội hình, đạn/trứng và hồi phục timer từ startAt. View gửi bản sao sân chơi để khán giả xem.

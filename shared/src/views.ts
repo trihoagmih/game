@@ -15,6 +15,7 @@ import type { SnakeView } from './snake.js';
 import type { TetrisView } from './tetris.js';
 import type { TwisterView } from './twister.js';
 import type { SkyhopView } from './skyhop.js';
+import type { ChickenView } from './chicken.js';
 import type { GoldmineView } from './goldmine.js';
 
 // ---------- Phần dùng chung ----------
@@ -362,6 +363,7 @@ export interface GameViews {
   twister: TwisterView;
   skyhop: SkyhopView;
   goldmine: GoldmineView;
+  chicken: ChickenView;
 }
 export type GameKind = keyof GameViews;
 
