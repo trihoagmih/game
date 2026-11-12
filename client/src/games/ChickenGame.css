@@ -1,0 +1,39 @@
+@layer games {
+  .ck { display: flex; gap: 16px; height: 100%; width: 100%; min-height: 0; min-width: 0; align-items: center; justify-content: center; }
+  .ck-stage { height: 100%; min-height: 0; min-width: 0; display: flex; align-items: center; justify-content: center; }
+  .ck-play { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .ck-screen { position: relative; width: min(70cqw, calc((100cqh - 62px) * .75)); min-width: 0; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 12px; border: 1px solid var(--color-border); background: var(--color-background); }
+  .ck-screen canvas { display: block; width: 100%; height: 100%; }
+  .ck-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: var(--color-foreground); background: color-mix(in srgb, var(--color-background) 80%, transparent); }
+  .ck-overlay b { font-size: clamp(22px, 5cqw, 48px); color: var(--gold); }
+  .ck-side { width: 250px; min-width: 0; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .ck-heading { display: flex; align-items: center; gap: 8px; color: var(--gold); }
+  .ck-heading h3 { margin: 0; }
+  .ck-roster { display: grid; gap: 8px; }
+  .ck-row { display: flex; align-items: center; gap: 8px; justify-content: space-between; min-width: 0; width: 100%; padding: 10px; color: var(--color-foreground); border: 1px solid var(--color-border); background: var(--color-card); border-radius: 8px; }
+  button.ck-row { cursor: pointer; transition: border-color 150ms; }
+  .ck-row.selected { border-color: var(--gold); }
+  .ck-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .ck-row small { display: block; color: var(--color-muted-foreground); }
+  .ck-controls { display: flex; gap: 16px; width: 100%; justify-content: center; touch-action: none; }
+  .ck-controls button { width: 88px; min-height: 44px; touch-action: none; user-select: none; }
+  .ck-help p { margin: 6px 0; }
+  @media (max-width: 640px) {
+    .ck { flex-direction: column; gap: 6px; }
+    .ck-stage { flex: 1; height: auto; }
+    .ck-screen { width: min(100cqw, calc((100cqh - 150px) * .75)); }
+    .ck-side { width: 100%; flex-shrink: 0; max-height: 90px; gap: 4px; }
+    .ck-heading, .ck-side > .small, .ck-help { display: none; }
+    .ck-roster { display: flex; overflow-x: auto; }
+    .ck-row { min-width: 140px; padding: 5px 8px; }
+  }
+  @media (min-width: 641px) and (max-width: 1100px) { .ck-side { width: 210px; } }
+  @media (min-width: 1100px) { .ck-side { width: 280px; } }
+  @media (max-height: 500px) and (orientation: landscape) {
+    .ck { flex-direction: row; }
+    .ck-side { width: 190px; max-height: 100%; }
+    .ck-help, .ck-heading { display: none; }
+    .ck-screen { width: min(55cqw, calc((100cqh - 58px) * .75)); }
+  }
+  @media (prefers-reduced-motion: reduce) { button.ck-row { transition: none; } }
+}

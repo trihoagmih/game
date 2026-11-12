@@ -61,6 +61,12 @@ export function turnInfo(room: RoomState, userId: string): TurnInfo | null {
       if (p && !p.done) return { mine: true, text: `Rắn dài ${p.length} · ${p.score} điểm` };
       return { mine: false, text: `Đang bò (${s.players.filter((x) => !x.done).length}/${s.players.length} còn sống)` };
     }
+    case 'chicken': {
+      const s = room.state;
+      if (s.status !== 'playing') return null;
+      const p = s.players.find((x) => x.id === userId);
+      return p && !p.done ? { mine: true, text: `Đợt ${p.field.wave} · ${p.score} điểm · ${p.field.lives} mạng` } : { mine: false, text: 'Đang xem bắn gà' };
+    }
     case 'skyhop': {
       const s = room.state;
       if (s.status !== 'playing') return null;

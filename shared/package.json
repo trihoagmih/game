@@ -92,6 +92,10 @@
     "./views": {
       "types": "./dist/views.d.ts",
       "import": "./dist/views.js"
+    },
+    "./chicken": {
+      "types": "./dist/chicken.d.ts",
+      "import": "./dist/chicken.js"
     }
   },
   "scripts": {

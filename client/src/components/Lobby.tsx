@@ -20,6 +20,7 @@ export const GAME_META: Record<string, { name: string; Icon: LucideIcon; desc: s
   telephone: { name: 'Tam sao thất bản', Icon: MessagesSquare, desc: '3–12 người, viết → vẽ → đoán → vẽ… rồi xem câu chuyện thất bản' },
   onet: { name: 'Nối thú', Icon: PawPrint, desc: '1–8 người, nối cặp thú giống nhau, đua dọn sạch bàn' },
   tetris: { name: 'Tetris', Icon: Blocks, desc: 'Đấu 1v1, ai xóa đủ số hàng mục tiêu trước sẽ thắng' },
+  chicken: { name: 'Bắn gà', Icon: Bird, desc: '1–8 người, phi thuyền bắn gà, né trứng, 3 mạng và đua điểm arcade' },
   skyhop: { name: 'Bay qua khe', Icon: Bird, desc: '1–8 người, chạm để nảy qua khe cột, sinh tồn, khe hẹp dần để thử phá kỷ lục' },
   goldmine: { name: 'Đào vàng', Icon: Pickaxe, desc: '1–8 người cùng bản đồ, phóng móc gắp vàng, đạt mục tiêu từng màn' },
   snake: { name: 'Rắn săn mồi', Icon: Worm, desc: 'Rắn cổ điển màn hình LCD, 1–8 người đua điểm, 9 cấp tốc độ, mê cung' },
@@ -34,7 +35,7 @@ export const GAME_GROUPS: [string, string, string[]?][] = [
   ['board', 'Cờ', ['chess', 'xiangqi', 'caro']],
   ['words', 'Chữ & đố', ['wordchain', 'quiz', 'wordguess']],
   ['party', 'Vẽ & nhóm', ['scribble', 'telephone']],
-  ['arcade', 'Giải trí', ['onet', 'snake', 'tetris', 'skyhop', 'goldmine']],
+  ['arcade', 'Giải trí', ['onet', 'snake', 'tetris', 'skyhop', 'goldmine', 'chicken']],
 ];
 const GROUP_KEY = 'gl_lobby_group';
 const fold = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
@@ -324,6 +325,7 @@ function describeOptions(r: RoomSummary) {
   if (r.game === 'samloc') return `Cược ${o.unit}/đơn vị · ${o.turnSeconds} giây/lượt`;
   if (r.game === 'tala') return `Cược ${o.unit}/đơn vị`;
   if (r.game === 'tetris') return `Đua xóa ${o.targetLines} hàng`;
+  if (r.game === 'chicken') return `${['Dễ', 'Vừa', 'Khó'][Number(o.level) - 1] ?? 'Dễ'} · 3 mạng · 5 phút`;
   if (r.game === 'skyhop') return `${['Dễ', 'Vừa', 'Khó'][Number(o.level) - 1] ?? ''} · ${o.target ? `đích ${o.target} khe` : 'sinh tồn'}`;
   if (r.game === 'goldmine') return `${o.levels} màn · 60 giây/màn`;
   if (r.game === 'snake') return `Cấp ${o.level} · ${SNAKE_MAZE[String(o.maze)] || ''}${o.minutes ? ` · ${o.minutes} phút` : ''}`;

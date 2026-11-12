@@ -14,6 +14,7 @@ import type { WordChainResult } from './wordchain.js';
 import type { SnakeView } from './snake.js';
 import type { TetrisView } from './tetris.js';
 import type { SkyhopView } from './skyhop.js';
+import type { ChickenView } from './chicken.js';
 import type { GoldmineView } from './goldmine.js';
 
 // ---------- Phần dùng chung ----------
@@ -360,6 +361,7 @@ export interface GameViews {
   tetris: TetrisView;
   skyhop: SkyhopView;
   goldmine: GoldmineView;
+  chicken: ChickenView;
 }
 export type GameKind = keyof GameViews;
 

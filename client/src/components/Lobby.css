@@ -136,6 +136,7 @@
   .game-card.g-onet { --gc: linear-gradient(135deg, rgba(249,115,22,.3), rgba(21,28,50,0) 70%); }
   .game-card.g-snake { --gc: linear-gradient(135deg, rgba(132,204,22,.3), rgba(21,28,50,0) 70%); }
   .game-card.g-skyhop { --gc: linear-gradient(135deg, rgba(56,189,248,.26), transparent 70%); }
+  .game-card.g-chicken { --gc: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 35%, transparent), transparent 70%); }
   .game-card.g-goldmine { --gc: linear-gradient(135deg, rgba(217,119,6,.3), transparent 70%); }
   .game-card.g-tetris { --gc: linear-gradient(135deg, rgba(34,211,238,.26), transparent 70%); }
 }
